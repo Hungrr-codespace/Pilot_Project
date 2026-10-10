@@ -1,0 +1,26 @@
+.viewport {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.canvas {
+  display: flex;
+  flex-direction: column;
+  width: 1440px;
+  margin: 0 auto;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  /* yellow food doodles on off-white */
+  background-color: var(--color-page);
+  background-image: url('/assets/doodle-yellow-15.svg');
+  background-size: 640px 640px;
+}
+
+@media (max-width: 1023.98px) {
+  .canvas {
+    position: relative;
+    width: 390px;
+    overflow: hidden;
+    background-size: 420px 420px;
+  }
+}

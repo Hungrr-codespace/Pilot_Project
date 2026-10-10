@@ -1,0 +1,189 @@
+/* On top of the payment sheet; "Confirm order" flips it up and over */
+.sheet {
+  z-index: 2;
+  transform-origin: 50% 0;
+  transform: rotateX(0deg);
+  opacity: 1;
+  transition:
+    transform 0.95s cubic-bezier(0.45, 0, 0.25, 1),
+    opacity 0.12s linear 0.42s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.flipped {
+  transform: rotateX(180deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pencil {
+  position: absolute;
+  right: 26px;
+  top: 44px;
+  transform: rotate(28deg);
+}
+
+.lines {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  max-height: 256px;
+  overflow-y: auto;
+}
+
+@keyframes write {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.write {
+  opacity: 0;
+  animation: write 0.35s ease forwards;
+}
+
+.restaurant {
+  display: block;
+  height: 32px;
+  line-height: 38px;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  font-family: var(--font-hand);
+  font-size: 19px;
+  color: var(--color-ink);
+}
+
+.dishName {
+  flex: 1;
+  min-width: 0;
+  line-height: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemControls {
+  display: contents;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+}
+
+.quantity {
+  min-width: 24px;
+  text-align: center;
+  line-height: 38px;
+  font-weight: 700;
+}
+
+.price {
+  width: 62px;
+  flex-shrink: 0;
+  line-height: 38px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.empty {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: 19px;
+  line-height: 32px;
+  color: var(--color-ink-soft);
+}
+
+@media (max-width: 1023.98px) {
+  .pencil {
+    right: 18px;
+    top: 32px;
+  }
+
+  .lines {
+    margin-top: 10px;
+    max-height: 252px;
+  }
+
+  .restaurant {
+    height: 28px;
+    line-height: 33px;
+    font-size: 17px;
+    text-underline-offset: 3px;
+  }
+
+  /* Dish name on one line, − qty + and the price on the next */
+  .item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    height: auto;
+    font-size: 16px;
+  }
+
+  .dishName {
+    flex: none;
+    display: block;
+    height: 28px;
+    line-height: 33px;
+  }
+
+  .itemControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+  }
+
+  .stepper {
+    flex-shrink: 1;
+  }
+
+  .quantity {
+    line-height: 33px;
+  }
+
+  .price {
+    width: auto;
+    flex-shrink: 1;
+    line-height: 33px;
+    text-align: left;
+  }
+
+  .empty {
+    font-size: 16px;
+    line-height: 28px;
+  }
+}

@@ -1,0 +1,319 @@
+.footer {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 1231px;
+  padding: 88px 80px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border-radius: 96px 96px 0 0;
+  overflow: hidden;
+}
+
+.columns {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 80px;
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 600px;
+  padding: 0 0 20px;
+}
+
+.contactMain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+/* "Hungry already?" card */
+.orderCard {
+  position: relative;
+  width: 600px;
+  padding: 44px 48px 48px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  color: var(--color-black);
+  border-radius: 40px;
+  overflow: hidden;
+}
+
+.route {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--color-black);
+  stroke-width: 3;
+  stroke-dasharray: 12 12;
+  stroke-linecap: round;
+  opacity: 0.3;
+}
+
+.orderCardContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.eyebrow {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-black);
+}
+
+.orderTitle {
+  margin: 0;
+  font-size: 64px;
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -1.5px;
+  color: var(--color-black);
+}
+
+.phoneLink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 72px;
+  margin-top: 8px;
+  padding: 0 32px 0 12px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  color: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.phoneIcon,
+.socialIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.phoneIcon {
+  width: 50px;
+  height: 50px;
+}
+
+.note {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--color-text-on-dark);
+}
+
+.emailLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  margin-top: -8px;
+  padding: 0 24px 0 16px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-yellow);
+  color: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.socialTitle {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.socialLinks {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  padding: 0 26px 0 10px;
+  box-sizing: border-box;
+  background: var(--color-dark);
+  border: 1.5px solid var(--color-dark-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-white);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.socialIcon {
+  width: 42px;
+  height: 42px;
+}
+
+.copyright {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-dark-border);
+  font-size: 18px;
+  color: var(--color-text-on-dark);
+}
+
+/* Big faded logo peeking out at the bottom */
+.watermark {
+  position: absolute;
+  left: 80px;
+  bottom: -175px;
+  width: 1280px;
+  height: 385px;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+@media (max-width: 1023.98px) {
+  .footer {
+    width: 390px;
+    height: auto;
+    padding: 26px 20px 0;
+    gap: 22px;
+    border-radius: 34px 34px 0 0;
+  }
+
+  /* On mobile everything stacks in one column, straight in the footer */
+  .columns,
+  .contact,
+  .contactMain {
+    display: contents;
+  }
+
+  .orderCard {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: auto;
+    padding: 22px 20px;
+    border-radius: 24px;
+    overflow: visible;
+  }
+
+  .orderCardContent {
+    display: contents;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .orderTitle {
+    font-size: 30px;
+    line-height: 1.08;
+    letter-spacing: -0.3px;
+  }
+
+  .phoneLink {
+    align-self: flex-start;
+    gap: 10px;
+    height: 50px;
+    margin-top: 0;
+    padding: 0 20px 0 6px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+
+  .phoneIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .note {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .emailLink {
+    align-self: flex-start;
+    gap: 10px;
+    height: 46px;
+    margin-top: 0;
+    padding: 0 18px 0 14px;
+    font-size: 16px;
+  }
+
+  .social {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .socialTitle {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .socialLinks {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .socialLink {
+    gap: 8px;
+    height: 44px;
+    padding: 0 16px 0 5px;
+    background: #1e1e1e;
+    border-width: 1px;
+    font-size: 15px;
+  }
+
+  .socialIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .copyright {
+    display: block;
+    margin-top: 6px;
+    padding-top: 16px;
+    border-top-color: var(--color-dark-raised);
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-faint);
+  }
+
+  .watermark {
+    position: static;
+    width: 350px;
+    height: 105px;
+    /* the bottom of the logo runs off the end of the page */
+    margin: 0 0 -38px;
+  }
+}

@@ -1,0 +1,146 @@
+.board {
+  display: flex;
+  align-items: stretch;
+  gap: 48px;
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.questionOn {
+  background: var(--color-dark-raised);
+}
+
+.questionText {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 500;
+  color: var(--color-white);
+}
+
+.questionOn .questionText {
+  color: var(--color-yellow);
+}
+
+.leader {
+  flex-grow: 1;
+  min-width: 24px;
+  height: 0;
+  border-bottom: 2px dotted #5a5a5a;
+}
+
+/* The answer, served on a card with a torn bottom edge */
+.plate {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.18));
+}
+
+.plateHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  padding: 0 32px;
+  background: var(--color-yellow);
+  border-radius: 28px 28px 0 0;
+}
+
+.serving {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.questionNumber {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 16px;
+  background: var(--color-black);
+  color: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.plateBody {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 34px 34px 30px;
+  background: var(--color-white);
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cloche {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
+}
+
+.answerTitle {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.answerText {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+}
+
+.more {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.divider {
+  height: 0;
+  border-top: 2px dashed #dadada;
+}
+
+.moreRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.moreText {
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+.zigzag {
+  display: block;
+  width: 100%;
+}

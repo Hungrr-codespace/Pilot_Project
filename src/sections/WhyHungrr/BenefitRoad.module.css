@@ -1,0 +1,265 @@
+.road {
+  position: relative;
+  flex-shrink: 0;
+  width: 1280px;
+  height: 880px;
+}
+
+.roadSvg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+
+.asphalt,
+.centreLine {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.asphalt {
+  stroke: var(--color-black);
+  stroke-width: 54;
+}
+
+.centreLine {
+  stroke: var(--color-yellow);
+  stroke-width: 5;
+  stroke-dasharray: 20 18;
+}
+
+/* Start: the rider */
+.start {
+  position: absolute;
+  left: -32px;
+  top: 316px;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 6px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* Numbered stops on the road, alternating above (even) and below (odd) it. --i is the stop's index. */
+.connector {
+  position: absolute;
+  left: calc(109px + var(--i) * 212px);
+  width: 0;
+  border-left: 2.5px dashed var(--color-black);
+}
+
+.connector.even {
+  top: 272px;
+  height: 24px;
+}
+
+.connector.odd {
+  top: 574px;
+  height: 50px;
+}
+
+.number {
+  position: absolute;
+  left: calc(76px + var(--i) * 212px);
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--color-black);
+  color: var(--color-yellow);
+  border: 5px solid var(--color-white);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.number.even {
+  top: 296px;
+}
+
+.number.odd {
+  top: 506px;
+}
+
+/* The last stop: the campus */
+.destination {
+  position: absolute;
+  left: 1124px;
+  top: 494px;
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 6px solid var(--color-white);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* Benefit cards: above the road for even stops, below it for odd ones */
+.card {
+  --reveal-delay: calc(var(--i) * 90ms);
+  position: absolute;
+  left: calc(var(--i) * 212px - 40px);
+  width: 300px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 24px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-yellow);
+  border-radius: 24px;
+  box-shadow: var(--shadow-pop);
+}
+
+.card.even {
+  bottom: 608px;
+}
+
+.card.odd {
+  top: 624px;
+}
+
+.card.first {
+  left: 0;
+}
+
+.card.last {
+  left: 980px;
+}
+
+.card.highlight {
+  background: var(--color-yellow);
+  border-color: var(--color-black);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cardIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 600;
+  white-space: pre-line; /* "\n" in a title is a line break */
+}
+
+.cardText {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+@media (max-width: 1023.98px) {
+  .road {
+    width: 350px;
+    height: 940px;
+  }
+
+  .asphalt {
+    stroke-width: 24;
+  }
+
+  .centreLine {
+    stroke-width: 2.6;
+    stroke-dasharray: 11 9;
+  }
+
+  .start {
+    left: 6px;
+    top: 0;
+    width: 48px;
+    height: 48px;
+    border-width: 3px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .number {
+    width: 34px;
+    height: 34px;
+    background: var(--color-white);
+    color: inherit;
+    border: 3px solid var(--color-black);
+    box-shadow: none;
+    font-size: 14px;
+  }
+
+  .number.even,
+  .number.odd {
+    top: calc(79px + var(--i) * 142px);
+  }
+
+  .number.even {
+    left: 25px;
+  }
+
+  .number.odd {
+    left: 13px;
+  }
+
+  .destination {
+    left: 8px;
+    top: 784px;
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--color-black);
+    box-shadow: none;
+  }
+
+  .card,
+  .card.even,
+  .card.odd,
+  .card.first,
+  .card.last {
+    left: 76px;
+    right: 0;
+    top: calc(58px + var(--i) * 142px);
+    bottom: auto;
+    width: auto;
+    height: 126px;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  .cardHead {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cardIcon {
+    flex-shrink: 1;
+    margin-top: 0;
+  }
+
+  .cardTitle {
+    font-size: 18px;
+    white-space: normal;
+  }
+
+  .cardText {
+    font-size: 14px;
+  }
+}

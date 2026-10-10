@@ -1,0 +1,43 @@
+.section {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 1368px;
+  padding: 120px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+
+.body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 96px;
+}
+
+@media (max-width: 1023.98px) {
+  .section {
+    position: relative;
+    width: 390px;
+    height: auto;
+    padding: 40px 20px 56px;
+    gap: 30px;
+  }
+
+  .body {
+    display: contents;
+  }
+}
+
+/* Desktop: a black panel, so the section stands apart from the hero above and the menu below. */
+@media (min-width: 1024px) {
+  .section {
+    background: var(--color-black);
+    border-radius: 96px;
+    --section-title: var(--color-white);
+    --section-text: #bdbdbd;
+    --section-muted: #a6a6a6;
+    --section-highlight: var(--color-yellow);
+  }
+}

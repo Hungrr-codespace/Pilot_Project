@@ -1,0 +1,161 @@
+.cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 600px;
+  height: 760px;
+  box-sizing: border-box;
+  background: #0e0e0e;
+  border-radius: 4px 20px 20px 4px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 26px;
+  background: linear-gradient(90deg, #000000, #1e1e1e 60%, #0e0e0e);
+}
+
+.frame {
+  position: absolute;
+  left: 50px;
+  top: 30px;
+  right: 30px;
+  bottom: 30px;
+  border: 2px solid var(--color-yellow);
+  border-radius: 12px;
+}
+
+.innerFrame {
+  position: absolute;
+  left: 60px;
+  top: 40px;
+  right: 40px;
+  bottom: 40px;
+  border: 1px solid rgba(255, 222, 33, 0.45);
+  border-radius: 8px;
+}
+
+.open {
+  position: absolute;
+  left: 26px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.eyebrow {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.logo {
+  width: 260px;
+  height: 78px;
+}
+
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ornamentRule {
+  width: 56px;
+  height: 0;
+  border-top: 1px solid rgba(255, 222, 33, 0.6);
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--color-white);
+}
+
+.cta {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-yellow);
+}
+
+@media (max-width: 1023.98px) {
+  .cover {
+    width: 350px;
+    height: 660px;
+    border-radius: 4px 18px 18px 4px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .spine {
+    width: 18px;
+  }
+
+  .frame {
+    left: 34px;
+    top: 22px;
+    right: 22px;
+    bottom: 22px;
+    border-radius: 10px;
+  }
+
+  .innerFrame {
+    left: 42px;
+    top: 30px;
+    right: 30px;
+    bottom: 30px;
+    border-radius: 7px;
+  }
+
+  .open {
+    left: 18px;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 7px;
+  }
+
+  .logo {
+    width: 190px;
+    height: 57px;
+  }
+
+  .ornament {
+    gap: 12px;
+  }
+
+  .ornamentRule {
+    width: 44px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .cta {
+    margin-top: 30px;
+  }
+}

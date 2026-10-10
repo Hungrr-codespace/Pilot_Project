@@ -1,0 +1,389 @@
+.receipt {
+  position: relative;
+  flex-shrink: 0;
+  width: 600px;
+  margin-top: 8px;
+  transform: rotate(2deg);
+  transform-origin: 50% 0;
+}
+
+.edge {
+  display: block;
+}
+
+.edgeFlipped {
+  display: block;
+  transform: scaleY(-1);
+}
+
+.paper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 44px 28px;
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo {
+  width: 166px;
+  height: 50px;
+}
+
+.tagline {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-black);
+}
+
+.rule {
+  height: 0;
+  border-top: 2px dashed #1a1a1a;
+}
+
+.doubleRule {
+  height: 4px;
+  border-top: 2px dashed #1a1a1a;
+  border-bottom: 2px dashed #1a1a1a;
+}
+
+/* Typewriter-style small caps used for labels on the bill */
+.label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.detailLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detailIcon {
+  flex-shrink: 0;
+}
+
+.detailValue {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.explore,
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exploreHead {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 40px;
+}
+
+.linkNumber {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #9a9a9a;
+}
+
+.linkLabel {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.leader {
+  flex: 1;
+  height: 0;
+  margin-top: 10px;
+  border-top: 3px dotted var(--color-dashed);
+}
+
+.linkArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.barcodeSvg {
+  display: block;
+}
+
+.thanksText {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  color: var(--color-black);
+}
+
+.finePrint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.legalLinks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.legalLink {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.separator {
+  color: #9a9a9a;
+}
+
+/* "HUNGRR PILOT" rubber stamp */
+.stamp {
+  position: absolute;
+  right: 34px;
+  bottom: 82px;
+  padding: 3px;
+  border: 3px solid var(--color-green);
+  border-radius: 10px;
+  transform: rotate(-10deg);
+  opacity: 0.9;
+}
+
+.stampInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 14px 5px;
+  border: 1.5px solid var(--color-green);
+  border-radius: 6px;
+  color: var(--color-green);
+}
+
+.stampBrand {
+  margin-bottom: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.stampWord {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 5px;
+}
+
+@media (max-width: 1023.98px) {
+  .receipt {
+    align-self: center;
+    width: 330px;
+    margin-top: 0;
+    transform: rotate(-1.5deg);
+    transform-origin: 50% 50%;
+    filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.45));
+  }
+
+  .paper {
+    gap: 10px;
+    padding: 16px 20px 18px;
+  }
+
+  .brand {
+    gap: 4px;
+  }
+
+  .logo {
+    width: 120px;
+    height: 36px;
+  }
+
+  .tagline {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .rule,
+  .doubleRule {
+    border-color: var(--color-black);
+  }
+
+  .label {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .details,
+  .explore,
+  .thanks,
+  .finePrint {
+    display: contents;
+  }
+
+  .detail {
+    gap: 0;
+  }
+
+  .detailLabel {
+    gap: 6px;
+  }
+
+  .detail .label {
+    color: var(--color-black);
+  }
+
+  .detailValue {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .exploreHead {
+    margin-bottom: 0;
+  }
+
+  .links {
+    gap: 0;
+  }
+
+  .link {
+    gap: 8px;
+    height: 34px;
+    color: var(--color-black);
+  }
+
+  .linkNumber {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-text-faint);
+  }
+
+  .linkLabel {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .leader {
+    margin-top: 0;
+    border-top: 2px dotted rgba(0, 0, 0, 0.25);
+  }
+
+  .linkArrow {
+    width: 24px;
+    height: 24px;
+  }
+
+  .thanksText {
+    text-align: center;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .barcode {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .bar {
+    height: 34px;
+    background: var(--color-black);
+  }
+
+  .finePrint .label {
+    text-align: center;
+  }
+
+  .legalLinks {
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 4px 10px;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .legalLink {
+    text-underline-offset: auto;
+  }
+
+  .stamp {
+    right: 18px;
+    bottom: 96px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    transform: rotate(-12deg);
+    opacity: 0.85;
+  }
+
+  .stampInner {
+    padding: 4px 10px;
+    border-width: 2.5px;
+    border-radius: 8px;
+  }
+
+  .stampBrand {
+    margin-bottom: 0;
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 2px;
+  }
+
+  .stampWord {
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+}

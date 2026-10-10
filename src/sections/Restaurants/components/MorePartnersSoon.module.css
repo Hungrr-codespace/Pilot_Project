@@ -1,0 +1,45 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 14px 0 8px;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--color-dashed);
+  border-radius: 16px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  border: 2px dashed var(--color-text-on-dark);
+  border-radius: var(--radius-pill);
+}
+
+.text {
+  font-size: 16px;
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 1023.98px) {
+  .row {
+    gap: 10px;
+    height: 44px;
+    padding: 0 12px 0 7px;
+    border-radius: 14px;
+  }
+
+  .icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .text {
+    font-size: 14px;
+  }
+}

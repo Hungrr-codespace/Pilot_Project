@@ -1,0 +1,51 @@
+.divider {
+  --road-width: 720px;
+  --moped-size: 64px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 136px;
+}
+
+/* Black asphalt with the yellow dashed centre line, like the road in "Why Hungrr". */
+.road {
+  position: relative;
+  width: var(--road-width);
+  height: 28px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.road::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 12px;
+  height: 4px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(90deg, var(--color-yellow) 0 20px, transparent 20px 38px);
+}
+
+/* Rides from the left end (section entering) to the right end (section leaving); centred without JavaScript. */
+.moped {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--moped-size);
+  height: var(--moped-size);
+  margin-top: calc(var(--moped-size) / -2);
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  transform: translateX(calc(var(--progress, 0.5) * (var(--road-width) - var(--moped-size))));
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}

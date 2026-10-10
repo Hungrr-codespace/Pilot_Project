@@ -1,0 +1,6 @@
+.photo {
+  display: block;
+  border-radius: var(--radius-pill);
+  background-size: cover;
+  background-position: center;
+}

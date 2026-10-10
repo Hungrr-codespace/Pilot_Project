@@ -1,0 +1,64 @@
+/*
+ * Design tokens: the brand's colours, fonts and motion in one place.
+ *
+ * Layout: the page is designed on two canvases and scaled to fit the screen (see PageCanvas):
+ *   desktop  1440 px wide, for screens 1024 px and wider
+ *   mobile    390 px wide, for phones and tablets (narrower than 1024 px)
+ * Component styles are written for the desktop canvas; mobile overrides sit in
+ *   @media (max-width: 1023.98px) { ... }
+ * which matches LAYOUT.breakpoint in src/config/site.js.
+ */
+:root {
+  /* Brand */
+  --color-yellow: #ffde21;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-green: #138808;
+
+  /* Text */
+  --color-text: #000000;
+  --color-text-body: #2d2d2d;
+  --color-text-muted: #4a4a4a;
+  --color-text-subtle: #6b6b6b;
+  --color-text-faint: #8a8a8a;
+  --color-text-on-dark: #bdbdbd;
+
+  /* Surfaces */
+  --color-page: #fafafa;
+  --color-yellow-soft: #fff4b8;
+  --color-highlight: #fff3b8;
+  --color-paper: #fffdf6; /* menu book pages */
+  --color-paper-border: #e6dfc8;
+  --color-note: #fffef4; /* order notepad */
+  --color-note-rule: #d6e2f3;
+  --color-note-margin: #f0a8a8;
+  --color-ink: #1b2a6b; /* handwriting on the notepad */
+  --color-ink-soft: #4a5a8a;
+  --color-dark: #1c1c1c;
+  --color-dark-raised: #2a2a2a;
+  --color-dark-border: #333333;
+  --color-light-gray: #f2f2f2;
+  --color-dashed: #c9c9c9;
+  --color-nonveg: #b3261e;
+
+  /* Fonts */
+  --font-sans: 'Afacad', sans-serif;
+  --font-hand: 'Kalam', cursive;
+  --font-mono: 'Space Mono', monospace;
+
+  /* Shapes and depth */
+  --radius-pill: 999px;
+  --shadow-pop: 0 4px 4px rgba(0, 0, 0, 0.25);
+
+  /* Motion */
+  --ease-turn: cubic-bezier(0.45, 0, 0.2, 1); /* table turn, zoom into the order note */
+  --ease-page: cubic-bezier(0.65, 0.05, 0.25, 1); /* menu page flip */
+  --ease-book: cubic-bezier(0.65, 0, 0.35, 1); /* menu cover opening */
+    --ease-reveal: cubic-bezier(0.2, 0.7, 0.2, 1); /* sections fading up into view (desktop) */
+
+  /* Section text colours. A section on a dark panel overrides these (see HowItWorks.module.css). */
+  --section-title: var(--color-text);
+  --section-text: var(--color-text-body);
+  --section-muted: #676767;
+  --section-highlight: var(--color-green);
+}

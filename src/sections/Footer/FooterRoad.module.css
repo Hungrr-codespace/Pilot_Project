@@ -1,0 +1,99 @@
+.road {
+  position: relative;
+  height: 64px;
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22px;
+  height: 20px;
+  background: var(--color-dark);
+  border-radius: var(--radius-pill);
+}
+
+.dashes {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 31px;
+  height: 0;
+  border-top: 3px dashed var(--color-yellow);
+}
+
+.rider {
+  position: absolute;
+  left: 820px;
+  top: 2px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.destination {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 64px;
+  padding: 0 20px 0 14px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border: 2px solid var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.destinationName {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-white);
+}
+
+@media (max-width: 1023.98px) {
+  .road {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: auto;
+  }
+
+  .dashes {
+    position: static;
+    flex: 1;
+    border-top-width: 2px;
+  }
+
+  .rider {
+    position: static;
+    width: 34px;
+    height: 34px;
+    border: 0;
+  }
+
+  .destination {
+    position: static;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    background: none;
+    border-width: 1.5px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .destinationName {
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+  }
+}

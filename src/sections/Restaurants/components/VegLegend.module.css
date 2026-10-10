@@ -1,0 +1,24 @@
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 1023.98px) {
+  .legend {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .item {
+    gap: 3px;
+  }
+}

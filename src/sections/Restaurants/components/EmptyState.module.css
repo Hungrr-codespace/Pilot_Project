@@ -1,0 +1,100 @@
+.empty {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-yellow-soft);
+  border-radius: var(--radius-pill);
+}
+
+.title {
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.text {
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-text-subtle);
+}
+
+/* In the restaurant list (no results) */
+.normal {
+  padding: 20px 0;
+}
+
+.normal .icon {
+  width: 80px;
+  height: 80px;
+}
+
+.normal .title {
+  font-size: 25px;
+  line-height: 1.15;
+}
+
+.normal .text {
+  max-width: 360px;
+}
+
+/* A whole page (menu coming soon) */
+.large .icon {
+  width: 84px;
+  height: 84px;
+}
+
+.large .title {
+  font-size: 26px;
+}
+
+.large .text {
+  max-width: 340px;
+}
+
+@media (max-width: 1023.98px) {
+  .empty {
+    gap: 10px;
+  }
+
+  .normal {
+    padding: 16px 0;
+  }
+
+  .normal .icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .normal .title {
+    font-size: 21px;
+  }
+
+  .large .icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .large .title {
+    font-size: 22px;
+  }
+
+  .title {
+    color: inherit;
+  }
+
+  .text,
+  .normal .text,
+  .large .text {
+    max-width: none;
+    font-size: 14px;
+  }
+}

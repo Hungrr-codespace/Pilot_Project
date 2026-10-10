@@ -1,0 +1,33 @@
+.section {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 1385px;
+  padding: 120px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  overflow: hidden;
+}
+
+@media (max-width: 1023.98px) {
+  .section {
+    position: relative;
+    width: 390px;
+    height: auto;
+    padding: 40px 20px 56px;
+    gap: 30px;
+    overflow: visible;
+  }
+}
+
+/* Desktop: a white panel between the menu above and the FAQ below. */
+@media (min-width: 1024px) {
+  .section {
+    background: var(--color-white);
+    border-radius: 96px;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 30px 80px rgba(0, 0, 0, 0.06);
+  }
+}
