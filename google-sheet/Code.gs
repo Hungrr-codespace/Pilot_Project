@@ -1,8 +1,7 @@
 /**
  * Hungrr – Google Sheet backend (Apps Script web app)
  *
- * Paste this whole file into the sheet's Extensions → Apps Script editor and deploy it as a web app
- * (see google-sheet/SETUP.md). The website then:
+ *   The website then:
  *   GET  <web app URL>?action=menu   → reads Settings, Clusters, Restaurants, Dishes and QuickPicks
  *   GET  <web app URL>?action=status → opening hours and the pause switch (Settings: opens_at, closes_at,
  *                                      orders_paused, pause_message), checked again while a page is open
