@@ -1,0 +1,48 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* "₹559.90 paid for order HG-…" above the reference number box */
+.paidFor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: var(--color-page);
+  border-radius: 14px;
+  font-size: 16px;
+  color: var(--color-text-body);
+}
+
+.paidFor b {
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+/* The reference number reads in groups of four: 1234 5678 9012 */
+.refInput {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 1023.98px) {
+  .form {
+    gap: 14px;
+  }
+
+  .paidFor {
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .refInput {
+    font-size: 21px;
+    letter-spacing: 1.5px;
+  }
+}

@@ -19,7 +19,7 @@ export function SectionHeader({ label, title, intro, introWidth, layout = 'split
   );
 }
 
-// The green second part of a section title.
+// The highlighted second part of a section title (green, or yellow on a dark panel).
 export function Highlight({ children }) {
   return <span className={styles.highlight}>{children}</span>;
 }

@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { formatTimestamp, orderPhotoFileName } from '@/lib/format';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react';
+import { billFileName, formatTimestamp } from '@/lib/format';
+import { loadSavedCustomer, saveCustomer } from '@/lib/checkout';
 import { isDishMatch } from '@/lib/search';
 import { newOrderId } from '@/lib/orderId';
 import { summarizeOrder } from '@/lib/pricing';
 import { drawOrderSummary } from '@/lib/orderImage';
 import { saveFile } from '@/lib/download';
-import { submitOrder, toSheetOrder } from '@/services/sheetApi';
+import { submitOrder, submitPayment, toSheetOrder } from '@/services/sheetApi';
 import { useLayout } from './layout';
 import { useMenu } from './menu';
 import { OrderContext } from './order';
 import { initialOrderState, orderReducer } from './orderReducer';
 
 const COVER_OPEN_MS = 3350; // the cover's swing (3.2 s) plus a beat, then it drops behind the pages
-const NOTEPAD_LEAVE_MS = 800; // the notepad slides away after "Paid?"
+const NOTEPAD_LEAVE_MS = 800; // the notepad slides away after the payment is confirmed
 
 // Holds the ordering state and the actions that change it. Components read it with useOrder().
 export function OrderProvider({ children }) {
@@ -21,6 +22,7 @@ export function OrderProvider({ children }) {
   const [state, dispatch] = useReducer(orderReducer, menu, (m) => ({
     ...initialOrderState,
     restaurantId: m.restaurants[0]?.id || '',
+    customer: loadSavedCustomer(), // details from the last order on this device
   }));
 
   const summary = useMemo(
@@ -39,8 +41,10 @@ export function OrderProvider({ children }) {
   const bookRef = useRef(null);
 
   // Actions read the latest values through this ref, so they never go stale and can stay stable.
-  const latest = useRef({});
-  latest.current = { state, summary, menu, isMobile, scale };
+  const latest = useRef({ state, summary, menu, isMobile, scale });
+  useLayoutEffect(() => {
+    latest.current = { state, summary, menu, isMobile, scale };
+  });
 
   const timers = useRef({});
   const later = useCallback((name, ms, fn) => {
@@ -66,10 +70,12 @@ export function OrderProvider({ children }) {
       if (!restaurant) return;
       const dishType = m.dishTypes.find((t) => t.id === s.dishTypeId);
       const filter = { dishType, query: s.query };
-      const hit = restaurant.cats.find((cat) => cat.dishes.some((dish) => isDishMatch(dish, cat, filter)));
+      const hit = restaurant.categories.find((category) =>
+        category.dishes.some((dish) => isDishMatch(dish, category, filter)),
+      );
       let categoryId = hit?.id;
-      if (!categoryId && restaurant.cats.length && !s.categoryByRestaurant[restaurantId]) {
-        categoryId = restaurant.cats[0].id;
+      if (!categoryId && restaurant.categories.length && !s.categoryByRestaurant[restaurantId]) {
+        categoryId = restaurant.categories[0].id;
       }
       dispatch({ type: 'book/showRestaurant', restaurantId, categoryId });
     };
@@ -86,14 +92,13 @@ export function OrderProvider({ children }) {
       }
     };
 
-    const confirmOrder = () => {
-      dispatch({ type: 'notepad/confirm', orderId: newOrderId() });
-      // Scroll so the zoomed-in payment note fills the screen.
-      const table = tableRef.current;
-      if (!table) return;
+    // Scroll so the order steps bar and the zoomed-in payment sheet under it fill the screen.
+    const scrollToPayment = () => {
+      const area = tableRef.current?.closest('section');
+      if (!area) return;
       const { isMobile: mobile, scale: z } = latest.current;
-      const offset = mobile ? -10 : 24 * z - 16;
-      const top = table.getBoundingClientRect().top + (window.pageYOffset || 0) + offset;
+      const offset = (mobile ? 4 : 48) * z;
+      const top = area.getBoundingClientRect().top + (window.pageYOffset || 0) + offset;
       try {
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       } catch {
@@ -101,40 +106,64 @@ export function OrderProvider({ children }) {
       }
     };
 
-    const drawPhoto = (timestamp) => {
-      const { state: s, summary: sum, menu: m } = latest.current;
+    const sheetOrder = (extra) => {
+      const { state: s, summary: sum, isMobile: mobile } = latest.current;
+      return toSheetOrder({
+        orderId: s.orderId,
+        summary: sum,
+        customer: s.customer,
+        device: mobile ? 'phone/tablet' : 'desktop',
+        ...extra,
+      });
+    };
+
+    // "Confirm order" on the order note: first ask where to deliver.
+    const confirmOrder = () => {
+      if (latest.current.summary.isEmpty) return;
+      dispatch({ type: 'checkout/askDetails' });
+    };
+
+    // Delivery details given: remember them, show the QR, and note the order in the sheet as awaiting payment.
+    const saveDetails = (customer) => {
+      const orderId = latest.current.state.orderId || newOrderId();
+      saveCustomer(customer);
+      dispatch({ type: 'checkout/detailsSaved', customer, orderId });
+      scrollToPayment();
+      submitOrder(sheetOrder({ orderId, customer }));
+    };
+
+    const drawBill = ({ timestamp, upiRef }) => {
+      const { state: s, summary: sum } = latest.current;
       try {
         return drawOrderSummary({
           summary: sum,
           orderId: s.orderId,
-          deliverTo: m.settings.deliverTo,
+          customer: s.customer,
           timestamp,
+          upiRef,
         });
       } catch {
         return null; // canvas blocked: the slip falls back to the HTML version
       }
     };
 
-    // "Paid?": save the order photo, log the order in the sheet, and show the torn-off slip.
-    const sendPaidOrder = () => {
-      const { state: s, summary: sum, isMobile: mobile } = latest.current;
-      const now = new Date();
-      const timestamp = formatTimestamp(now);
-      const fileName = orderPhotoFileName(now);
-      const photoUrl = drawPhoto(timestamp);
-      submitOrder(
-        toSheetOrder({ orderId: s.orderId, summary: sum, device: mobile ? 'phone/tablet' : 'desktop' }),
-      );
+    // UPI reference number given: save the bill, send the payment to the sheet, and tear off the bill.
+    const confirmPayment = (upiRef) => {
+      const { state: s } = latest.current;
+      const timestamp = formatTimestamp(new Date());
+      const fileName = billFileName(s.orderId);
+      const photoUrl = drawBill({ timestamp, upiRef });
+      submitPayment(sheetOrder({ upiRef }));
       if (photoUrl) saveFile(photoUrl, fileName);
-      dispatch({ type: 'order/sent', sentOrder: { timestamp, photoUrl: photoUrl || '', fileName } });
+      dispatch({ type: 'order/sent', sentOrder: { timestamp, photoUrl: photoUrl || '', fileName, upiRef } });
       later('settle', NOTEPAD_LEAVE_MS, () => dispatch({ type: 'order/settled' }));
     };
 
-    const downloadPhotoAgain = () => {
+    const downloadBillAgain = () => {
       const sent = latest.current.state.sentOrder;
       if (!sent) return;
-      const photoUrl = sent.photoUrl || drawPhoto(sent.timestamp);
-      if (photoUrl) saveFile(photoUrl, sent.fileName || 'hungrr-order.png');
+      const photoUrl = sent.photoUrl || drawBill(sent);
+      if (photoUrl) saveFile(photoUrl, sent.fileName);
       if (photoUrl !== sent.photoUrl)
         dispatch({ type: 'order/photoUpdated', patch: { photoUrl: photoUrl || '' } });
     };
@@ -156,8 +185,11 @@ export function OrderProvider({ children }) {
       closeNotepad: () => dispatch({ type: 'notepad/close' }),
       backToOrder: () => dispatch({ type: 'notepad/backToOrder' }),
       confirmOrder,
-      sendPaidOrder,
-      downloadPhotoAgain,
+      saveDetails,
+      askPaymentReference: () => dispatch({ type: 'checkout/askPayment' }),
+      closeDialog: () => dispatch({ type: 'checkout/closeDialog' }),
+      confirmPayment,
+      downloadBillAgain,
       startNewOrder: () => {
         clearTimeout(timers.current.cover);
         dispatch({ type: 'order/new' });

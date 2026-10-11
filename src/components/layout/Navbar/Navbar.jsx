@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import clsx from 'clsx';
-import { NAV_LINKS } from '@/config/site';
+import { NAV_LINKS, ROUTES } from '@/config/site';
 import { useLayout } from '@/context/layout';
 import { useWhatsAppContact } from '@/hooks/useWhatsAppContact';
 import { Icon } from '@/components/ui/Icon/Icon';
@@ -9,7 +10,8 @@ import motion from '@/styles/motion.module.css';
 import { ExternalLink } from '@/components/ui/ExternalLink/ExternalLink';
 import styles from './Navbar.module.css';
 
-// Top navigation: links and a WhatsApp button on desktop; a WhatsApp button and a menu on mobile.
+// Main page navigation: section links and an "Order now" button (to the pilot menu) on desktop; a WhatsApp
+// button and a menu on mobile.
 export function Navbar() {
   const { isMobile } = useLayout();
   return isMobile ? <MobileNavbar /> : <DesktopNavbar />;
@@ -24,7 +26,6 @@ function HomeLink() {
 }
 
 function DesktopNavbar() {
-  const whatsapp = useWhatsAppContact();
   return (
     <nav className={styles.nav}>
       <HomeLink />
@@ -35,10 +36,10 @@ function DesktopNavbar() {
           </a>
         ))}
       </div>
-      <ExternalLink href={whatsapp.href} className={styles.whatsapp}>
-        <Icon name="whatsapp" size={20} color="var(--color-white)" />
-        Order on WhatsApp
-      </ExternalLink>
+      <Link to={ROUTES.pilot} className={styles.orderNow}>
+        <Icon name="cutlery" size={20} color="var(--color-yellow)" />
+        Order now
+      </Link>
     </nav>
   );
 }
@@ -52,7 +53,11 @@ function MobileNavbar() {
       <nav className={styles.nav}>
         <HomeLink />
         <div className={styles.actions}>
-          <ExternalLink href={whatsapp.href} aria-label="Order on WhatsApp" className={styles.roundWhatsapp}>
+          <ExternalLink
+            href={whatsapp.href}
+            aria-label="Message us on WhatsApp"
+            className={styles.roundWhatsapp}
+          >
             <Icon name="whatsapp" size={22} color="var(--color-yellow)" />
           </ExternalLink>
           <button
@@ -74,10 +79,10 @@ function MobileNavbar() {
               <Icon name="chevronRight" size={22} color="var(--color-black)" />
             </a>
           ))}
-          <ExternalLink href={whatsapp.href} className={styles.menuWhatsapp}>
-            <Icon name="whatsapp" size={20} color="var(--color-yellow)" />
-            Order on WhatsApp
-          </ExternalLink>
+          <Link to={ROUTES.pilot} onClick={close} className={styles.menuOrder}>
+            <Icon name="cutlery" size={20} color="var(--color-yellow)" />
+            Order now
+          </Link>
         </div>
       )}
     </>

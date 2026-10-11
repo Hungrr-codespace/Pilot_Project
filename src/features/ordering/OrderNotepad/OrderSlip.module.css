@@ -1,0 +1,268 @@
+@keyframes tearOff {
+  0% {
+    transform: translate(-50%, 26px) rotate(-2deg) scale(1);
+  }
+  12% {
+    transform: translate(-50%, 36px) rotate(-3.5deg) scale(1);
+  }
+  24% {
+    transform: translate(-50%, 30px) rotate(-0.5deg) scale(1);
+  }
+  48% {
+    transform: translate(-50%, -34px) rotate(4deg) scale(1.02);
+  }
+  100% {
+    transform: translate(-50%, 0) rotate(-1.5deg) scale(0.86);
+  }
+}
+
+.slip {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 500px;
+  height: 560px;
+  z-index: 41;
+  transform-origin: 50% 0;
+  transform: translate(-50%, 0) rotate(-1.5deg) scale(0.86);
+  filter: drop-shadow(0 26px 40px rgba(0, 0, 0, 0.35));
+  animation: tearOff 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+
+.photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+
+/* Fallback page (when the photo could not be drawn) */
+.edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+.paper {
+  position: absolute;
+  left: 0;
+  top: 21px;
+  width: 500px;
+  height: 539px;
+  box-sizing: border-box;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 31px, var(--color-note-rule) 31px 32px) 0 106px /
+      100% 100% no-repeat,
+    var(--color-note);
+  border-radius: 0 0 10px 10px;
+}
+
+.margin {
+  position: absolute;
+  left: 58px;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px solid var(--color-note-margin);
+}
+
+.body {
+  position: absolute;
+  left: 78px;
+  right: 30px;
+  top: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.title {
+  font-family: var(--font-hand);
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 12px;
+  font-family: var(--font-hand);
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--color-ink-soft);
+}
+
+.address {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-hand);
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--color-ink-soft);
+}
+
+.lines {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  max-height: 224px;
+  overflow: hidden;
+}
+
+.restaurant,
+.item {
+  height: 32px;
+  line-height: 38px;
+  font-family: var(--font-hand);
+  color: var(--color-ink);
+}
+
+.restaurant {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 19px;
+}
+
+.itemName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemPrice {
+  white-space: nowrap;
+}
+
+.paid {
+  margin-top: 8px;
+  font-family: var(--font-hand);
+  font-size: 17px;
+  line-height: 32px;
+  color: var(--color-ink-soft);
+}
+
+.upiRef {
+  align-self: flex-start;
+  padding: 2px 10px;
+  background: var(--color-highlight);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.footer {
+  position: absolute;
+  left: 78px;
+  bottom: 18px;
+  font-size: 13px;
+  color: var(--color-text-faint);
+}
+
+@media (max-width: 1023.98px) {
+  .slip {
+    width: 330px;
+    height: 470px;
+    filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.35));
+  }
+
+  .paper {
+    top: 15px;
+    width: 330px;
+    height: 455px;
+    background:
+      repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 25px, var(--color-note-rule) 25px 26px) 0 88px /
+        100% 100% no-repeat,
+      var(--color-note);
+  }
+
+  .margin {
+    left: 40px;
+  }
+
+  .body {
+    left: 54px;
+    right: 18px;
+    top: 16px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+  }
+
+  .title {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .meta {
+    font-size: 13px;
+  }
+
+  .lines {
+    margin-top: 10px;
+    max-height: 182px;
+  }
+
+  .restaurant,
+  .item {
+    height: 26px;
+    line-height: 31px;
+  }
+
+  .restaurant {
+    font-size: 16px;
+    text-underline-offset: 3px;
+  }
+
+  .item {
+    gap: 10px;
+    font-size: 15px;
+  }
+
+  .paid {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 26px;
+  }
+
+  .footer {
+    left: 54px;
+    bottom: 12px;
+    font-size: 11px;
+  }
+
+  .address {
+    font-size: 13px;
+  }
+
+  .upiRef {
+    font-size: 14px;
+  }
+}

@@ -4,15 +4,15 @@ import { allDishes } from './menuData';
 // A dish belongs to a quick pick when its name contains one of the pick's match words.
 export function isDishOfType(dish, dishType) {
   const name = dish.name.toLowerCase();
-  return dishType.key.some((word) => name.includes(word));
+  return dishType.matchWords.some((word) => name.includes(word));
 }
 
 // Is this dish what the customer is looking for? Used to highlight dishes in the menu.
-export function isDishMatch(dish, cat, { dishType, query }) {
+export function isDishMatch(dish, category, { dishType, query }) {
   if (dishType) return isDishOfType(dish, dishType);
   const q = query.trim().toLowerCase();
   if (!q) return false;
-  return dish.name.toLowerCase().includes(q) || (!!cat && cat.name.toLowerCase().includes(q));
+  return dish.name.toLowerCase().includes(q) || (!!category && category.name.toLowerCase().includes(q));
 }
 
 // How many restaurants serve a quick pick (shown under each dish on the table).
@@ -33,7 +33,7 @@ export function matchRestaurant(restaurant, { dishType, query }) {
   const nameMatch = !!q && restaurant.name.toLowerCase().includes(q);
   if (q && !nameMatch) {
     matches = matches.filter(
-      ({ dish, cat }) => dish.name.toLowerCase().includes(q) || cat.name.toLowerCase().includes(q),
+      ({ dish, category }) => dish.name.toLowerCase().includes(q) || category.name.toLowerCase().includes(q),
     );
     if (!matches.length) return null;
   }

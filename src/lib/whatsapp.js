@@ -1,4 +1,5 @@
-// WhatsApp links and the order message the customer sends us.
+// WhatsApp links and the order message the customer sends us with the bill.
+import { formatIndianPhone, formatUpiRef } from './checkout';
 import { formatRupees } from './format';
 
 export function whatsappLink(number, text) {
@@ -11,16 +12,19 @@ export function formatPhoneNumber(number) {
   return '+' + number;
 }
 
-// The message prefilled in WhatsApp after paying.
-export function buildOrderMessage(summary, orderId) {
-  let text = 'Hi Hungrr! Here is my order from the website:\n';
+// The message prefilled in WhatsApp after the payment is confirmed. The customer attaches the bill.
+export function buildOrderMessage({ summary, orderId, customer, upiRef }) {
+  let text = "Hi Hungrr! I've paid for my order on the website.\n";
   if (orderId) text += `Order ID: ${orderId}\n`;
+  if (upiRef) text += `UPI ref no.: ${formatUpiRef(upiRef)}\n`;
+  if (customer?.name) text += `Name: ${customer.name}\n`;
+  if (customer?.phone) text += `Phone: ${formatIndianPhone(customer.phone)}\n`;
+  if (customer?.address) text += `Deliver to: ${customer.address}\n`;
   summary.lines.forEach(({ restaurant, items }) => {
     text += `\n${restaurant.name}\n`;
     text += items.map(({ dish, qty }) => `• ${qty}× ${dish.name}`).join('\n') + '\n';
   });
-  const total = formatRupees(summary.grandTotal);
-  text += `\nGrand total: ${total} (incl. GST and delivery)\n`;
-  text += `Paid ${total} by UPI. Attaching the order summary photo and the payment screenshot.\n\nNote: `;
+  text += `\nGrand total: ${formatRupees(summary.grandTotal)} (incl. GST and delivery), paid by UPI.\n`;
+  text += 'Attaching my bill.';
   return text;
 }

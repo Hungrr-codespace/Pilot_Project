@@ -1,6 +1,8 @@
 .viewport {
   width: 100%;
+  /* clip (not hidden) so the page stays the scroller and sticky parts (the order steps) keep working */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .canvas {
@@ -21,6 +23,7 @@
     position: relative;
     width: 390px;
     overflow: hidden;
+    overflow: clip;
     background-size: 420px 420px;
   }
 }

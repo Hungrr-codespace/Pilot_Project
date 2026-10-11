@@ -1,0 +1,187 @@
+.pass {
+  position: relative;
+  flex-shrink: 0;
+  width: 600px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  padding: 48px 52px 52px;
+  background: var(--color-black);
+  border-radius: 40px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+  color: var(--color-white);
+}
+
+/* A thin gold frame, like the menu book's cover */
+.frame {
+  position: absolute;
+  inset: 16px;
+  border: 1.5px solid rgba(255, 222, 33, 0.55);
+  border-radius: 28px;
+  pointer-events: none;
+}
+
+.eyebrow {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.wordmark {
+  width: 216px;
+  height: 65px;
+}
+
+/* When, where, how to pay: one row each, between dashed rules */
+.details {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  margin: 6px 0 0;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 26px 0;
+  border-top: 1.5px dashed rgba(255, 222, 33, 0.35);
+}
+
+.detail:last-child {
+  border-bottom: 1.5px dashed rgba(255, 222, 33, 0.35);
+}
+
+.detailIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.detailText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-text-on-dark);
+}
+
+.detailValue {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 68px;
+  margin-top: auto;
+  padding: 0 26px 0 10px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-black);
+  transition: transform 0.2s ease;
+}
+
+.cta:hover {
+  color: var(--color-black);
+  transform: translateY(-2px);
+}
+
+.ctaIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+@media (max-width: 1023.98px) {
+  .pass {
+    width: auto;
+    gap: 16px;
+    padding: 26px 22px 24px;
+    border-radius: 24px;
+  }
+
+  .frame {
+    inset: 8px;
+    border-radius: 18px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+
+  .wordmark {
+    width: 140px;
+    height: 42px;
+  }
+
+  .cta {
+    align-self: stretch;
+    justify-content: center;
+    gap: 10px;
+    height: 54px;
+    margin-top: 4px;
+    padding: 0 18px 0 8px;
+    font-size: 17px;
+  }
+
+  .ctaIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .details {
+    margin-top: 0;
+  }
+
+  .detail {
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .detailIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .detailText {
+    gap: 2px;
+  }
+
+  .detailLabel {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .detailValue {
+    font-size: 18px;
+  }
+}

@@ -4,15 +4,24 @@
  * Paste this whole file into the sheet's Extensions → Apps Script editor and deploy it as a web app
  * (see google-sheet/SETUP.md). The website then:
  *   GET  <web app URL>?action=menu   → reads Settings, Clusters, Restaurants, Dishes and QuickPicks
- *   POST <web app URL>               → body {"action":"order","order":{...}} adds the order to Orders and OrderItems
+ *   POST {"action":"order","order":{...}}    → the order in Orders as "Awaiting payment" (customer details,
+ *                                              dishes and totals) and its dishes in OrderItems
+ *   POST {"action":"payment","order":{...}}  → the same order with its 12-digit UPI reference number, as
+ *                                              "Payment to verify"
  *
+ * Each order keeps one row: sending it again updates that row. A payment never moves an order back, and a
+ * status you have set by hand (Paid, Preparing…) is never overwritten.
  * Prices and totals are recalculated here from the sheet, so an order row never trusts the browser's numbers.
+ * Columns are found by their name in row 1, so you can reorder them or add your own; missing ones are added.
  */
 
 const MENU_TABS = ['Settings', 'Clusters', 'Restaurants', 'Dishes', 'QuickPicks'];
-const ORDER_HEAD = ['order_id', 'created_at', 'status', 'restaurants', 'clusters', 'riders', 'items',
-  'item_total', 'gst', 'delivery', 'grand_total', 'site_total', 'total_check', 'device', 'notes'];
+const ORDER_HEAD = ['order_id', 'created_at', 'status', 'customer_name', 'phone', 'address', 'upi_ref', 'paid_at',
+  'restaurants', 'clusters', 'riders', 'items', 'item_total', 'gst', 'delivery', 'grand_total', 'site_total',
+  'total_check', 'device', 'notes'];
 const ITEM_HEAD = ['order_id', 'created_at', 'restaurant', 'dish_id', 'dish', 'qty', 'price', 'line_total'];
+const STATUSES = ['Awaiting payment', 'Payment to verify', 'Paid', 'Preparing', 'Out for delivery', 'Delivered',
+  'Cancelled'];
 const CACHE_SECONDS = 60;   // the website sees sheet edits within about a minute
 
 // ------------------------------------------------------------------ menu (GET)
@@ -45,27 +54,23 @@ function onEdit() {
 function doPost(e) {
   let body;
   try { body = JSON.parse(e.postData.contents); } catch (err) { return json_({ ok: false, error: 'Bad request' }); }
-  if (!body || body.action !== 'order' || !body.order) return json_({ ok: false, error: 'Unknown action' });
+  const action = body && body.action;
+  if ((action !== 'order' && action !== 'payment') || !body.order) return json_({ ok: false, error: 'Unknown action' });
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    return json_(saveOrder_(body.order));
+    return json_(saveOrder_(body.order, action === 'payment'));
   } finally {
     lock.releaseLock();
   }
 }
 
-function saveOrder_(o) {
+function saveOrder_(o, isPayment) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const id = String(o.order_id || '').trim().slice(0, 40);
   if (!/^HG-[A-Z0-9-]+$/i.test(id)) return { ok: false, error: 'Missing order ID' };
-
-  const orders = sheet_(ss, 'Orders', ORDER_HEAD);
-  const items = sheet_(ss, 'OrderItems', ITEM_HEAD);
-  if (orders.getLastRow() > 1) {
-    const seen = orders.getRange(2, 1, orders.getLastRow() - 1, 1).createTextFinder(id).matchEntireCell(true).findNext();
-    if (seen) return { ok: true, order_id: id, duplicate: true };   // the same order sent twice keeps one row
-  }
+  const upiRef = String(o.upi_ref || '').replace(/\D/g, '');
+  if (isPayment && !/^\d{12}$/.test(upiRef)) return { ok: false, error: 'The UPI reference number must be 12 digits' };
 
   const set = {};
   rows_(ss.getSheetByName('Settings')).forEach(function (r) { set[String(r.key).trim()] = r.value; });
@@ -100,20 +105,64 @@ function saveOrder_(o) {
   const siteTotal = num_(o.grand_total, NaN);
   const check = isNaN(siteTotal) ? '' : (Math.abs(siteTotal - grand) < 0.01 ? 'OK' : 'CHECK: site showed ' + siteTotal);
 
+  const orders = sheet_(ss, 'Orders', ORDER_HEAD);
+  const col = columns_(orders, ORDER_HEAD);
+  ensureStatusList_(orders, col.status);
+  const rowNum = findRow_(orders, col.order_id, id);
+  const width = orders.getLastColumn();
+  const row = rowNum ? orders.getRange(rowNum, 1, 1, width).getValues()[0] : blankRow_(width);
+  const current = function (name) { return row[col[name] - 1]; };
+
+  // Status only moves forward: Awaiting payment → Payment to verify. Anything you set by hand stays.
+  const status = String(current('status') || '').trim();
+  const nextStatus = (!status || status === 'Awaiting payment') ? (isPayment ? 'Payment to verify' : 'Awaiting payment') : status;
+  const ref = isPayment ? upiRef : String(current('upi_ref') || '').replace(/\D/g, '');
+  if (isPayment) {
+    const usedOn = findRow_(orders, col.upi_ref, upiRef, rowNum);
+    if (usedOn) notes.push('UPI ref also used on ' + orders.getRange(usedOn, col.order_id).getValue());
+  }
+  const customer = o.customer || {};
+  const phone = String(customer.phone || '').replace(/\D/g, '').slice(-10);
   const now = new Date();
-  orders.appendRow([
-    id, now, 'Payment to verify',
-    unique_(lines.map(function (l) { return l.restaurant; })).join(', '),
-    clusterIds.map(function (c) { return (clusters[c] && clusters[c].label) || c; }).join(', '),
-    riders,
-    lines.map(function (l) { return l.qty + ' × ' + l.dish + ' (' + l.restaurant + ')'; }).join('\n'),
-    itemTotal, gst, delivery, grand, isNaN(siteTotal) ? '' : siteTotal, check,
-    safe_(o.device), safe_(notes.join('; '))
-  ]);
-  items.getRange(items.getLastRow() + 1, 1, lines.length, ITEM_HEAD.length).setValues(lines.map(function (l) {
-    return [id, now, l.restaurant, l.dishId, l.dish, l.qty, l.price, l.qty * l.price];
-  }));
-  return { ok: true, order_id: id, grand_total: grand, total_check: check };
+  const createdAt = current('created_at') || now;
+
+  const values = {
+    order_id: id,
+    created_at: createdAt,
+    status: nextStatus,
+    customer_name: safe_(customer.name),
+    phone: phone ? "'+91 " + phone.slice(0, 5) + ' ' + phone.slice(5) : '',   // ' keeps it as text
+    address: safe_(customer.address),
+    upi_ref: ref ? "'" + ref : '',                                            // 12 digits as text, not 4.1E+11
+    paid_at: isPayment ? now : current('paid_at'),
+    restaurants: unique_(lines.map(function (l) { return l.restaurant; })).join(', '),
+    clusters: clusterIds.map(function (c) { return (clusters[c] && clusters[c].label) || c; }).join(', '),
+    riders: riders,
+    items: lines.map(function (l) { return l.qty + ' × ' + l.dish + ' (' + l.restaurant + ')'; }).join('\n'),
+    item_total: itemTotal, gst: gst, delivery: delivery, grand_total: grand,
+    site_total: isNaN(siteTotal) ? '' : siteTotal,
+    total_check: check,
+    device: safe_(o.device),
+    notes: safe_(notes.join('; '))
+  };
+  ORDER_HEAD.forEach(function (name) { row[col[name] - 1] = values[name]; });
+  orders.getRange(rowNum || orders.getLastRow() + 1, 1, 1, width).setValues([row]);
+
+  // The order's dishes: replace any earlier rows for this order, so a changed cart is never counted twice.
+  const items = sheet_(ss, 'OrderItems', ITEM_HEAD);
+  const icol = columns_(items, ITEM_HEAD);
+  deleteRows_(items, icol.order_id, id);
+  const iwidth = items.getLastColumn();
+  const itemRows = lines.map(function (l) {
+    const r = blankRow_(iwidth);
+    const v = { order_id: id, created_at: createdAt, restaurant: l.restaurant, dish_id: l.dishId, dish: l.dish,
+      qty: l.qty, price: l.price, line_total: l.qty * l.price };
+    ITEM_HEAD.forEach(function (name) { r[icol[name] - 1] = v[name]; });
+    return r;
+  });
+  items.getRange(items.getLastRow() + 1, 1, itemRows.length, iwidth).setValues(itemRows);
+
+  return { ok: true, order_id: id, status: nextStatus, grand_total: grand, total_check: check };
 }
 
 // ------------------------------------------------------------------ helpers
@@ -138,6 +187,58 @@ function sheet_(ss, name, head) {
     sh.setFrozenRows(1);
   }
   return sh;
+}
+
+// Column numbers by header name (1-based). Headers missing from row 1 are added after the last column, so a
+// sheet made from an older template keeps working.
+function columns_(sheet, head) {
+  const width = Math.max(sheet.getLastColumn(), 1);
+  const names = sheet.getRange(1, 1, 1, width).getValues()[0].map(function (h) { return String(h).trim(); });
+  const missing = head.filter(function (h) { return names.indexOf(h) < 0; });
+  if (missing.length) {
+    let start = names.length;
+    while (start > 0 && !names[start - 1]) start--;   // after the last named column
+    sheet.getRange(1, start + 1, 1, missing.length).setValues([missing]).setFontWeight('bold');
+    missing.forEach(function (h, i) { names[start + i] = h; });
+  }
+  const col = {};
+  names.forEach(function (h, i) { if (h && !col[h]) col[h] = i + 1; });
+  return col;
+}
+
+// Row number of the first data row whose `column` equals `value` (ignoring row `skip`), or 0.
+function findRow_(sheet, column, value, skip) {
+  const last = sheet.getLastRow();
+  if (last < 2 || !value) return 0;
+  const cells = sheet.getRange(2, column, last - 1, 1).getValues();
+  for (let i = 0; i < cells.length; i++) {
+    if (i + 2 !== skip && String(cells[i][0]).trim() === String(value)) return i + 2;
+  }
+  return 0;
+}
+
+function deleteRows_(sheet, column, value) {
+  const last = sheet.getLastRow();
+  if (last < 2) return;
+  const cells = sheet.getRange(2, column, last - 1, 1).getValues();
+  for (let i = cells.length - 1; i >= 0; i--) {
+    if (String(cells[i][0]).trim() === value) sheet.deleteRow(i + 2);
+  }
+}
+
+function blankRow_(width) {
+  const row = [];
+  for (let i = 0; i < width; i++) row.push('');
+  return row;
+}
+
+// The status column's dropdown, with "Awaiting payment" added for sheets made from an older template.
+function ensureStatusList_(sheet, column) {
+  const rule = sheet.getRange(2, column).getDataValidation();
+  const list = rule ? rule.getCriteriaValues()[0] : null;
+  if (Array.isArray(list) && list.indexOf(STATUSES[0]) >= 0) return;
+  const dropdown = SpreadsheetApp.newDataValidation().requireValueInList(STATUSES, true).setAllowInvalid(true).build();
+  sheet.getRange(2, column, Math.max(1, sheet.getMaxRows() - 1), 1).setDataValidation(dropdown);
 }
 
 function index_(rows, key) {

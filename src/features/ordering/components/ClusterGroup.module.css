@@ -1,0 +1,65 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+}
+
+.clusterLabel {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-yellow);
+  white-space: nowrap;
+}
+
+.clusterArea {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.groupRule {
+  flex: 1;
+  height: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.groupCount {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+@media (max-width: 1023.98px) {
+  .groupHead {
+    gap: 8px;
+    height: 24px;
+  }
+
+  .clusterLabel {
+    height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .clusterArea {
+    font-size: 13px;
+  }
+
+  .groupCount {
+    font-size: 11px;
+  }
+}

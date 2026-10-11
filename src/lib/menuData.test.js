@@ -32,7 +32,7 @@ describe('normalizeMenu', () => {
     rows.Dishes.find((d) => d.dish_id === 'ad1').available = false;
     const edited = normalizeMenu(rows);
     expect(edited.restaurants.some((r) => r.id === 'bt')).toBe(false);
-    const dishes = edited.restaurants.flatMap((r) => r.cats.flatMap((c) => c.dishes));
+    const dishes = edited.restaurants.flatMap((r) => r.categories.flatMap((c) => c.dishes));
     expect(dishes.some((d) => d.id === 'ad1')).toBe(false);
   });
 

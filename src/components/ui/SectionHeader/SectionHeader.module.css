@@ -38,11 +38,11 @@
 
 .title {
   margin: 0;
+  color: var(--section-title);
   font-size: 72px;
   line-height: 1.02;
   font-weight: 600;
   letter-spacing: -1px;
-  color: var(--section-title);
 }
 
 .highlight {

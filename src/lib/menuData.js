@@ -12,8 +12,8 @@
 // Result:
 //   settings     { gstRate, deliveryCharge, whatsapp, upiId, upiName, deliverTo }
 //   clusters     [{ id, label, area }]
-//   restaurants  [{ id, name, initials, dist, veg, cl, cats: [{ id, name, dishes: [{ id, name, price, veg, desc }] }] }]
-//   dishTypes    [{ id, name, key: [match words], photo }]   (the quick picks on the table)
+//   restaurants  [{ id, name, initials, distance, isPureVeg, clusterId, categories: [{ id, name, dishes: [{ id, name, price, isVeg, description }] }] }]
+//   dishTypes    [{ id, name, matchWords: [...], photo }]   (the quick picks on the table)
 
 const str = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const num = (v, fallback = 0) => {
@@ -79,32 +79,32 @@ function readRestaurants(restaurantRows, dishRows) {
     .sort(bySort)
     .map((r) => {
       const id = str(r.restaurant_id);
-      const cats = [];
+      const categories = [];
       dishes
         .filter((d) => str(d.restaurant_id) === id)
         .forEach((d) => {
           const name = str(d.category) || 'Menu';
-          let cat = cats.find((c) => c.name === name);
-          if (!cat) {
-            cat = { id: slug(name), name, dishes: [] };
-            cats.push(cat);
+          let category = categories.find((c) => c.name === name);
+          if (!category) {
+            category = { id: slug(name), name, dishes: [] };
+            categories.push(category);
           }
-          cat.dishes.push({
+          category.dishes.push({
             id: str(d.dish_id),
             name: str(d.name),
             price: num(d.price),
-            veg: bool(d.veg, true),
-            desc: str(d.description),
+            isVeg: bool(d.veg, true),
+            description: str(d.description),
           });
         });
       return {
         id,
         name: str(r.name),
         initials: str(r.initials),
-        dist: str(r.distance),
-        veg: bool(r.veg_only, false),
-        cl: str(r.cluster_id),
-        cats,
+        distance: str(r.distance),
+        isPureVeg: bool(r.veg_only, false),
+        clusterId: str(r.cluster_id),
+        categories,
       };
     });
 }
@@ -122,7 +122,7 @@ function readQuickPicks(rows) {
       return {
         id: slug(p.pick_id),
         name: str(p.name),
-        key: words.length ? words : [str(p.name).toLowerCase()],
+        matchWords: words.length ? words : [str(p.name).toLowerCase()],
         photo: photoUrl(p.photo),
       };
     });
@@ -143,5 +143,5 @@ export function normalizeMenu(raw) {
 
 // Every dish of a restaurant, with its category.
 export function allDishes(restaurant) {
-  return restaurant.cats.flatMap((cat) => cat.dishes.map((dish) => ({ dish, cat })));
+  return restaurant.categories.flatMap((category) => category.dishes.map((dish) => ({ dish, category })));
 }

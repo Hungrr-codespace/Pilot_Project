@@ -1,0 +1,23 @@
+.link {
+  color: var(--color-black);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--color-yellow);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.link:hover {
+  color: var(--color-green);
+}
+
+/* A detail still to be filled in (see src/content/legal/business.js) */
+.placeholder {
+  padding: 0 6px;
+  background: var(--color-yellow-soft);
+  outline: 1.5px dashed #c9a800;
+  outline-offset: -1.5px;
+  border-radius: 6px;
+  color: var(--color-black);
+  font-weight: 600;
+}

@@ -5,7 +5,7 @@ const COURSES = [
     questions: [
       {
         q: 'What is the Hungrr pilot?',
-        a: 'It is the first run of Hungrr, made just for BIT Mesra, Patna. During the pilot you browse menus on this website, order on WhatsApp and we deliver on campus.',
+        a: 'It is the first run of Hungrr, made just for BIT Mesra, Patna. During the pilot you order and pay on the pilot menu of this website, and we deliver on campus.',
       },
       {
         q: 'What are the ordering timings?',
@@ -18,7 +18,7 @@ const COURSES = [
     questions: [
       {
         q: 'How do I place an order?',
-        a: 'Turn the table and tap a dish, or open the menu and search. Add your dishes and tap Review to check GST and delivery, changing quantities right on the order note. Confirm, scan the QR with the amount filled in and pay by UPI. Then send the order summary photo and payment screenshot on WhatsApp.',
+        a: 'Open the pilot menu. Turn the table and tap a dish, or open the menu and search. Add your dishes and tap Review to check GST and delivery. Confirm, add your name, phone and delivery address, then scan the QR and pay by UPI. Tap Confirm payment, enter the 12-digit UPI reference number, and send us your bill on WhatsApp.',
       },
       {
         q: 'How does multi-restaurant ordering work?',
@@ -31,7 +31,7 @@ const COURSES = [
     questions: [
       {
         q: 'How do I pay?',
-        a: 'For now we accept UPI payments only. When you confirm your order, scan the QR code: the grand total with GST and delivery is already filled in. Then send us the payment screenshot and your order summary photo on WhatsApp. We check the payment and send your order to the restaurants.',
+        a: 'For now we accept UPI payments only. Scan the QR code: the grand total with GST and delivery is already filled in. Then tap Confirm payment and enter the 12-digit UPI reference number from your UPI app. We check the payment and send your order to the restaurants.',
       },
       {
         q: 'What if something goes wrong with my order?',

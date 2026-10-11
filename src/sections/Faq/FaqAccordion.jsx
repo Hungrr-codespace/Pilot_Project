@@ -18,6 +18,7 @@ export function FaqAccordion() {
   return (
     <>
       <FaqMenu
+        data-reveal=""
         renderQuestion={(question) => {
           const isOpen = question.number === open;
           return (
@@ -57,7 +58,7 @@ export function FaqAccordion() {
           );
         }}
       />
-      <ExternalLink href={whatsapp.href} className={styles.more}>
+      <ExternalLink href={whatsapp.href} className={styles.more} data-reveal="">
         <Icon name="whatsapp" size={19} color="var(--color-green)" />
         Still hungry for more? Message us on WhatsApp.
       </ExternalLink>

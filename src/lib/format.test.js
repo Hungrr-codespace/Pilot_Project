@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatRupees, formatTimestamp, orderPhotoFileName, plural } from './format';
+import { billFileName, formatRupees, formatTimestamp, plural } from './format';
 
 describe('format', () => {
   it('shows paise only when there are any', () => {
@@ -14,9 +14,9 @@ describe('format', () => {
     expect(plural(2, 'dish', 'dishes')).toBe('2 dishes');
   });
 
-  it('formats the order time and photo file name', () => {
+  it('formats the order time and bill file name', () => {
     const date = new Date(2026, 9, 6, 18, 5);
     expect(formatTimestamp(date)).toBe('6 Oct 2026, 6:05 PM');
-    expect(orderPhotoFileName(date)).toBe('hungrr-order-20261006-1805.png');
+    expect(billFileName('HG-261006-K7Q2')).toBe('hungrr-bill-HG-261006-K7Q2.png');
   });
 });

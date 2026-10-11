@@ -1,0 +1,19 @@
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: var(--color-black);
+  color: var(--color-yellow);
+  border: 2px solid var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.logo[data-placeholder] {
+  background: var(--color-white);
+  color: var(--color-text-on-dark);
+  font-size: 10px;
+}

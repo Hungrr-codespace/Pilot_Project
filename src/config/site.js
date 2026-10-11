@@ -21,19 +21,28 @@ export const SOCIAL_LINKS = [
   { id: 'linkedin', label: 'LinkedIn', href: '#' },
 ];
 
-// Page sections, in order. Used by the navigation and the footer.
+// The pages of the site.
+export const ROUTES = {
+  home: '/', // what Hungrr is, how it works, the pilot, FAQ
+  pilot: '/pilot', // the pilot menu: order, pay by UPI, confirm payment
+  privacy: '/privacy-policy',
+  terms: '/terms',
+  refunds: '/refund-policy',
+};
+
+// Sections of the main page, in order. Used by the navigation and the footer.
 export const NAV_LINKS = [
-  { href: '#how', label: 'How it works' },
-  { href: '#restaurants', label: 'Restaurants' },
+  { href: '#about', label: 'About' },
+  { href: '#pilot', label: 'Pilot' },
   { href: '#why', label: 'Why Hungrr' },
   { href: '#faq', label: 'FAQ' },
 ];
 
-// Placeholder pages: create them before launch.
+// The policy pages (their text is in src/content/legal/).
 export const LEGAL_LINKS = [
-  { href: '#privacy', label: 'Privacy Policy' },
-  { href: '#terms', label: 'Terms & Conditions' },
-  { href: '#refunds', label: 'Refund & Cancellation Policy' },
+  { id: 'privacy', to: ROUTES.privacy, label: 'Privacy Policy', short: 'Privacy' },
+  { id: 'terms', to: ROUTES.terms, label: 'Terms & Conditions', short: 'Terms' },
+  { id: 'refunds', to: ROUTES.refunds, label: 'Refund & Cancellation Policy', short: 'Refunds' },
 ];
 
 // The page is designed on a 1440 px desktop canvas and a 390 px mobile canvas, each scaled to the screen.

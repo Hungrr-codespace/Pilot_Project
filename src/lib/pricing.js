@@ -10,7 +10,7 @@ export function countInCart(restaurant, cart) {
 // Every cluster with at least one ordered dish needs its own rider (at least one rider per order).
 export function ridersNeeded(restaurants, clusters, cart) {
   const busy = clusters.filter((c) =>
-    restaurants.some((r) => r.cl === c.id && countInCart(r, cart) > 0),
+    restaurants.some((r) => r.clusterId === c.id && countInCart(r, cart) > 0),
   ).length;
   return Math.max(1, busy);
 }

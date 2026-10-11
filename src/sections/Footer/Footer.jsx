@@ -47,7 +47,7 @@ export function Footer() {
               </div>
             </div>
             <p className={styles.note}>
-              Tap the number above to order on WhatsApp.
+              Tap the number above to message us on WhatsApp.
               <br />
               Have a question or feedback? Email us.
             </p>

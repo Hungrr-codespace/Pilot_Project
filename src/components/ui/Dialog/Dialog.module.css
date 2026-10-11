@@ -1,0 +1,140 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Dims the page; scrolls when the dialog is taller than the screen (small phones with the keyboard open) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.55);
+  animation: fadeIn 0.25s ease both;
+}
+
+.card {
+  position: relative;
+  width: 520px;
+  margin: auto;
+  padding: 36px 40px 32px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 2px solid var(--color-yellow);
+  border-radius: 28px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  animation: popIn 0.35s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  outline: none;
+}
+
+.close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-light-gray);
+  border-radius: var(--radius-pill);
+}
+
+.eyebrow {
+  display: block;
+  margin-right: 48px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.title {
+  margin: 8px 48px 0 0;
+  font-size: 32px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.description {
+  margin: 10px 0 0;
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.body {
+  margin-top: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card {
+    animation: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    width: 350px;
+    padding: 24px 20px 20px;
+    border-radius: 22px;
+  }
+
+  .close {
+    right: 12px;
+    top: 12px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .eyebrow {
+    margin-right: 40px;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .title {
+    margin-right: 40px;
+    font-size: 24px;
+  }
+
+  .description {
+    font-size: 15px;
+  }
+
+  .body {
+    margin-top: 18px;
+  }
+
+  .actions {
+    gap: 8px;
+    margin-top: 22px;
+  }
+}

@@ -1,0 +1,22 @@
+/* The contents list beside the policy text */
+.body {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 64px;
+  align-items: start;
+  width: 1440px;
+  box-sizing: border-box;
+  padding: 72px 80px 120px;
+}
+
+@media (max-width: 1023.98px) {
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    width: 390px;
+    padding: 24px 16px 48px;
+  }
+}

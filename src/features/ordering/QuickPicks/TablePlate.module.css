@@ -1,0 +1,211 @@
+/* A point on the table's rim (rotated into place); the plate hangs from it. */
+.anchor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+.plate {
+  position: absolute;
+  left: -90px;
+  top: -75px;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform-origin: 90px 75px;
+  transition: transform 0.9s var(--ease-turn);
+}
+
+.upright {
+  display: contents;
+}
+
+.dish {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(
+    circle at 50% 50%,
+    #ffffff 0,
+    #ffffff 57%,
+    #e4e4e4 58.5%,
+    #ffffff 65%,
+    #f1f1f1 100%
+  );
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dish:hover {
+  transform: translateY(-5px) scale(1.04);
+}
+
+.dish:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 4px;
+}
+
+.selected {
+  box-shadow:
+    0 0 0 4px var(--color-yellow),
+    0 16px 26px rgba(0, 0, 0, 0.65);
+}
+
+.photo {
+  width: 110px;
+  height: 110px;
+  background-color: #eeeeee;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.noPhoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 110px;
+  height: 110px;
+  box-sizing: border-box;
+  background: var(--color-page);
+  border: 2px dashed var(--color-dashed);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+.tick {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 3px solid var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 14px 6px;
+  background: var(--color-white);
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.cardSelected {
+  background: var(--color-yellow);
+}
+
+.name {
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.served {
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.cardSelected .served {
+  color: var(--color-black);
+}
+
+@media (max-width: 1023.98px) {
+  .anchor {
+    left: 0;
+    top: 0;
+  }
+
+  .plate {
+    display: block;
+    left: -50px;
+    top: -30px;
+    width: 100px;
+    height: 60px;
+    transform-origin: 50px 30px;
+    transition:
+      transform 0.9s var(--ease-turn),
+      opacity 0.9s var(--ease-turn);
+  }
+
+  /* Undo the table's tilt and squash so the plate stands upright */
+  .upright {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transform-origin: 50px 30px;
+    transform: rotate(-11.25deg) scaleY(2.857143);
+  }
+
+  .dish {
+    width: 60px;
+    height: 60px;
+  }
+
+  .photo {
+    width: 44px;
+    height: 44px;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 2px 5px rgba(0, 0, 0, 0.18);
+  }
+
+  .noPhoto {
+    gap: 0;
+    width: 44px;
+    height: 44px;
+    font-size: 7px;
+  }
+
+  .tick {
+    right: -2px;
+    top: -2px;
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+
+  .card {
+    padding: 2px 8px 3px;
+    border-radius: 7px;
+    box-shadow: 0 4px 9px rgba(0, 0, 0, 0.45);
+  }
+
+  .name {
+    font-size: 12px;
+  }
+
+  .served {
+    font-size: 10px;
+  }
+}

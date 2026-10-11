@@ -1,13 +1,25 @@
 # Hungrr website
 
-The Hungrr landing page and ordering flow, built with React 18 and Vite.
+The Hungrr website, built with React 18, React Router and Vite. It has these pages:
 
-- Laptops and desktops (1024 px wide and up) get the desktop design, with sections set apart by panels and a
-  road between them, and headings and cards that fade up as you scroll.
-- Phones and tablets get the mobile design: the flat quick-picks table with 4 dishes, and sections that morph
-  into each other while scrolling.
-- Restaurants, dishes, quick picks and settings come from a Google Sheet, and every paid order is written back
-  to it. Set this up once: see [Connect the Google Sheet](#connect-the-google-sheet).
+- **Main page (`/`)**: what Hungrr is and what it strives to do, the pilot at BIT Mesra (timings, delivery
+  area, payment and how ordering works), why Hungrr, and the FAQ. "Order now" and "Open the pilot menu" lead
+  to the pilot page.
+- **Pilot page (`/pilot`)**: the menu (the quick-picks table and the menu book), the order notepad, and the
+  checkout: delivery details, UPI QR, and payment confirmation with the 12-digit UPI reference number.
+- **Policy pages**: Privacy Policy (`/privacy-policy`), Terms & Conditions (`/terms`) and Refund & Cancellation
+  Policy (`/refund-policy`), linked from both footers. Each has an "In short" summary, numbered sections and a
+  contents list. Their text is in `src/content/legal/`.
+
+All pages:
+
+- Laptops and desktops (1024 px wide and up) get the desktop design: sections set apart by panels, and
+  headings, cards and steps that animate in as they scroll into view and out as they leave.
+- Phones and tablets get the mobile design: the flat quick-picks table with 4 dishes, sections that morph into
+  each other while scrolling, and the same in-and-out animations.
+- Restaurants, dishes, quick picks and settings come from a Google Sheet, and every order (with the customer's
+  details and UPI reference number) is written back to it. Set this up once: see
+  [Connect the Google Sheet](#connect-the-google-sheet).
 
 ## Commands
 
@@ -39,6 +51,11 @@ Full steps are in [google-sheet/SETUP.md](google-sheet/SETUP.md). In short:
 
 Without the URL the site still works with its built-in sample menu, but orders are not saved.
 
+**Already connected the sheet with an earlier version?** Paste the new `google-sheet/Code.gs` into Apps Script,
+save, then **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the
+same, and the Orders tab gets its new columns (customer_name, phone, address, upi_ref, paid_at) with the next
+order.
+
 ### If something goes wrong
 
 | Problem | Fix |
@@ -56,50 +73,64 @@ Without the URL the site still works with its built-in sample menu, but orders a
 ```
 src/
 ├── main.jsx                 Entry point: global styles + <App />
-├── App.jsx                  Providers (layout → menu → order) around the page
+├── App.jsx                  Router (the pages) inside the providers (layout → menu → order)
 ├── pages/
-│   └── HomePage.jsx         The landing page: the six sections in order
-├── sections/                One folder per page section, each with its own components and styles
+│   ├── HomePage.jsx         The main page: its sections in order
+│   ├── PilotPage/           The pilot page: PilotHeader (title), the ordering area, PageFooter
+│   └── LegalPage/           The policy pages: LegalHeader (title, policy tabs, date), LegalContents
+│                            (contents list), LegalDocument (the text), LegalText (links and placeholders)
+├── sections/                One folder per main-page section, each with its own components and styles
 │   ├── Hero/                Headline, app screenshots (PhoneMockup), feature chips
-│   ├── HowItWorks/          OrderSteps, ChatPreview
-│   ├── Restaurants/         The ordering feature (see below)
+│   ├── About/               What Hungrr is: mission card and three pillars
+│   ├── Pilot/               The pilot at BIT Mesra: PilotPass (timings, delivery area, payment and
+│   │                        "Open the pilot menu") and OrderSteps (how ordering works)
 │   ├── WhyHungrr/           BenefitRoad (the six benefits along a road)
 │   ├── Faq/                 FaqMenu (shared card), FaqBoard (desktop), FaqAccordion (mobile)
 │   └── Footer/              FooterRoad, Receipt (site map styled as a bill)
-├── components/              Reusable building blocks used by several sections
-│   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink
-│   └── layout/              PageCanvas, Section, Navbar, RouteDivider (desktop road between sections)
+├── features/
+│   └── ordering/            Everything for ordering on the pilot page (see below)
+├── components/              Reusable building blocks used in several places
+│   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField
+│   └── layout/              PageCanvas, Section, Navbar, PageNav and PageFooter (top bar and footer of the
+│                            pilot and policy pages), ScrollManager (top of the page, or the linked
+│                            section, after moving pages)
 ├── context/                 App-wide state
 │   ├── LayoutProvider.jsx   Which design is showing (desktop/mobile) and its scale
 │   ├── MenuProvider.jsx     The menu from the Google Sheet (cached, with a built-in fallback)
-│   ├── OrderProvider.jsx    Ordering state and actions (cart, menu book, notepad, payment)
-│   └── orderReducer.js      All ordering state changes, as a pure reducer
-├── hooks/                   useViewportWidth, useScrollMorph (mobile), useReveal and useScrollProgress
-│                            (desktop scroll effects), useWhatsAppContact
-├── lib/                     Pure functions, no React: pricing, search, menu data, UPI link, WhatsApp
-│                            message, QR code, order photo, file download, formatting (+ their tests)
+│   ├── OrderProvider.jsx    Ordering actions: cart, menu book, notepad, checkout, payment, bill
+│   └── orderReducer.js      All ordering state changes, as a pure reducer (+ the current order step)
+├── hooks/                   useViewportWidth, useScrollMorph (mobile), useReveal (scroll animations),
+│                            useActiveSection (policy contents), useWhatsAppContact, useDocumentTitle
+├── lib/                     Pure functions, no React: pricing, search, menu data, checkout (details and UPI
+│                            reference checks), UPI link, WhatsApp message, QR code, bill image, file
+│                            download, formatting, policy text (+ their tests)
 ├── services/
-│   └── sheetApi.js          Talks to the Google Sheet: load the menu, submit orders
-├── config/site.js           Brand, contact email, links, layout sizes, image paths
-├── content/                 Page copy: how-it-works steps, benefits, FAQ
+│   └── sheetApi.js          Talks to the Google Sheet: load the menu, save orders and payments
+├── config/site.js           Brand, page addresses (ROUTES), contact email, links, layout sizes, image paths
+├── content/                 Page copy: about, ordering steps (howItWorks.js), benefits, FAQ, and the
+│                            policies in legal/ (business.js holds the business details they show)
 ├── data/menu-fallback.json  Built-in menu, used until the sheet answers or if it cannot be reached
 └── styles/                  tokens.css (colours, fonts, motion, section colours), global.css (base styles
-                             and the fade-up effect), motion.module.css
+                             and the scroll animations), motion.module.css
 ```
 
-The ordering feature in `sections/Restaurants/`:
+The ordering feature in `features/ordering/`:
 
 ```
-Restaurants.jsx              Section: header, table, menu book, notepad; zooms in while paying
+OrderingArea.jsx             The order steps, table, menu book, notepad, checkout dialogs and bill; zooms in
+                             while paying
+OrderProgress.jsx            The five order steps: a rail beside the menu (desktop) or a bar on top of it
 QuickPicks/                  The wooden table: QuickPicksTable, TablePlate, useTableDrag, tableGeometry
 MenuBook/                    MenuBook (desktop spread / mobile pages), BookCover, BookPage, BookLeaf,
                              IntroPage, RestaurantIndex, RestaurantDetails, DishMenu
-OrderNotepad/                OrderNotepad, OrderSheet (cart), PaymentSheet (UPI QR), OrderSlip (order photo),
+OrderNotepad/                OrderNotepad, OrderSheet (cart), PaymentSheet (UPI QR), OrderSlip (the bill),
                              OrderSentCard, NoteSheet, NoteButtons, OrderCharges
+Checkout/                    DetailsDialog (name, phone, address), PaymentDialog (12-digit UPI reference)
 components/                  Parts shared by the pages: RestaurantRow, ClusterGroup, DishRow, CategoryTabs,
                              SearchField, DishTypeFilter, OrderBar, ClusterMap, ClusterMates, EmptyState…
 hooks/useMenuBook.js         What the book shows (filters, groups, open restaurant), derived from state
-ClusterGuide.jsx             Mobile "How clusters work" card
+ClusterGuide.jsx             "How clusters work" card under the menu (mobile; on desktop the same
+                             explanation is the menu book's left page, IntroPage, next to the restaurant list)
 ```
 
 ## How the responsive layout works
@@ -110,7 +141,7 @@ The approved designs are drawn on two canvases: **1440 px** wide for desktop and
 
 - **Styles** are written for the desktop canvas. Mobile overrides sit at the end of each CSS module in
   `@media (max-width: 1023.98px) { … }`. Additions that exist only on desktop (the section panels, the
-  fade-up effect) sit in `@media (min-width: 1024px) { … }` instead.
+  play-once road) sit in `@media (min-width: 1024px) { … }` instead.
 - **Markup** is shared wherever the two designs have the same structure. Where they differ (the navbar, the
   table, the menu book, the FAQ), components read `useLayout().isMobile` and render the right variant.
 - The breakpoint lives in `src/config/site.js` (`LAYOUT.breakpoint`) and in the media queries; change both
@@ -118,23 +149,34 @@ The approved designs are drawn on two canvases: **1440 px** wide for desktop and
 
 ## Scroll effects
 
-**Mobile:** sections morph into each other while scrolling (`useScrollMorph`, on every element marked
+**Both designs: in and out.** Any element with `data-reveal` animates in when it scrolls into view and out
+again when it leaves, from whichever side it left (`useReveal`; styles at the end of `global.css`). Scrolling
+back brings it in again. `data-reveal=""` rises into place (40 px on desktop, 24 px on mobile),
+`data-reveal="pop"` grows in (round markers), and `data-reveal="draw"` leaves the animation to the element's
+own styles. Add `style={{ '--reveal-delay': '150ms' }}` to make it wait, so a group appears one after another.
+Don't put `data-reveal` on an element that already has its own `transform` or `transition`.
+
+**Why Hungrr road.** The road is a group (`data-reveal-group` in `BenefitRoad.jsx`), so its stops and cards
+follow the road instead of animating on their own. The road shows through a mask line (`.drawLine` in
+`BenefitRoad.module.css`), so the road and its centre line draw together.
+
+- Desktop (`data-reveal-group="once"`): the first time the road is well into view it draws itself from left to
+  right, and each stop, connector and card appears as the road reaches it (`--reveal-delay`, timed to the road).
+  Then it stays: scrolling away and back does not replay it.
+- Mobile (`data-reveal-group="scroll"`): the vertical road is drawn down to a line about three quarters of the
+  way down the screen, so it grows as you scroll. Each stop and card appears when the road reaches it, and goes
+  again when you scroll back up (`useReveal` sets `--reveal-progress` on the road).
+
+**Mobile:** sections also morph into each other while scrolling (`useScrollMorph`, on every element marked
 `data-morph`, which `Section` adds).
 
-**Desktop:** three effects keep the sections apart.
+**Desktop panels.** About sits on a black panel and Why Hungrr on a white one (the `@media (min-width: 1024px)`
+block at the end of `About.module.css` and `WhyHungrr.module.css`). Pilot and FAQ stay on the doodle background,
+so the page alternates panel and open space. On a dark panel, text colours come from the section colour slots in
+`tokens.css` (`--section-title`, `--section-text`, `--section-muted`, `--section-highlight`): the panel sets
+them, and `SectionHeader` and `OrderSteps` use them.
 
-- **Panels.** How it works sits on a black panel and Why Hungrr on a white one (the `@media (min-width: 1024px)`
-  block at the end of `HowItWorks.module.css` and `WhyHungrr.module.css`). Restaurants and FAQ stay on the
-  doodle background, so the page alternates panel and open space.
-- **Road dividers.** `<RouteDivider />` in `HomePage.jsx` puts a short road between sections. The moped rides
-  along it as the page scrolls (`useScrollProgress` writes the position to a `--progress` CSS variable).
-- **Fade up.** Any element with `data-reveal=""` fades up the first time it scrolls into view (`useReveal`;
-  styles at the end of `global.css`). Add `style={{ '--reveal-delay': '150ms' }}` to make it wait. Don't put
-  `data-reveal` on an element that already has its own `transform` or `transition`.
-
-On a dark panel, text colours come from the section colour slots in `tokens.css` (`--section-title`,
-`--section-text`, `--section-muted`, `--section-highlight`): the panel sets them, and `SectionHeader` and
-`OrderSteps` use them. Nothing moves for visitors who have turned on reduced motion on their device.
+Nothing moves for visitors who have turned on reduced motion on their device.
 
 ## Conventions
 
@@ -153,12 +195,23 @@ On a dark panel, text colours come from the section colour slots in `tokens.css`
 
 ## How an order works
 
-1. The customer turns the table or opens the menu, adds dishes from one or more restaurants, and reviews the
-   order on the notepad. GST and one delivery charge per rider (one rider per cluster) are added.
-2. **Confirm order** creates an order ID (for example `HG-261006-K7Q2`) and shows a UPI QR with the exact
-   amount; the order ID is in the UPI note.
-3. **Paid? Send it** saves the order photo to the customer's device, sends the order to the Google Sheet, and
-   opens WhatsApp with the order and its ID filled in.
+All on the pilot page. The five steps (`OrderProgress`) stay in view while scrolling: on desktop as a rail on
+the left of the menu, which moves to a bar on top of the menu when it zooms in for paying; on mobile as a bar on
+top of the menu. (They stick to the top of the screen with `position: sticky`, which is why `PageCanvas` uses
+`overflow: clip` rather than `hidden`.)
+
+1. **Pick dishes.** The customer turns the table or opens the menu and adds dishes from one or more
+   restaurants.
+2. **Review order.** The notepad shows the order with GST and one delivery charge per rider (one rider per
+   cluster). Quantities can still be changed.
+3. **Your details.** "Confirm order" opens a dialog for name, phone number and delivery address (remembered on
+   the device for next time). The order gets its ID (for example `HG-261006-K7Q2`) and is saved in the sheet as
+   **Awaiting payment**.
+4. **Pay by UPI.** The QR has the exact amount, with the order ID in the payment note.
+5. **Confirm payment.** "Confirm payment" asks for the 12-digit UPI reference number from the customer's UPI
+   app. The order in the sheet gets the number and becomes **Payment to verify**. The bill (with the customer's
+   details and the UPI reference number) is saved to the device, and the customer can download it again and
+   send it to us on WhatsApp with the order filled in.
 
 ## Build and deploy
 
@@ -173,6 +226,11 @@ or Vercel, connect the GitHub repository (or upload `dist/`) and use:
 
 The URL is built into the site when it is built, so after adding or changing it, redeploy.
 
+The pilot and policy pages have their own addresses (`/pilot`, `/terms`…), so the host must send every address
+to `index.html`. This is
+already set up: Cloudflare Pages does it on its own, Netlify reads `netlify.toml`, and Vercel reads
+`vercel.json`. (Don't add a `_redirects` file with `/* /index.html 200`: Cloudflare rejects that rule.)
+
 Vercel's free Hobby plan is for non-commercial use, so for a business use a paid Vercel plan or another host.
 Then add your domain (hungrr.in) in the host's domain settings, and add the DNS records it shows you at the
 company where you bought the domain. HTTPS is set up automatically.
@@ -181,7 +239,13 @@ company where you bought the domain. HTTPS is set up automatically.
 
 - Real restaurants, dishes, prices, distances and cluster areas (in the Google Sheet). Prices for Palacia Cafe &
   Restaurant and Cafe Hideout are samples.
-- Instagram and LinkedIn links (`SOCIAL_LINKS` in `src/config/site.js`), and the Privacy Policy, Terms &
-  Conditions and Refund & Cancellation pages the footer links to (`LEGAL_LINKS`).
+- Instagram and LinkedIn links (`SOCIAL_LINKS` in `src/config/site.js`).
+- The policy pages: fill in the business details in `src/content/legal/business.js` (registered name and address,
+  GSTIN, Grievance Officer, website host and the date the policies take effect). Until then they show highlighted
+  in [square brackets]. Check the time limits in the refund policy (`refunds.js`: 2 hours to report a problem, a
+  10-minute wait at the door, refunds within 2 working days) and the minimum age of 18 (`privacy.js`), and have a
+  lawyer review all three before launch.
 - The WhatsApp number and UPI ID come from the sheet's Settings tab; the email address is `CONTACT_EMAIL` in
   `src/config/site.js`.
+- The About section's words (mission, pillars) are a first draft in `src/content/about.js`: edit them to say it
+  your way.

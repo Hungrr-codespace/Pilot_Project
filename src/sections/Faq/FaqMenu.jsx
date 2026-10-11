@@ -6,9 +6,9 @@ import { Wordmark } from '@/components/ui/Wordmark/Wordmark';
 import styles from './FaqMenu.module.css';
 
 // The black "FAQ menu" card, with the questions grouped like courses. `renderQuestion` draws each question.
-export function FaqMenu({ renderQuestion, className }) {
+export function FaqMenu({ renderQuestion, className, ...rest }) {
   return (
-    <div className={clsx(styles.menu, className)}>
+    <div className={clsx(styles.menu, className)} {...rest}>
       <div className={styles.head}>
         <div className={styles.brand}>
           <Wordmark tone="light" className={styles.logo} />

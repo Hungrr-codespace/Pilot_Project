@@ -54,9 +54,9 @@
   --ease-turn: cubic-bezier(0.45, 0, 0.2, 1); /* table turn, zoom into the order note */
   --ease-page: cubic-bezier(0.65, 0.05, 0.25, 1); /* menu page flip */
   --ease-book: cubic-bezier(0.65, 0, 0.35, 1); /* menu cover opening */
-    --ease-reveal: cubic-bezier(0.2, 0.7, 0.2, 1); /* sections fading up into view (desktop) */
+  --ease-reveal: cubic-bezier(0.2, 0.7, 0.2, 1); /* sections fading up into view (desktop) */
 
-  /* Section text colours. A section on a dark panel overrides these (see HowItWorks.module.css). */
+  /* Section text colours. A section on a dark panel overrides these (see About.module.css). */
   --section-title: var(--color-text);
   --section-text: var(--color-text-body);
   --section-muted: #676767;

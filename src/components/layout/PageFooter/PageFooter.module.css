@@ -1,0 +1,163 @@
+.footer {
+  flex-shrink: 0;
+  width: 1440px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 64px 80px 40px;
+  background: var(--color-black);
+  border-radius: 96px 96px 0 0;
+  color: var(--color-white);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logo {
+  width: 166px;
+  height: 50px;
+}
+
+.tagline {
+  font-size: 20px;
+  color: var(--color-text-on-dark);
+}
+
+.help {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.helpText {
+  font-size: 20px;
+  color: var(--color-text-on-dark);
+}
+
+.whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  padding: 0 26px 0 8px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.whatsapp:hover {
+  color: var(--color-black);
+}
+
+.whatsappIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-dark-border);
+  font-size: 16px;
+  color: var(--color-text-on-dark);
+}
+
+.links {
+  display: flex;
+  gap: 24px;
+}
+
+.links a {
+  color: var(--color-white);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.links a:hover,
+.links a[aria-current='page'] {
+  color: var(--color-yellow);
+}
+
+@media (max-width: 1023.98px) {
+  .footer {
+    width: 390px;
+    gap: 24px;
+    margin-top: 0;
+    padding: 30px 20px 26px;
+    border-radius: 34px 34px 0 0;
+  }
+
+  .top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .logo {
+    width: 110px;
+    height: 33px;
+  }
+
+  .tagline {
+    font-size: 15px;
+  }
+
+  .help {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .helpText {
+    font-size: 15px;
+  }
+
+  .whatsapp {
+    gap: 10px;
+    height: 50px;
+    padding: 0 20px 0 6px;
+    font-size: 18px;
+  }
+
+  .whatsappIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-top: 18px;
+    font-size: 13px;
+  }
+
+  .links {
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
+}

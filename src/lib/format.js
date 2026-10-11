@@ -21,8 +21,7 @@ export function formatTimestamp(date) {
   return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}, ${hours}:${pad2(date.getMinutes())} ${ampm}`;
 }
 
-// "hungrr-order-20261006-1805.png"
-export function orderPhotoFileName(date) {
-  const day = `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}`;
-  return `hungrr-order-${day}-${pad2(date.getHours())}${pad2(date.getMinutes())}.png`;
+// "hungrr-bill-HG-261006-K7Q2.png"
+export function billFileName(orderId) {
+  return `hungrr-bill-${orderId || 'order'}.png`;
 }

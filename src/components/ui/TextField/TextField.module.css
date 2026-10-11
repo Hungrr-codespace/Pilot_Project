@@ -1,0 +1,117 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 14px;
+  transition: box-shadow 0.15s ease;
+}
+
+.control:focus-within {
+  box-shadow: 0 0 0 3px var(--color-yellow);
+}
+
+.multiline {
+  align-items: stretch;
+}
+
+.prefix {
+  padding-left: 16px;
+  font-size: 18px;
+  color: var(--color-text-subtle);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  margin: 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 18px;
+  color: var(--color-black);
+}
+
+.prefix + .input {
+  padding-left: 10px;
+}
+
+textarea.input {
+  height: auto;
+  min-height: 80px;
+  padding: 13px 16px;
+  line-height: 1.4;
+  resize: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.hint,
+.error {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.hint {
+  color: var(--color-text-subtle);
+}
+
+.error {
+  color: var(--color-nonveg);
+  font-weight: 500;
+}
+
+.invalid .control {
+  border-color: var(--color-nonveg);
+}
+
+@media (max-width: 1023.98px) {
+  .label {
+    font-size: 14px;
+  }
+
+  .control {
+    min-height: 50px;
+    border-radius: 12px;
+  }
+
+  /* 17 px keeps phones from zooming in when the box is tapped */
+  .prefix,
+  .input {
+    font-size: 17px;
+  }
+
+  .input {
+    height: 48px;
+    padding: 0 14px;
+  }
+
+  textarea.input {
+    min-height: 74px;
+    padding: 12px 14px;
+  }
+
+  .hint,
+  .error {
+    font-size: 13px;
+  }
+}

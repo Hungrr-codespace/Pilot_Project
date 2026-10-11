@@ -1,0 +1,121 @@
+.sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 500px;
+  height: 722px;
+  box-sizing: border-box;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 31px, var(--color-note-rule) 31px 32px) 0 128px /
+      100% 100% no-repeat,
+    var(--color-note);
+  border-radius: 6px 6px 10px 10px;
+}
+
+.margin {
+  position: absolute;
+  left: 58px;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px solid var(--color-note-margin);
+}
+
+.strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 26px;
+  background: var(--color-dark);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Text column, right of the margin */
+.body {
+  position: absolute;
+  left: 78px;
+  right: 30px;
+  top: 46px;
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.title {
+  font-family: var(--font-hand);
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.subtitle {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--color-ink-soft);
+}
+
+/* Buttons along the bottom of a sheet */
+.actions {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 26px;
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 1023.98px) {
+  .sheet {
+    width: 330px;
+    height: 616px;
+    background:
+      repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 27px, var(--color-note-rule) 27px 28px) 0 100px /
+        100% 100% no-repeat,
+      var(--color-note);
+  }
+
+  .margin {
+    left: 42px;
+  }
+
+  .strip {
+    height: 20px;
+  }
+
+  .body {
+    left: 56px;
+    right: 18px;
+    top: 32px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+  }
+
+  .title {
+    font-size: 28px;
+    line-height: 1.15;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .actions {
+    left: 14px;
+    right: 14px;
+    bottom: 16px;
+    gap: 8px;
+  }
+}

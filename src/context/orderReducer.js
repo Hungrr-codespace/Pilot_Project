@@ -1,5 +1,7 @@
 // Everything the customer does while ordering, as one reducer: the menu book, the quick-picks table, search,
-// the cart, the order notepad and the sent order. Pure function; side effects live in OrderProvider.
+// the cart, the order notepad, the checkout dialogs and the paid order. Pure function; side effects live in
+// OrderProvider.
+import { EMPTY_CUSTOMER } from '@/lib/checkout';
 
 export const initialOrderState = {
   book: {
@@ -18,8 +20,10 @@ export const initialOrderState = {
     page: 'order', // 'order' (review) | 'pay' (UPI QR)
     isLeaving: false, // slides away after "Paid?"
   },
+  dialog: null, // checkout dialog on screen: 'details' (before the QR) | 'payment' (UPI reference number)
+  customer: EMPTY_CUSTOMER, // { name, phone, address } for delivery
   orderId: '',
-  sentOrder: null, // { timestamp, photoUrl, fileName } once "Paid?" is tapped
+  sentOrder: null, // { timestamp, photoUrl, fileName, upiRef } once the payment is confirmed
 };
 
 export function orderReducer(state, action) {
@@ -66,6 +70,7 @@ export function orderReducer(state, action) {
         query: '',
         book: { ...state.book, page: 'index' },
         notepad: initialOrderState.notepad,
+        dialog: null,
         sentOrder: null,
       };
 
@@ -79,15 +84,31 @@ export function orderReducer(state, action) {
     case 'notepad/open':
       return { ...state, notepad: { ...initialOrderState.notepad, isOpen: true } };
     case 'notepad/close':
-      return { ...state, notepad: initialOrderState.notepad };
-    case 'notepad/confirm':
-      return { ...state, orderId: action.orderId, notepad: { ...state.notepad, page: 'pay' } };
+      return { ...state, notepad: initialOrderState.notepad, dialog: null };
     case 'notepad/backToOrder':
       return { ...state, notepad: { ...state.notepad, page: 'order' } };
+
+    // Checkout: "Confirm order" asks for delivery details, then the payment sheet (QR) shows.
+    // After paying, "Confirm payment" asks for the UPI reference number.
+    case 'checkout/askDetails':
+      return { ...state, dialog: 'details' };
+    case 'checkout/detailsSaved':
+      return {
+        ...state,
+        customer: action.customer,
+        orderId: action.orderId,
+        dialog: null,
+        notepad: { ...state.notepad, page: 'pay' },
+      };
+    case 'checkout/askPayment':
+      return { ...state, dialog: 'payment' };
+    case 'checkout/closeDialog':
+      return { ...state, dialog: null };
 
     case 'order/sent':
       return {
         ...state,
+        dialog: null,
         sentOrder: action.sentOrder,
         book: { ...state.book, page: 'index' },
         notepad: { ...state.notepad, isLeaving: true },
@@ -100,6 +121,7 @@ export function orderReducer(state, action) {
     case 'order/new':
       return {
         ...initialOrderState,
+        customer: state.customer, // ready for the next order
         restaurantId: state.restaurantId,
         categoryByRestaurant: state.categoryByRestaurant,
         tableTurns: state.tableTurns,
@@ -113,3 +135,14 @@ export function orderReducer(state, action) {
 // The order note and payment are zoomed in (the table fades out) while paying and after sending.
 export const isOrderZoomed = (state) =>
   (state.notepad.isOpen && state.notepad.page === 'pay') || !!state.sentOrder;
+
+// Where the customer is in the five ordering steps shown on the pilot page:
+// 1 pick dishes · 2 review order · 3 delivery details · 4 pay by UPI · 5 confirm payment · 6 done.
+export function getOrderStep(state) {
+  if (state.sentOrder) return 6;
+  if (state.dialog === 'payment') return 5;
+  if (state.notepad.isOpen && state.notepad.page === 'pay') return 4;
+  if (state.dialog === 'details') return 3;
+  if (state.notepad.isOpen) return 2;
+  return 1;
+}

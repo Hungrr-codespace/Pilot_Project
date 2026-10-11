@@ -1,0 +1,189 @@
+.header {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 500px;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-yellow);
+  border-radius: 0 0 120px 120px;
+}
+
+.nav {
+  position: absolute;
+  left: 80px;
+  top: 32px;
+  width: 1280px;
+}
+
+.intro {
+  position: absolute;
+  left: 80px;
+  top: 136px;
+  width: 1280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.topRow {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* The three policies, as a segmented switch */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--color-black);
+  background: var(--color-yellow-soft);
+}
+
+.tab[aria-current='page'] {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.title {
+  margin: 28px 0 0;
+  font-size: 84px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+.lead {
+  margin: 22px 0 0;
+  width: 720px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+.updated {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 22px 0 0;
+  font-size: 17px;
+}
+
+.updatedLabel {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 1023.98px) {
+  .header {
+    width: 390px;
+    height: auto;
+    padding: 14px 20px 26px;
+    box-sizing: border-box;
+    background: var(--color-yellow);
+    border-radius: 0 0 44px 44px;
+  }
+
+  .backdrop {
+    display: none;
+  }
+
+  .nav {
+    position: static;
+    width: auto;
+  }
+
+  .intro {
+    position: static;
+    width: auto;
+    margin-top: 26px;
+  }
+
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .pill {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .tabs {
+    align-self: stretch;
+  }
+
+  .tab {
+    flex: 1;
+    justify-content: center;
+    height: 38px;
+    padding: 0 8px;
+    font-size: 15px;
+  }
+
+  .title {
+    margin-top: 16px;
+    font-size: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  .lead {
+    width: auto;
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .updated {
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 15px;
+  }
+
+  .updatedLabel {
+    font-size: 11px;
+  }
+}

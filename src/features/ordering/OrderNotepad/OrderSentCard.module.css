@@ -1,0 +1,164 @@
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 506px;
+  z-index: 42;
+  width: 640px;
+  margin-left: -320px;
+  box-sizing: border-box;
+  padding: 20px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  background: var(--color-white);
+  border: 2px solid var(--color-yellow);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  animation: riseIn 0.5s ease 1.4s both; /* after the slip has torn off */
+}
+
+.message {
+  font-size: 21px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.saved {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-green);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.secondary {
+  display: contents;
+}
+
+.whatsapp,
+.download,
+.newOrder {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  color: var(--color-black);
+}
+
+.whatsapp {
+  gap: 10px;
+  padding: 0 22px 0 6px;
+  background: var(--color-yellow);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.whatsappIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.download,
+.newOrder {
+  gap: 8px;
+  padding: 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.download {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+}
+
+.newOrder {
+  background: var(--color-light-gray);
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    left: 0;
+    top: 420px;
+    width: 350px;
+    margin-left: 0;
+    padding: 16px 16px 18px;
+    gap: 10px;
+    border-radius: 22px;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+  }
+
+  .message {
+    font-size: 17px;
+    color: inherit;
+  }
+
+  .saved {
+    gap: 5px;
+    font-size: 13px;
+  }
+
+  /* WhatsApp full width, then Download and New order side by side */
+  .actions {
+    display: contents;
+  }
+
+  .secondary {
+    align-self: stretch;
+    display: flex;
+    gap: 8px;
+  }
+
+  .whatsapp {
+    align-self: stretch;
+    justify-content: center;
+    height: 50px;
+    padding: 0;
+    font-size: 16px;
+  }
+
+  .whatsappIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .download,
+  .newOrder {
+    flex: 1;
+    justify-content: center;
+    height: 46px;
+    padding: 0;
+    font-size: 14px;
+    color: inherit;
+  }
+
+  .download {
+    gap: 6px;
+  }
+}

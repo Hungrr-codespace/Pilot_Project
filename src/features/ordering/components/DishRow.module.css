@@ -1,0 +1,157 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 -10px;
+  padding: 14px 10px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  background: transparent;
+}
+
+.highlighted {
+  background: var(--color-highlight);
+}
+
+.info {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name {
+  font-size: 19px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.leader {
+  flex: 1;
+  min-width: 16px;
+  height: 0;
+  margin-top: 8px;
+  border-top: 2px dotted rgba(0, 0, 0, 0.3);
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-black);
+  white-space: nowrap;
+}
+
+.description {
+  padding-left: 24px;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--color-text-subtle);
+}
+
+.add,
+.stepper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: 88px;
+  height: 38px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+}
+
+.add {
+  justify-content: center;
+  gap: 4px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-black);
+}
+
+.stepper {
+  justify-content: space-between;
+  padding: 0 2px;
+  background: var(--color-black);
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+}
+
+.quantity {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+@media (max-width: 1023.98px) {
+  .row {
+    gap: 10px;
+    margin: 0 -8px;
+    padding: 11px 8px;
+    border-radius: 10px;
+  }
+
+  .info {
+    gap: 3px;
+  }
+
+  .titleLine {
+    gap: 6px;
+  }
+
+  .name {
+    font-size: 16px;
+    line-height: 1.2;
+    color: inherit;
+  }
+
+  .description {
+    padding-left: 22px;
+    font-size: 12px;
+  }
+
+  .price {
+    padding-left: 22px;
+    font-size: 15px;
+    color: inherit;
+    white-space: normal;
+  }
+
+  .add,
+  .stepper {
+    width: 78px;
+    height: 36px;
+  }
+
+  .add {
+    gap: 3px;
+    font-size: 13px;
+    letter-spacing: normal;
+    color: inherit;
+  }
+
+  .step {
+    width: 30px;
+    height: 30px;
+  }
+
+  .quantity {
+    font-size: 15px;
+  }
+}

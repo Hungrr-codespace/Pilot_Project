@@ -1,0 +1,131 @@
+/* The table, then the menu book overlapping its lower edge */
+.area {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 1456px;
+  padding: 40px 80px 0;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.9s var(--ease-turn);
+}
+
+/* The order steps: a full-height track, with the steps sticking to the top of the screen inside it */
+.progressTrack {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.progress {
+  position: sticky;
+  pointer-events: auto;
+}
+
+/* Desktop: a rail in the left margin, beside the menu */
+.railTrack {
+  left: 12px; /* the open menu starts at 120px */
+  top: 230px;
+  bottom: 40px;
+}
+
+.railTrack .progress {
+  top: 24px;
+}
+
+/* Desktop while paying, and mobile: a bar on top of the menu */
+.barTrack {
+  left: 80px;
+  right: 80px;
+  top: 48px;
+  bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.barTrack .progress {
+  top: 20px;
+}
+
+.table {
+  opacity: 1;
+  transition: opacity 0.5s ease 0.25s;
+}
+
+/* The menu book, and the notepad and order photo that open over it */
+.bookStage {
+  position: relative;
+  z-index: 2;
+  width: 1200px;
+  height: 760px;
+  margin: -110px auto 0;
+  transform-origin: 50% 0;
+  transition: transform 0.9s var(--ease-turn);
+}
+
+/* Paying: the table fades out and the book zooms in on the notepad */
+.zoomed {
+  height: 1121px;
+}
+
+.zoomed .table {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.zoomed .bookStage {
+  transform: translateY(-426px) scale(1.12); /* just under the order steps bar */
+}
+
+@media (max-width: 1023.98px) {
+  .area {
+    width: 390px;
+    height: auto;
+    padding: 92px 0 56px; /* room for the order steps on top */
+    transition: none;
+  }
+
+  .barTrack {
+    left: 16px;
+    right: 16px;
+    top: 14px;
+    bottom: 20px;
+    display: block;
+  }
+
+  .barTrack .progress {
+    top: 10px;
+  }
+
+  .table {
+    margin-top: 26px;
+    transition: opacity 0.45s ease 0.2s;
+  }
+
+  .bookStage {
+    flex-shrink: 0;
+    width: 350px;
+    height: 660px;
+    margin: -36px auto 0;
+    transform: none;
+    transform-origin: 50% 50%;
+    transition:
+      transform 0.9s var(--ease-turn),
+      margin-bottom 0.9s var(--ease-turn);
+  }
+
+  .zoomed {
+    height: auto;
+  }
+
+  .zoomed .bookStage {
+    margin-bottom: -244px;
+    transform: translateY(-244px);
+  }
+
+  .clusterGuide {
+    margin: 30px 20px 0;
+  }
+}

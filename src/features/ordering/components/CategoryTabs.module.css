@@ -1,0 +1,40 @@
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+  white-space: nowrap;
+}
+
+.active {
+  background: var(--color-black);
+  color: var(--color-yellow);
+}
+
+@media (max-width: 1023.98px) {
+  .tabs {
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    flex-shrink: 0;
+    padding-bottom: 2px;
+  }
+
+  .tab {
+    height: 34px;
+    padding: 0 13px;
+    font-size: 14px;
+  }
+}

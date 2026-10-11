@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { Link } from 'react-router';
 import { BRAND, CAMPUS, LEGAL_LINKS, NAV_LINKS, ORDER_HOURS } from '@/config/site';
 import { useLayout } from '@/context/layout';
 import { Icon } from '@/components/ui/Icon/Icon';
@@ -81,11 +82,11 @@ export function Receipt() {
           <span className={styles.label}>The fine print</span>
           <div className={styles.legalLinks}>
             {LEGAL_LINKS.map((link, i) => (
-              <Fragment key={link.href}>
+              <Fragment key={link.id}>
                 {i > 0 && !isMobile && <span className={styles.separator}>·</span>}
-                <a href={link.href} className={styles.legalLink}>
+                <Link to={link.to} className={styles.legalLink}>
                   {link.label}
-                </a>
+                </Link>
               </Fragment>
             ))}
           </div>

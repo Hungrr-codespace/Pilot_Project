@@ -19,7 +19,7 @@ export const BENEFITS = [
   {
     icon: 'bolt',
     title: 'Faster orders',
-    text: 'Pick from the menu, send one message on WhatsApp and your order is on its way.',
+    text: 'Pick from the menu, pay by UPI and confirm in a tap. Your order is on its way.',
   },
   {
     icon: 'city',

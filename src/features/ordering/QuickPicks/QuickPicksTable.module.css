@@ -1,0 +1,418 @@
+.band {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 1440px;
+  height: 640px;
+  margin: 0 -80px;
+}
+
+/* Heading (left) and turn buttons (right), over the table */
+.head {
+  display: contents;
+}
+
+.heading,
+.controls {
+  z-index: 1;
+}
+
+.heading {
+  position: absolute;
+  left: 80px;
+  top: 34px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-black);
+}
+
+.title {
+  font-size: 30px;
+  line-height: 1.05;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.hint {
+  width: 260px;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.controls {
+  position: absolute;
+  right: 80px;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.turnButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.turn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.turn:hover {
+  background-color: var(--color-yellow);
+}
+
+.turn:active {
+  transform: scale(0.94);
+}
+
+.controlsHint {
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+/* The table: drag it sideways to turn it */
+.surface {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 640px;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  --fade: linear-gradient(
+    180deg,
+    #000000 0,
+    #000000 470px,
+    rgba(0, 0, 0, 0.97) 500px,
+    rgba(0, 0, 0, 0.88) 530px,
+    rgba(0, 0, 0, 0.7) 560px,
+    rgba(0, 0, 0, 0.45) 590px,
+    rgba(0, 0, 0, 0.22) 615px,
+    rgba(0, 0, 0, 0.08) 632px,
+    rgba(0, 0, 0, 0) 640px
+  );
+  -webkit-mask-image: var(--fade);
+  mask-image: var(--fade);
+}
+
+.wood {
+  position: absolute;
+  left: -120px;
+  top: 70px;
+  width: 1680px;
+  height: 1680px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  background-color: #0b0b0b;
+  background-image: url('/assets/table-ebony.jpg');
+  background-position: center top;
+  background-size: 1680px 640px;
+  background-repeat: no-repeat;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.16),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 16px rgba(0, 0, 0, 0.28),
+    0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.rim {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  right: 30px;
+  bottom: 30px;
+  border-radius: var(--radius-pill);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 222, 33, 0.85),
+    0 0 0 5px rgba(0, 0, 0, 0.25),
+    0 0 0 6px rgba(255, 222, 33, 0.3);
+}
+
+.glow {
+  position: absolute;
+  left: 460px;
+  top: -140px;
+  width: 760px;
+  height: 760px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 222, 33, 0.16) 0,
+    rgba(255, 222, 33, 0.07) 38%,
+    rgba(255, 222, 33, 0) 70%
+  );
+}
+
+/* Glass top */
+.glass {
+  position: absolute;
+  left: 140px;
+  top: 140px;
+  width: 1400px;
+  height: 1400px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.03) 0,
+    rgba(255, 255, 255, 0.05) 96%,
+    rgba(255, 255, 255, 0.16) 99.3%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.4),
+    inset 0 0 0 5px rgba(255, 255, 255, 0.06),
+    0 10px 26px rgba(0, 0, 0, 0.55);
+}
+
+.sheen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    116deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.075) 37%,
+    rgba(255, 255, 255, 0.02) 41%,
+    rgba(255, 255, 255, 0) 44%,
+    rgba(255, 255, 255, 0) 54%,
+    rgba(255, 255, 255, 0.045) 57%,
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+
+/* Turns with the table; the plates sit on it */
+.rotor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.9s var(--ease-turn);
+}
+
+/* Darkens the far side of the table */
+.vignette {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  background: radial-gradient(
+    980px 720px at 840px 240px,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 32%,
+    rgba(0, 0, 0, 0.3) 62%,
+    rgba(0, 0, 0, 0.62) 100%
+  );
+}
+
+@media (max-width: 1023.98px) {
+  .band {
+    width: 390px;
+    height: 280px;
+    margin: 0;
+  }
+
+  .head {
+    position: absolute;
+    z-index: 1;
+    left: 20px;
+    right: 20px;
+    top: 0;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .heading {
+    position: static;
+    width: auto;
+    gap: 3px;
+  }
+
+  .eyebrow {
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    color: inherit;
+  }
+
+  .title {
+    font-size: 23px;
+    color: inherit;
+  }
+
+  .controls {
+    display: contents;
+  }
+
+  .turnButtons {
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .turn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobileHint {
+    position: absolute;
+    left: 20px;
+    top: 62px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .surface {
+    top: 88px;
+    width: 390px;
+    height: 192px;
+    --fade: linear-gradient(
+      180deg,
+      #000000 0,
+      #000000 152px,
+      rgba(0, 0, 0, 0.9) 164px,
+      rgba(0, 0, 0, 0.6) 176px,
+      rgba(0, 0, 0, 0.28) 184px,
+      rgba(0, 0, 0, 0.08) 189px,
+      rgba(0, 0, 0, 0) 190px
+    );
+  }
+
+  .wood {
+    left: -135px;
+    top: 8px;
+    width: 660px;
+    height: 296px;
+    border-radius: 50%;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255, 255, 255, 0.16),
+      inset 0 0 0 3px rgba(0, 0, 0, 0.6),
+      inset 0 0 0 10px rgba(0, 0, 0, 0.28);
+  }
+
+  .rim {
+    left: 10px;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 1.5px rgba(255, 222, 33, 0.85),
+      0 0 0 4px rgba(0, 0, 0, 0.25),
+      0 0 0 5px rgba(255, 222, 33, 0.3);
+  }
+
+  .glow {
+    left: 180px;
+    top: -4px;
+    width: 300px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgba(255, 222, 33, 0.18) 0,
+      rgba(255, 222, 33, 0.07) 50%,
+      rgba(255, 222, 33, 0) 100%
+    );
+  }
+
+  .glass {
+    left: 26px;
+    top: 18px;
+    width: 608px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgba(255, 255, 255, 0.03) 0,
+      rgba(255, 255, 255, 0.05) 95%,
+      rgba(255, 255, 255, 0.16) 99%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255, 255, 255, 0.4),
+      inset 0 0 0 4px rgba(255, 255, 255, 0.06),
+      0 6px 16px rgba(0, 0, 0, 0.55);
+  }
+
+  .sheen {
+    background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0) 34%,
+      rgba(255, 255, 255, 0.07) 40%,
+      rgba(255, 255, 255, 0) 46%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  .oval {
+    position: absolute;
+    left: 330px;
+    top: 148px;
+    width: 0;
+    height: 0;
+    transform: scaleY(0.35);
+  }
+
+  .tilt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform: rotate(11.25deg);
+  }
+
+  .rotor {
+    width: 0;
+    height: 0;
+  }
+
+  .vignette {
+    border-radius: 50%;
+    background: radial-gradient(
+      330px 150px at 330px 56px,
+      rgba(0, 0, 0, 0) 0,
+      rgba(0, 0, 0, 0) 45%,
+      rgba(0, 0, 0, 0.3) 75%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+}

@@ -1,5 +1,11 @@
 # Connect the Google Sheet (about 10 minutes, once)
 
+> **Already connected your sheet with an earlier version?** Only two things to do: open the sheet's
+> **Extensions → Apps Script**, replace everything with the new `Code.gs` and save, then
+> **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same.
+> The next order adds the new columns (customer_name, phone, address, upi_ref, paid_at) to your Orders tab by
+> itself, and the status dropdown gets "Awaiting payment".
+
 The website reads restaurants, dishes and settings from a Google Sheet, and writes every paid order into the same
 sheet. A small Google Apps Script (free, runs on your Google account) connects the two.
 
@@ -42,10 +48,15 @@ Without the URL the website still works with its built-in sample menu, but order
 - **Hide something without deleting it:** set `active` (restaurants, quick picks) or `available` (dishes) to FALSE.
 - **Dish photos for the table:** upload the photo to Google Drive, set sharing to "Anyone with the link", and paste the
   share link in the `photo` column of QuickPicks. Square photos about 600 × 600 px look best.
-- **Orders:** each paid order arrives in **Orders** with status "Payment to verify", and one row per dish in
-  **OrderItems**. The customer's order ID (for example `HG-261006-K7Q2`) is in their WhatsApp message, on their order
-  photo, and in the note of their UPI payment, so you can match the payment screenshot to the row. Then move the
-  status along: Paid → Preparing → Out for delivery → Delivered (or Cancelled).
+- **Orders:** each order arrives in **Orders** with the customer's name, phone and delivery address, and one row
+  per dish in **OrderItems**.
+  - **Awaiting payment:** the customer has given their details and sees the QR, but hasn't confirmed paying yet.
+  - **Payment to verify:** the customer tapped **Confirm payment** and entered their 12-digit UPI reference number
+    (the `upi_ref` column). Find the same number in your UPI app (or check the order ID in the payment note),
+    then move the status along: Paid → Preparing → Out for delivery → Delivered (or Cancelled).
+  - The order ID (for example `HG-261006-K7Q2`) is also on the customer's bill and in their WhatsApp message.
+  - If `notes` says "UPI ref also used on …", the same reference number was entered for another order: check
+    before accepting it.
 - **total_check** says OK when the total the customer saw matches the sheet's own calculation. If it says CHECK,
   look at that order before accepting the payment (usually a price was changed while the customer was ordering).
 
@@ -56,6 +67,8 @@ website needs no change.
 
 ## Good to know
 
+- The Orders tab now holds customers' names, phone numbers and addresses. Keep the sheet private: share it only
+  with the people who handle orders.
 - The web app URL is public, like the website. Through it, anyone can read the menu tabs (which the website shows
   anyway) and submit orders. They cannot read the Orders tabs. The script recalculates every price and total from
   the sheet and ignores dishes that are not on the menu.

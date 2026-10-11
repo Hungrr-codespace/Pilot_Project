@@ -1,0 +1,188 @@
+.map {
+  position: relative;
+  width: 488px;
+  height: 200px;
+}
+
+.routes {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  fill: none;
+  stroke: var(--color-black);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 8;
+}
+
+.campus {
+  position: absolute;
+  left: 0;
+  top: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.campusName {
+  position: absolute;
+  left: 0;
+  top: 140px;
+  width: 90px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-black);
+  white-space: pre-line;
+}
+
+.clusterName {
+  position: absolute;
+  left: 182px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.clusterLabel {
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-black);
+}
+
+.upperName {
+  top: 0;
+}
+
+.lowerName {
+  top: 180px;
+}
+
+.rider {
+  position: absolute;
+  left: 166px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 2px solid var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.upperRider {
+  top: 37px;
+}
+
+.lowerRider {
+  top: 133px;
+}
+
+.stops {
+  position: absolute;
+  left: 222px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.upperStops {
+  top: 30px;
+}
+
+.lowerStops {
+  top: 126px;
+}
+
+.stop {
+  width: 44px;
+  height: 44px;
+  border-width: 2.5px;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1023.98px) {
+  .map {
+    align-self: center;
+    width: 316px;
+    height: 170px;
+  }
+
+  .routes {
+    stroke-width: 2.2;
+    stroke-dasharray: 0.1 7;
+  }
+
+  .campus {
+    top: 60px;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .campusName {
+    left: -2px;
+    top: 112px;
+    width: auto;
+    font-size: 11px;
+    color: inherit;
+  }
+
+  .clusterName {
+    left: 112px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .lowerName {
+    top: 152px;
+  }
+
+  .rider {
+    left: 98px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .upperRider {
+    top: 31px;
+  }
+
+  .lowerRider {
+    top: 111px;
+  }
+
+  .stops {
+    left: 136px;
+    gap: 12px;
+  }
+
+  .upperStops {
+    top: 27px;
+  }
+
+  .lowerStops {
+    top: 107px;
+  }
+
+  .stop,
+  .stop[data-placeholder] {
+    width: 34px;
+    height: 34px;
+    border-width: 2px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+    font-size: 10px;
+  }
+}

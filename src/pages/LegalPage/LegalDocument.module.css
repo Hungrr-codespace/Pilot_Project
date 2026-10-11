@@ -1,0 +1,263 @@
+/* The policy text on a white sheet */
+.paper {
+  min-width: 0;
+  padding: 56px 72px 64px;
+  background: var(--color-white);
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 30px 80px rgba(0, 0, 0, 0.06);
+}
+
+/* In short: the main points on a black card */
+.inShort {
+  margin-bottom: 48px;
+  padding: 30px 36px 32px;
+  background: var(--color-black);
+  border-radius: 28px;
+  color: var(--color-white);
+}
+
+.inShortLabel {
+  display: block;
+  margin-bottom: 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.inShortList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inShortItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 19px;
+  line-height: 1.5;
+}
+
+/* Links inside the black card */
+.inShortItem a {
+  color: var(--color-white);
+}
+
+.inShortItem a:hover {
+  color: var(--color-yellow);
+}
+
+.tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.section {
+  scroll-margin-top: 32px;
+}
+
+.section + .section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px dashed var(--color-dashed);
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 18px;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.number {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-text-faint);
+}
+
+.paragraph {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--color-text-body);
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.list:last-child {
+  margin-bottom: 0;
+}
+
+.item {
+  position: relative;
+  padding-left: 30px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--color-text-body);
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0.62em;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+/* Contact details, like the lines of a bill */
+.details {
+  margin: 4px 0 18px;
+  border-top: 2px dashed var(--color-dashed);
+}
+
+.details:last-child {
+  margin-bottom: 0;
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 2px dashed var(--color-dashed);
+}
+
+.detailLabel {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.detailValue {
+  margin: 0;
+  font-size: 19px;
+  color: var(--color-black);
+}
+
+@media (max-width: 1023.98px) {
+  .paper {
+    padding: 22px 18px 30px;
+    border-radius: 28px;
+  }
+
+  .inShort {
+    margin-bottom: 32px;
+    padding: 20px 18px 22px;
+    border-radius: 20px;
+  }
+
+  .inShortLabel {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .inShortList {
+    gap: 12px;
+  }
+
+  .inShortItem {
+    gap: 10px;
+    font-size: 15.5px;
+    line-height: 1.45;
+  }
+
+  .tick {
+    width: 22px;
+    height: 22px;
+    margin-top: 0;
+  }
+
+  .section {
+    scroll-margin-top: 16px;
+  }
+
+  .section + .section {
+    margin-top: 28px;
+    padding-top: 28px;
+  }
+
+  .heading {
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 22px;
+  }
+
+  .number {
+    font-size: 12px;
+  }
+
+  .paragraph {
+    margin-bottom: 12px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .list {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .item {
+    padding-left: 22px;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .item::before {
+    left: 2px;
+    width: 8px;
+    height: 8px;
+  }
+
+  .detail {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 10px 0;
+  }
+
+  .detailLabel {
+    font-size: 11px;
+  }
+
+  .detailValue {
+    font-size: 16px;
+  }
+}

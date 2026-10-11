@@ -1,10 +1,17 @@
 // The winding road the six benefits sit along (drawn twice: a thick black road and a dashed yellow centre line).
+// `draw` is the line the road is revealed along when it animates: the road itself on desktop, and a straight
+// line down the middle on mobile (so the drawn length matches how far the page has scrolled).
+const DESKTOP_ROAD =
+  'M-140,470 C-98.3,446.7 33.0,318.3 110,330 C187.0,341.7 251.3,540.0 322,540 C392.7,540.0 463.3,330.0 534,330 C604.7,330.0 675.3,540.0 746,540 C816.7,540.0 887.3,330.0 958,330 C1028.7,330.0 1093.0,528.3 1170,540 C1247.0,551.7 1378.3,423.3 1420,400';
+
 export const ROAD_DESKTOP = {
   viewBox: '0 0 1280 880',
-  d: 'M-140,470 C-98.3,446.7 33.0,318.3 110,330 C187.0,341.7 251.3,540.0 322,540 C392.7,540.0 463.3,330.0 534,330 C604.7,330.0 675.3,540.0 746,540 C816.7,540.0 887.3,330.0 958,330 C1028.7,330.0 1093.0,528.3 1170,540 C1247.0,551.7 1378.3,423.3 1420,400',
+  d: DESKTOP_ROAD,
+  draw: DESKTOP_ROAD,
 };
 
 export const ROAD_MOBILE = {
   viewBox: '0 0 72 940',
   d: 'M30 0 C30 20 30 30 30 48 C30 94 42 144 42 190 C42 236 30 286 30 332 C30 378 42 428 42 474 C42 520 30 570 30 616 C30 662 42 712 42 758 C42 804 30 854 30 900 L30 940',
+  draw: 'M36 0 V940',
 };
