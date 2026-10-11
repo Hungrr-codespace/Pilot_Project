@@ -64,7 +64,7 @@ export function Dialog({ eyebrow, title, description, onClose, className, childr
           type="button"
           onClick={() => onCloseRef.current?.()}
           aria-label="Close"
-          className={styles.close}
+          className={`${styles.close} btn-soft`}
         >
           <Icon name="close" size={20} color="var(--color-black)" />
         </button>

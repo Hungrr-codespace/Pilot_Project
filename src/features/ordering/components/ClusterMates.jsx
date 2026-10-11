@@ -27,7 +27,7 @@ export function ClusterMateList({ restaurants }) {
           type="button"
           onClick={open}
           aria-label={`Open ${restaurant.name} menu`}
-          className={styles.row}
+          className={`${styles.row} btn-row`}
         >
           <RestaurantLogo restaurant={restaurant} className={styles.rowLogo} />
           <span className={styles.rowInfo}>
@@ -61,7 +61,7 @@ export function ClusterMateChips({ restaurants }) {
             type="button"
             onClick={open}
             aria-label={`Open ${restaurant.name} menu`}
-            className={styles.chip}
+            className={`${styles.chip} btn-light`}
           >
             <RestaurantLogo restaurant={restaurant} className={styles.chipLogo} />
             {restaurant.name}

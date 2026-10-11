@@ -36,7 +36,7 @@ function DesktopNavbar() {
           </a>
         ))}
       </div>
-      <Link to={ROUTES.pilot} className={styles.orderNow}>
+      <Link to={ROUTES.pilot} className={`${styles.orderNow} btn-black`}>
         <Icon name="cutlery" size={20} color="var(--color-yellow)" />
         Order now
       </Link>
@@ -56,7 +56,7 @@ function MobileNavbar() {
           <ExternalLink
             href={whatsapp.href}
             aria-label="Message us on WhatsApp"
-            className={styles.roundWhatsapp}
+            className={`${styles.roundWhatsapp} btn-black`}
           >
             <Icon name="whatsapp" size={22} color="var(--color-yellow)" />
           </ExternalLink>
@@ -65,7 +65,7 @@ function MobileNavbar() {
             onClick={() => setIsOpen((open) => !open)}
             aria-label="Menu"
             aria-expanded={isOpen ? 'true' : 'false'}
-            className={styles.menuButton}
+            className={`${styles.menuButton} btn-light`}
           >
             <Icon name={isOpen ? 'close' : 'menu'} size={22} color="var(--color-black)" />
           </button>
@@ -74,12 +74,12 @@ function MobileNavbar() {
       {isOpen && (
         <div className={clsx(styles.menu, motion.fadeIn)}>
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} onClick={close} className={styles.menuLink}>
+            <a key={link.href} href={link.href} onClick={close} className={`${styles.menuLink} btn-row`}>
               {link.label}
               <Icon name="chevronRight" size={22} color="var(--color-black)" />
             </a>
           ))}
-          <Link to={ROUTES.pilot} onClick={close} className={styles.menuOrder}>
+          <Link to={ROUTES.pilot} onClick={close} className={`${styles.menuOrder} btn-black`}>
             <Icon name="cutlery" size={20} color="var(--color-yellow)" />
             Order now
           </Link>

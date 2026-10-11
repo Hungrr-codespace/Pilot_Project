@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useLayout } from '@/context/layout';
 import { useMenu } from '@/context/menu';
 import { useOrder } from '@/context/order';
+import { useShopStatus } from '@/context/shopStatus';
 import { formatRupees } from '@/lib/format';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { NoteActions, NoteBody, NoteHeading, NoteSheet } from './NoteSheet';
@@ -17,6 +18,7 @@ export function OrderSheet({ isFlipped }) {
   const { isMobile } = useLayout();
   const { settings } = useMenu();
   const { summary, actions } = useOrder();
+  const shop = useShopStatus();
 
   // Each written line appears a little after the one before it.
   let line = 0;
@@ -54,6 +56,9 @@ export function OrderSheet({ isFlipped }) {
         <BackButton onClick={actions.closeNotepad} />
         {summary.isEmpty ? (
           <PrimaryButton>{isMobile ? 'Add dishes first' : 'Add dishes to confirm'}</PrimaryButton>
+        ) : shop.state !== 'open' ? (
+          // Closed or paused: the order note stays, but it cannot be confirmed (see ShopNotice on the page)
+          <PrimaryButton>{closedLabel(shop, isMobile)}</PrimaryButton>
         ) : (
           <PrimaryButton icon="check" onClick={actions.confirmOrder}>
             {isMobile ? 'Confirm order' : `Confirm order · ${formatRupees(summary.grandTotal)}`}
@@ -62,6 +67,13 @@ export function OrderSheet({ isFlipped }) {
       </NoteActions>
     </NoteSheet>
   );
+}
+
+// "Ordering opens at 11:00 AM" / "Orders paused" on the greyed-out button
+function closedLabel(shop, isMobile) {
+  if (shop.state === 'paused') return 'Orders paused';
+  if (isMobile) return `Opens at ${shop.hours.opens}`;
+  return `Ordering opens ${shop.opensToday ? '' : 'tomorrow '}at ${shop.hours.opens}`;
 }
 
 function OrderGroup({ restaurant, items, nextDelay }) {
@@ -82,7 +94,7 @@ function OrderGroup({ restaurant, items, nextDelay }) {
                 type="button"
                 onClick={() => actions.setQuantity(dish.id, qty - 1)}
                 aria-label={`Remove one ${dish.name}`}
-                className={styles.step}
+                className={`${styles.step} btn-light`}
               >
                 <Icon name="minus" size={iconSize} color="var(--color-ink)" />
               </button>
@@ -91,7 +103,7 @@ function OrderGroup({ restaurant, items, nextDelay }) {
                 type="button"
                 onClick={() => actions.setQuantity(dish.id, qty + 1)}
                 aria-label={`Add one more ${dish.name}`}
-                className={styles.step}
+                className={`${styles.step} btn-light`}
               >
                 <Icon name="plus" size={iconSize} color="var(--color-ink)" />
               </button>

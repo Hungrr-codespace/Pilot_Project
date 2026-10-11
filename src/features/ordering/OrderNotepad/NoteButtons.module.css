@@ -30,6 +30,11 @@
   color: var(--color-white);
 }
 
+/* Loading: stays black, shows the spinner, ignores clicks */
+.busy {
+  cursor: progress;
+}
+
 .disabled {
   background: #d9d9d9;
   color: var(--color-text-subtle);

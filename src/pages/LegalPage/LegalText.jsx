@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router';
-import { CAMPUS, CONTACT_EMAIL, CONTACT_EMAIL_LINK, LEGAL_LINKS, ORDER_HOURS } from '@/config/site';
+import { CAMPUS, CONTACT_EMAIL, CONTACT_EMAIL_LINK, LEGAL_LINKS } from '@/config/site';
+import { useShopStatus } from '@/context/shopStatus';
 import { useWhatsAppContact } from '@/hooks/useWhatsAppContact';
 import { ExternalLink } from '@/components/ui/ExternalLink/ExternalLink';
 import { splitLegalText } from '@/lib/legalText';
@@ -9,6 +10,7 @@ import styles from './LegalText.module.css';
 // One line of policy text: {tokens} become links or values, [placeholders] are highlighted (still to fill in).
 export function LegalText({ text }) {
   const whatsapp = useWhatsAppContact();
+  const { hours } = useShopStatus();
 
   const token = (name) => {
     if (name === 'email') {
@@ -25,7 +27,7 @@ export function LegalText({ text }) {
         </ExternalLink>
       );
     }
-    if (name === 'hours') return ORDER_HOURS.replace(' – ', ' to ');
+    if (name === 'hours') return hours.sentence;
     if (name === 'campus') return CAMPUS;
     const policy = LEGAL_LINKS.find((link) => link.id === name);
     if (policy) {

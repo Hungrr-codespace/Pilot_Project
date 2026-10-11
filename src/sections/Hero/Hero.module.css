@@ -150,6 +150,18 @@
   font-weight: 500;
 }
 
+/* Hover: the black label turns charcoal with yellow text (the button itself is btn-light) */
+.ctaLabel {
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.cta:hover .ctaLabel {
+  background: var(--color-charcoal);
+  color: var(--color-yellow);
+}
+
 @media (max-width: 1023.98px) {
   .hero {
     z-index: 5;

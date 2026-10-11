@@ -20,7 +20,12 @@ export function SearchField({ id, value, onChange, onClear }) {
         className={styles.input}
       />
       {value && (
-        <button type="button" onClick={onClear} aria-label="Clear search" className={styles.clear}>
+        <button
+          type="button"
+          onClick={onClear}
+          aria-label="Clear search"
+          className={`${styles.clear} btn-soft`}
+        >
           <Icon name="close" size={isMobile ? 17 : 18} color="var(--color-black)" />
         </button>
       )}

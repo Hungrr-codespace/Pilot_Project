@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { billFileName, formatRupees, formatTimestamp, plural } from './format';
+import { billFileName, formatRupees, formatTimestamp, plural, timeAgo } from './format';
 
 describe('format', () => {
   it('shows paise only when there are any', () => {
@@ -18,5 +18,13 @@ describe('format', () => {
     const date = new Date(2026, 9, 6, 18, 5);
     expect(formatTimestamp(date)).toBe('6 Oct 2026, 6:05 PM');
     expect(billFileName('HG-261006-K7Q2')).toBe('hungrr-bill-HG-261006-K7Q2.png');
+  });
+
+  it('says how long ago something happened', () => {
+    const now = new Date(2026, 9, 11, 15, 30);
+    expect(timeAgo(new Date(2026, 9, 11, 15, 29, 50), now)).toBe('just now');
+    expect(timeAgo(new Date(2026, 9, 11, 15, 25), now)).toBe('5 min ago');
+    expect(timeAgo(new Date(2026, 9, 11, 13, 0), now)).toBe('2 h ago');
+    expect(timeAgo(new Date(2026, 9, 9, 18, 5), now)).toBe('on 9 Oct 2026, 6:05 PM');
   });
 });

@@ -1,0 +1,74 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 40px;
+  padding: 0 18px 0 14px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.light {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  color: var(--color-black);
+}
+
+.dark {
+  background: var(--color-dark-raised);
+  border: 1.5px solid var(--color-dark-border);
+  color: var(--color-white);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+.open .dot {
+  background: var(--color-green);
+  box-shadow: 0 0 0 4px rgba(19, 136, 8, 0.18);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.soon .dot {
+  background: #e0a100;
+  box-shadow: 0 0 0 4px rgba(224, 161, 0, 0.22);
+}
+
+.closed .dot {
+  background: var(--color-nonveg);
+  box-shadow: 0 0 0 4px rgba(179, 38, 30, 0.16);
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 136, 8, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .open .dot {
+    animation: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .pill {
+    gap: 7px;
+    height: 34px;
+    padding: 0 14px 0 11px;
+    font-size: 15px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+}

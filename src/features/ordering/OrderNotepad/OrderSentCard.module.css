@@ -14,8 +14,8 @@
   left: 50%;
   top: 506px;
   z-index: 42;
-  width: 640px;
-  margin-left: -320px;
+  width: 780px;
+  margin-left: -390px;
   box-sizing: border-box;
   padding: 20px 24px 22px;
   display: flex;
@@ -48,7 +48,9 @@
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -57,6 +59,7 @@
 }
 
 .whatsapp,
+.track,
 .download,
 .newOrder {
   display: flex;
@@ -85,12 +88,18 @@
   border-radius: var(--radius-pill);
 }
 
+.track,
 .download,
 .newOrder {
   gap: 8px;
   padding: 0 20px;
   font-size: 16px;
   font-weight: 600;
+}
+
+.track {
+  background: var(--color-black);
+  color: var(--color-white);
 }
 
 .download {
@@ -148,17 +157,23 @@
     height: 34px;
   }
 
+  .track,
   .download,
   .newOrder {
     flex: 1;
     justify-content: center;
     height: 46px;
     padding: 0;
-    font-size: 14px;
+    font-size: 13.5px;
     color: inherit;
   }
 
+  .track,
   .download {
-    gap: 6px;
+    gap: 5px;
+  }
+
+  .track {
+    color: var(--color-white);
   }
 }

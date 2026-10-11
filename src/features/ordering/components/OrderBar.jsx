@@ -27,7 +27,7 @@ export function OrderBar() {
         </span>
       </span>
       {hasItems ? (
-        <button type="button" onClick={actions.openNotepad} className={styles.review}>
+        <button type="button" onClick={actions.openNotepad} className={`${styles.review} btn-yellow`}>
           <Icon name="notebook" size={iconSize} color="var(--color-black)" />
           {label}
         </button>

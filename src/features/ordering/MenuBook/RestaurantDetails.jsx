@@ -15,7 +15,7 @@ export function RestaurantDetails() {
 
   return (
     <>
-      <button type="button" onClick={actions.showIndex} className={styles.back}>
+      <button type="button" onClick={actions.showIndex} className={`${styles.back} btn-light`}>
         <Icon name="arrowLeft" size={18} color="var(--color-black)" />
         All restaurants
       </button>

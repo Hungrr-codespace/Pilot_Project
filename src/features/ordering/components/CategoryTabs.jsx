@@ -10,7 +10,7 @@ export function CategoryTabs({ categories, activeId, onSelect }) {
           key={category.id}
           type="button"
           onClick={() => onSelect(category.id)}
-          className={clsx(styles.tab, category.id === activeId && styles.active)}
+          className={clsx(styles.tab, category.id === activeId ? styles.active : 'btn-light')}
         >
           {category.name}
         </button>

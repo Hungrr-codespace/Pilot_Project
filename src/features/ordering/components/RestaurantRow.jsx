@@ -28,7 +28,7 @@ export function RestaurantRow({ match, dishType }) {
       type="button"
       onClick={() => actions.showRestaurant(restaurant.id)}
       aria-label={`Open ${restaurant.name} menu`}
-      className={styles.row}
+      className={`${styles.row} btn-row`}
     >
       <RestaurantLogo restaurant={restaurant} className={styles.logo} />
       <span className={styles.info}>

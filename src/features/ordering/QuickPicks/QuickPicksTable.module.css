@@ -83,14 +83,6 @@
     transform 0.2s ease;
 }
 
-.turn:hover {
-  background-color: var(--color-yellow);
-}
-
-.turn:active {
-  transform: scale(0.94);
-}
-
 .controlsHint {
   font-size: 15px;
   color: var(--color-text-muted);

@@ -8,7 +8,6 @@ export const BRAND = {
 
 export const CAMPUS = 'BIT Mesra, Patna';
 export const CAMPUS_SHORT = 'BIT Patna'; // "Launching soon at BIT Patna", "1.2 km from BIT Patna"
-export const ORDER_HOURS = '11:00 AM – 8:30 PM';
 export const LAUNCH_YEAR = 2026;
 
 export const CONTACT_EMAIL = 'connect@hungrr.in';
@@ -28,6 +27,7 @@ export const ROUTES = {
   privacy: '/privacy-policy',
   terms: '/terms',
   refunds: '/refund-policy',
+  track: '/track', // order tracking: order ID + phone number
 };
 
 // Sections of the main page, in order. Used by the navigation and the footer.
@@ -52,7 +52,6 @@ export const LAYOUT = {
   breakpoint: 1024,
   desktopWidth: 1440,
   mobileWidth: 390,
-  maxMobileScale: 1.6, // tablets: the mobile design grows up to 1.6×, then stays centred
 };
 
 export const IMAGES = {

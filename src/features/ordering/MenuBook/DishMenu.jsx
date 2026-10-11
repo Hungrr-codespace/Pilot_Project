@@ -74,7 +74,7 @@ function MobileRestaurantHeader() {
   return (
     <>
       <div className={styles.topRow}>
-        <button type="button" onClick={actions.showIndex} className={styles.back}>
+        <button type="button" onClick={actions.showIndex} className={`${styles.back} btn-light`}>
           <Icon name="arrowLeft" size={17} color="var(--color-black)" />
           All restaurants
         </button>

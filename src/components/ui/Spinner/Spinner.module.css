@@ -1,0 +1,23 @@
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A ring with one bright quarter, turning */
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  opacity: 0.9;
+  animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.6s;
+  }
+}

@@ -26,6 +26,10 @@
   /* Surfaces */
   --color-page: #fafafa;
   --color-yellow-soft: #fff4b8;
+  --color-yellow-deep: #f2c300; /* yellow buttons on hover */
+  --color-yellow-press: #e0ae00; /* yellow buttons while pressed */
+  --color-charcoal: #2a2a2a; /* black buttons on hover */
+  --color-charcoal-press: #3d3d3d; /* black buttons while pressed */
   --color-highlight: #fff3b8;
   --color-paper: #fffdf6; /* menu book pages */
   --color-paper-border: #e6dfc8;

@@ -1,10 +1,12 @@
 // The Google Sheet backend, reached through the Apps Script web app (google-sheet/Code.gs).
 //   GET  ?action=menu              → the menu tabs (Settings, Clusters, Restaurants, Dishes, QuickPicks)
+//   GET  ?action=status            → opening hours and the pause switch, for a quick check while a page is open
 //   POST {action:'order', order}   → the order in Orders ("Awaiting payment") and its dishes in OrderItems
 //   POST {action:'payment', order} → the same order with its UPI reference number ("Payment to verify")
+//   POST {action:'track', order_id, phone} → the order's status, if the phone number matches the order
 // Without VITE_SHEET_API_URL the site runs on the built-in menu (src/data/menu-fallback.json) and logs no orders.
 import fallbackRows from '@/data/menu-fallback.json';
-import { normalizeMenu } from '@/lib/menuData';
+import { normalizeMenu, readOrderHours } from '@/lib/menuData';
 
 export const SHEET_API_URL = (import.meta.env.VITE_SHEET_API_URL || '').trim();
 const CACHE_KEY = 'hungrr-menu-v1';
@@ -49,6 +51,56 @@ export async function fetchMenu({ timeoutMs = 9000 } = {}) {
     return menu;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function getJson(params, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const url = SHEET_API_URL + (SHEET_API_URL.includes('?') ? '&' : '?') + new URLSearchParams(params);
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+    return res.ok ? await res.json() : null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Opening hours and the pause switch as they are in the sheet right now ({ opensAt, closesAt, ordersPaused,
+// pauseMessage }), or null without a sheet or when it cannot be reached.
+export async function fetchShopStatus({ timeoutMs = 6000 } = {}) {
+  if (!SHEET_API_URL) return null;
+  try {
+    const data = await getJson({ action: 'status' }, timeoutMs);
+    return data?.ok ? readOrderHours(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+// Looks up an order for the tracking page. The sheet answers only when the phone number matches the order,
+// and never sends back the customer's name, phone or address.
+//   → { ok: true, order: { order_id, status, created_at, paid_at, status_at, restaurants, items, … } }
+//   → { ok: false, error: 'not_found' | 'unavailable' }
+export async function trackOrder({ orderId, phone, timeoutMs = 9000 }) {
+  if (!SHEET_API_URL) return { ok: false, error: 'unavailable' };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    // POST keeps the phone number out of the address. text/plain keeps it a simple request Apps Script accepts.
+    const res = await fetch(SHEET_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'track', order_id: orderId, phone }),
+      signal: controller.signal,
+    });
+    const data = res.ok ? await res.json() : null;
+    if (data?.ok && data.order) return { ok: true, order: data.order };
+    return { ok: false, error: data?.error === 'not_found' ? 'not_found' : 'unavailable' };
+  } catch {
+    return { ok: false, error: 'unavailable' };
   } finally {
     clearTimeout(timer);
   }

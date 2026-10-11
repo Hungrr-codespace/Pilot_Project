@@ -38,7 +38,7 @@ export function Footer() {
                 <h2 className={styles.orderTitle}>
                   Your next meal is{isMobile ? ' ' : <br />}one message away.
                 </h2>
-                <ExternalLink href={whatsapp.href} className={styles.phoneLink}>
+                <ExternalLink href={whatsapp.href} className={`${styles.phoneLink} btn-black`}>
                   <span className={styles.phoneIcon}>
                     <Icon name="whatsapp" size={isMobile ? 20 : 30} color="var(--color-black)" />
                   </span>
@@ -54,7 +54,7 @@ export function Footer() {
             <ExternalLink
               href={CONTACT_EMAIL_LINK}
               aria-label={`Email Hungrr at ${CONTACT_EMAIL}`}
-              className={styles.emailLink}
+              className={`${styles.emailLink} btn-ghost`}
             >
               <Icon name="email" size={isMobile ? 20 : 24} color="var(--color-yellow)" />
               {CONTACT_EMAIL}
@@ -69,7 +69,7 @@ export function Footer() {
                   key={link.id}
                   href={link.href}
                   aria-label={`Hungrr on ${link.label}`}
-                  className={styles.socialLink}
+                  className={`${styles.socialLink} btn-ghost`}
                 >
                   <span className={styles.socialIcon}>
                     <Icon name={link.id} size={isMobile ? 18 : 24} color="var(--color-black)" />

@@ -65,6 +65,51 @@
   transition: transform 0.9s var(--ease-turn);
 }
 
+/* Under the menu: the way to the tracking page (hidden while paying; the bill has its own button) */
+.trackRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 40px;
+}
+
+.trackText {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--color-text-body);
+}
+
+.trackButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 22px 0 7px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-white);
+  box-shadow: var(--shadow-pop);
+  transition: transform 0.2s ease;
+}
+
+.trackButton:hover {
+  transform: translateY(-2px);
+}
+
+.trackIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
 /* Paying: the table fades out and the book zooms in on the notepad */
 .zoomed {
   height: 1121px;
@@ -123,6 +168,28 @@
   .zoomed .bookStage {
     margin-bottom: -244px;
     transform: translateY(-244px);
+  }
+
+  .trackRow {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 26px;
+  }
+
+  .trackText {
+    font-size: 15px;
+  }
+
+  .trackButton {
+    gap: 10px;
+    height: 50px;
+    padding: 0 18px 0 6px;
+    font-size: 16px;
+  }
+
+  .trackIcon {
+    width: 38px;
+    height: 38px;
   }
 
   .clusterGuide {

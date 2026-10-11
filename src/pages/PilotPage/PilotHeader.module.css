@@ -40,6 +40,12 @@
   gap: 24px;
 }
 
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .pill {
   display: flex;
   align-items: center;
@@ -99,6 +105,10 @@
 
   .titleBlock {
     gap: 16px;
+  }
+
+  .pills {
+    gap: 8px;
   }
 
   .pill {

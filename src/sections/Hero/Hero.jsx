@@ -30,7 +30,7 @@ export function Hero() {
           Multiple restaurants, one delivery, zero hassle. Welcome to the future of hyper-local eating.
         </p>
         <div className={styles.ctaRow}>
-          <Link to={ROUTES.pilot} className={styles.cta}>
+          <Link to={ROUTES.pilot} className={`${styles.cta} btn-light`}>
             <span className={styles.ctaLabel}>
               {isMobile && <Icon name="cutlery" size={19} color="var(--color-yellow)" />}
               Order now

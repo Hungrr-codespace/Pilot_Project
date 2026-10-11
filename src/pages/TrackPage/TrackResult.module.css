@@ -1,0 +1,657 @@
+.panel {
+  box-sizing: border-box;
+  background: var(--color-white);
+  border-radius: 32px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 30px 80px rgba(0, 0, 0, 0.06);
+}
+
+/* Before searching, searching, and messages */
+.empty,
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 520px;
+  padding: 56px 64px;
+  text-align: center;
+}
+
+.empty {
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px dashed var(--color-dashed);
+  box-shadow: none;
+}
+
+.road {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 380px;
+  margin-bottom: 36px;
+}
+
+.roadStart,
+.roadEnd {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+}
+
+.roadStart {
+  background: var(--color-yellow);
+  border: 4px solid var(--color-black);
+}
+
+.roadEnd {
+  background: var(--color-white);
+  border: 3px dashed var(--color-black);
+}
+
+.roadLine {
+  flex: 1;
+  height: 14px;
+  margin: 0 -4px;
+  background:
+    repeating-linear-gradient(90deg, var(--color-yellow) 0 14px, transparent 14px 26px) center / 100% 3px
+      no-repeat,
+    var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+/* Searching: the rider rolls along */
+@keyframes ride {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(240px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.roadMoving .roadStart {
+  animation: ride 1.6s var(--ease-turn) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadMoving .roadStart {
+    animation: none;
+  }
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.emptyText {
+  max-width: 460px;
+  margin: 12px 0 0;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+}
+
+.messageIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 22px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.help {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px 0 6px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.message .help {
+  margin-top: 26px;
+}
+
+.helpIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+/* The order */
+.order {
+  position: relative;
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px 36px;
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-yellow);
+}
+
+.orderId {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.placed {
+  font-size: 16px;
+  color: var(--color-text-on-dark);
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.badgeCancelled {
+  background: var(--color-nonveg);
+  color: var(--color-white);
+}
+
+.cancelled {
+  margin: 32px 36px 0;
+  padding: 20px 22px;
+  background: #fdecea;
+  border-radius: 18px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.cancelled a {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* The six steps, joined by a line */
+.steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 32px 36px 8px;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  gap: 18px;
+  padding-bottom: 22px;
+}
+
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 42px;
+  bottom: 0;
+  border-left: 2px dashed var(--color-dashed);
+}
+
+.step.done::before {
+  border-left: 2px solid var(--color-black);
+}
+
+.marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.done .marker {
+  background: var(--color-yellow);
+  border: 2px solid var(--color-black);
+}
+
+.current .marker {
+  background: var(--color-black);
+  color: var(--color-yellow);
+  box-shadow: 0 0 0 6px var(--color-yellow-soft);
+  animation: beat 2s ease-in-out infinite;
+}
+
+@keyframes beat {
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 222, 33, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .current .marker {
+    animation: none;
+  }
+}
+
+.next .marker {
+  background: var(--color-white);
+  border: 2px dashed var(--color-dashed);
+  color: var(--color-text-faint);
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 8px;
+}
+
+.stepTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.next .stepTitle {
+  color: var(--color-text-faint);
+  font-weight: 500;
+}
+
+.stepDetail {
+  font-size: 16px;
+  color: var(--color-text-subtle);
+}
+
+.current .stepDetail {
+  color: var(--color-text-body);
+}
+
+.stepTime {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+/* What was ordered */
+.summary {
+  margin: 8px 36px 0;
+  padding: 24px 0;
+  border-top: 2px dashed var(--color-dashed);
+}
+
+.summaryLabel {
+  display: block;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  gap: 10px;
+  font-size: 18px;
+}
+
+.qty {
+  flex-shrink: 0;
+  min-width: 34px;
+  font-weight: 700;
+}
+
+.dish {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.restaurant {
+  font-size: 15px;
+  color: var(--color-text-subtle);
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #ececec;
+  font-size: 19px;
+}
+
+.total strong {
+  font-size: 24px;
+}
+
+.totalNote {
+  font-size: 15px;
+  color: var(--color-text-subtle);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 36px 28px;
+  background: var(--color-page);
+  border-top: 1px solid #ececec;
+}
+
+.checked {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.footActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 150px;
+  height: 52px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+  transition:
+    transform 0.12s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Checking: yellow, with a spinner */
+.refreshing,
+.refreshing:hover {
+  background: var(--color-yellow);
+  cursor: progress;
+}
+
+/* Done: green for a moment */
+.refreshDone,
+.refreshDone:hover {
+  background: #e8f5e6;
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+/* The flash over the order card after a refresh */
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 4px var(--color-yellow);
+  background: rgba(255, 222, 33, 0.14);
+  pointer-events: none;
+  animation: flash 0.9s ease-out both;
+}
+
+@media (max-width: 1023.98px) {
+  .panel {
+    border-radius: 24px;
+  }
+
+  .empty,
+  .message {
+    min-height: 0;
+    padding: 30px 20px 32px;
+  }
+
+  .road {
+    width: 250px;
+    margin-bottom: 22px;
+  }
+
+  .roadStart,
+  .roadEnd {
+    width: 44px;
+    height: 44px;
+  }
+
+  .roadStart {
+    border-width: 3px;
+  }
+
+  .roadLine {
+    height: 10px;
+  }
+
+  @keyframes ride {
+    50% {
+      transform: translateX(160px);
+    }
+  }
+
+  .emptyTitle {
+    font-size: 21px;
+  }
+
+  .emptyText {
+    font-size: 15px;
+  }
+
+  .messageIcon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 14px;
+  }
+
+  .help {
+    gap: 8px;
+    height: 46px;
+    padding: 0 16px 0 5px;
+    font-size: 15px;
+  }
+
+  .message .help {
+    margin-top: 18px;
+  }
+
+  .helpIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .head {
+    padding: 18px 18px;
+    gap: 12px;
+  }
+
+  .orderId {
+    font-size: 17px;
+  }
+
+  .placed {
+    font-size: 13px;
+  }
+
+  .badge {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .cancelled {
+    margin: 20px 18px 0;
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .steps {
+    padding: 22px 18px 4px;
+  }
+
+  .step {
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .step:not(:last-child)::before {
+    left: 15px;
+    top: 34px;
+  }
+
+  .marker {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .current .marker {
+    box-shadow: 0 0 0 4px var(--color-yellow-soft);
+  }
+
+  .stepText {
+    padding-top: 5px;
+  }
+
+  .stepTitle {
+    font-size: 16px;
+  }
+
+  .stepDetail {
+    font-size: 13.5px;
+  }
+
+  .stepTime {
+    font-size: 10.5px;
+  }
+
+  .summary {
+    margin: 4px 18px 0;
+    padding: 18px 0;
+  }
+
+  .item {
+    font-size: 15px;
+  }
+
+  .restaurant {
+    font-size: 12.5px;
+  }
+
+  .total {
+    font-size: 15px;
+  }
+
+  .total strong {
+    font-size: 19px;
+  }
+
+  .totalNote {
+    font-size: 12.5px;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 18px 20px;
+  }
+
+  .checked {
+    font-size: 12.5px;
+  }
+
+  .footActions {
+    gap: 8px;
+  }
+
+  .refresh {
+    min-width: 128px;
+    gap: 6px;
+    height: 46px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .footActions .help {
+    flex: 1;
+    justify-content: center;
+  }
+}

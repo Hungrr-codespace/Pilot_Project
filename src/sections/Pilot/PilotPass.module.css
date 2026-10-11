@@ -82,20 +82,40 @@
 }
 
 .detailValue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
   margin: 0;
   font-size: 28px;
   line-height: 1.1;
   font-weight: 600;
 }
 
+/* Open now / Closed now / Orders paused, next to the hours */
+.status {
+  height: 32px;
+  padding: 0 14px 0 11px;
+  font-size: 15px;
+}
+
+/* Open the pilot menu, and Track order beside it */
+.actions {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: auto;
+}
+
 .cta {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   height: 68px;
-  margin-top: auto;
-  padding: 0 26px 0 10px;
+  padding: 0 22px 0 10px;
   box-sizing: border-box;
   background: var(--color-yellow);
   border-radius: var(--radius-pill);
@@ -108,6 +128,24 @@
 .cta:hover {
   color: var(--color-black);
   transform: translateY(-2px);
+}
+
+.track {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 68px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-white);
+  transition: background-color 0.2s ease;
 }
 
 .ctaIcon {
@@ -143,14 +181,25 @@
     height: 42px;
   }
 
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
   .cta {
-    align-self: stretch;
     justify-content: center;
     gap: 10px;
     height: 54px;
-    margin-top: 4px;
     padding: 0 18px 0 8px;
     font-size: 17px;
+  }
+
+  .track {
+    flex: none;
+    gap: 8px;
+    height: 50px;
+    font-size: 16px;
   }
 
   .ctaIcon {
@@ -182,6 +231,13 @@
   }
 
   .detailValue {
+    gap: 6px 10px;
     font-size: 18px;
+  }
+
+  .status {
+    height: 26px;
+    padding: 0 10px 0 8px;
+    font-size: 12px;
   }
 }

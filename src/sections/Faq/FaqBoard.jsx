@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { FAQ_QUESTIONS } from '@/content/faq';
+import { useShopStatus } from '@/context/shopStatus';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { FaqMenu, MenuDot, ToggleMark } from './FaqMenu';
 import { ZIGZAG_DESKTOP } from './zigzag';
@@ -12,6 +13,7 @@ const twoDigits = (n) => String(n).padStart(2, '0');
 export function FaqBoard() {
   const [selected, setSelected] = useState(1);
   const current = FAQ_QUESTIONS.find((q) => q.number === selected);
+  const { hours } = useShopStatus();
 
   return (
     <div className={styles.board} data-reveal="">
@@ -24,7 +26,7 @@ export function FaqBoard() {
               type="button"
               onClick={() => setSelected(question.number)}
               aria-pressed={isOn}
-              className={clsx(styles.question, isOn && styles.questionOn)}
+              className={clsx(styles.question, isOn ? styles.questionOn : 'btn-row-dark')}
             >
               <MenuDot />
               <span className={styles.questionText}>{question.q}</span>
@@ -49,7 +51,7 @@ export function FaqBoard() {
               <Icon name="cloche" size={44} color="var(--color-black)" />
             </span>
             <h3 className={styles.answerTitle}>{current.q}</h3>
-            <p className={styles.answerText}>{current.a}</p>
+            <p className={styles.answerText}>{current.a.replace('{hours}', hours.sentence)}</p>
           </div>
           <div className={styles.more}>
             <div className={styles.divider} />

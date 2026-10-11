@@ -1,0 +1,126 @@
+/*
+ * Button colours on hover and press, shared by every button on the site. A button keeps its own shape and
+ * colours in its CSS module, and gets one of these tones in its className:
+ *
+ *   btn-yellow    yellow buttons            hover: deeper yellow          press: amber
+ *   btn-black     black buttons             hover: charcoal, yellow text  press: darker charcoal
+ *   btn-light     white / outlined buttons  hover: pale yellow            press: yellow
+ *   btn-ghost     outlined, on black        hover: yellow tint            press: yellow, black text
+ *   btn-soft      light grey buttons        hover: darker grey            press: pale yellow
+ *   btn-row       rows and cards on white   hover: pale yellow            press: slightly deeper
+ *   btn-row-dark  rows on black             hover: light tint             press: stronger tint
+ *
+ * Hover colours apply only with a mouse or trackpad; on phones the press colours show on tap. Every tone also
+ * shrinks a little while pressed, and shows a yellow (or black) ring for keyboard focus.
+ * Disabled buttons (disabled, aria-disabled) keep their look. The hover and press colours are in tokens.css.
+ * Press rules come after hover rules, so a pressed button shows its press colour.
+ */
+:is(.btn-yellow, .btn-black, .btn-light, .btn-ghost, .btn-soft, .btn-row, .btn-row-dark) {
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keyboard focus */
+:is(.btn-black, .btn-light, .btn-ghost, .btn-soft, .btn-row, .btn-row-dark):focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 3px;
+}
+
+.btn-yellow:focus-visible {
+  outline: 3px solid var(--color-black);
+  outline-offset: 3px;
+}
+
+/* Hover: only on devices with a mouse or trackpad (on touch screens a tap would leave it stuck) */
+@media (hover: hover) {
+  .btn-yellow:hover:not(:disabled):not([aria-disabled='true']) {
+    background-color: var(--color-yellow-deep);
+    color: var(--color-black);
+  }
+
+  .btn-black:hover:not(:disabled):not([aria-disabled='true']) {
+    background-color: var(--color-charcoal);
+    color: var(--color-yellow);
+  }
+
+  .btn-light:hover:not(:disabled):not([aria-disabled='true']) {
+    background-color: var(--color-yellow-soft);
+    color: var(--color-black);
+  }
+
+  .btn-ghost:hover:not(:disabled):not([aria-disabled='true']) {
+    background-color: rgba(255, 222, 33, 0.16);
+    border-color: var(--color-yellow);
+    color: var(--color-white);
+  }
+
+  .btn-soft:hover:not(:disabled):not([aria-disabled='true']) {
+    background-color: #e2e2e2;
+    color: var(--color-black);
+  }
+
+  .btn-row:hover:not(:disabled) {
+    background-color: var(--color-yellow-soft);
+    color: var(--color-black);
+  }
+
+  .btn-row-dark:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Pressed: a quick squeeze and a stronger colour */
+:is(.btn-yellow, .btn-black, .btn-light, .btn-ghost, .btn-soft):active:not(:disabled):not(
+    [aria-disabled='true']
+  ) {
+  transform: scale(0.95);
+}
+
+:is(.btn-row, .btn-row-dark):active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-yellow:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--color-yellow-press);
+}
+
+.btn-black:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--color-charcoal-press);
+}
+
+.btn-light:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--color-yellow);
+}
+
+.btn-ghost:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--color-yellow);
+  color: var(--color-black);
+}
+
+/* Yellow icons would vanish on the yellow fill: they follow the text colour while pressed */
+.btn-ghost:active:not(:disabled):not([aria-disabled='true']) svg path {
+  fill: currentColor;
+}
+
+.btn-soft:active:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--color-yellow-soft);
+}
+
+.btn-row:active:not(:disabled) {
+  background-color: #ffeb85;
+}
+
+.btn-row-dark:active:not(:disabled) {
+  background-color: rgba(255, 222, 33, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.btn-yellow, .btn-black, .btn-light, .btn-ghost, .btn-soft, .btn-row, .btn-row-dark):active {
+    transform: none !important;
+  }
+}

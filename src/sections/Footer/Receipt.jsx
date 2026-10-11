@@ -1,7 +1,8 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router';
-import { BRAND, CAMPUS, LEGAL_LINKS, NAV_LINKS, ORDER_HOURS } from '@/config/site';
+import { BRAND, CAMPUS, LEGAL_LINKS, NAV_LINKS } from '@/config/site';
 import { useLayout } from '@/context/layout';
+import { useShopStatus } from '@/context/shopStatus';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { Wordmark } from '@/components/ui/Wordmark/Wordmark';
 import {
@@ -18,6 +19,7 @@ const twoDigits = (n) => String(n).padStart(2, '0');
 // The footer's site map, styled as a restaurant bill.
 export function Receipt() {
   const { isMobile } = useLayout();
+  const { hours } = useShopStatus();
   const iconSize = isMobile ? 14 : 22;
 
   return (
@@ -48,7 +50,7 @@ export function Receipt() {
               <Icon name="clock" size={iconSize} color="var(--color-black)" className={styles.detailIcon} />
               <span className={styles.label}>Orders open</span>
             </span>
-            <span className={styles.detailValue}>{ORDER_HOURS}</span>
+            <span className={styles.detailValue}>{hours.label}</span>
           </div>
         </div>
         <div className={styles.rule} />

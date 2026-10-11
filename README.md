@@ -4,21 +4,26 @@ The Hungrr website, built with React 18, React Router and Vite. It has these pag
 
 - **Main page (`/`)**: what Hungrr is and what it strives to do, the pilot at BIT Mesra (timings, delivery
   area, payment and how ordering works), why Hungrr, and the FAQ. "Order now" and "Open the pilot menu" lead
-  to the pilot page.
+  to the pilot page, and "Track order" (next to it) to the tracking page.
 - **Pilot page (`/pilot`)**: the menu (the quick-picks table and the menu book), the order notepad, and the
-  checkout: delivery details, UPI QR, and payment confirmation with the 12-digit UPI reference number.
+  checkout: delivery details, UPI QR, and payment confirmation with the 12-digit UPI reference number. It says
+  whether ordering is open, closed or paused, and has a "Track your order" button under the menu.
+- **Tracking page (`/track`)**: the order ID and phone number show the order's status from the sheet (no account
+  needed), with the orders paid for on this phone listed for one-tap tracking.
 - **Policy pages**: Privacy Policy (`/privacy-policy`), Terms & Conditions (`/terms`) and Refund & Cancellation
   Policy (`/refund-policy`), linked from both footers. Each has an "In short" summary, numbered sections and a
   contents list. Their text is in `src/content/legal/`.
 
 All pages:
 
+- Every page fills the screen's width, edge to edge.
 - Laptops and desktops (1024 px wide and up) get the desktop design: sections set apart by panels, and
   headings, cards and steps that animate in as they scroll into view and out as they leave.
 - Phones and tablets get the mobile design: the flat quick-picks table with 4 dishes, sections that morph into
   each other while scrolling, and the same in-and-out animations.
-- Restaurants, dishes, quick picks and settings come from a Google Sheet, and every order (with the customer's
-  details and UPI reference number) is written back to it. Set this up once: see
+- Restaurants, dishes, quick picks and settings (including opening hours and a pause switch) come from a Google
+  Sheet, and every order (with the customer's details and UPI reference number) is written back to it. The team
+  gets an email or Telegram alert when a payment needs checking. Set this up once: see
   [Connect the Google Sheet](#connect-the-google-sheet).
 
 ## Commands
@@ -42,7 +47,8 @@ Full steps are in [google-sheet/SETUP.md](google-sheet/SETUP.md). In short:
 1. Open `Hungrr-website-data.xlsx` from Drive and do **File → Save as Google Sheets**. Work only in the new
    Google Sheet (no **.XLSX** label next to its name). Keep the tab names and the first row of every tab.
 2. In the sheet: **Extensions → Apps Script**. Replace the sample code with all of `google-sheet/Code.gs` and
-   save. Open Apps Script from inside the sheet: that is how the script knows which sheet to use.
+   save. Open Apps Script from inside the sheet: that is how the script knows which sheet to use. Then choose
+   **setup** in the toolbar's function list and click **Run** (it adds the Alerts tab and sends you a test email).
 3. **Deploy → New deployment → Web app**, with *Execute as: Me* and *Who has access: Anyone*. Allow the
    permissions Google asks for (**Advanced → Go to Hungrr website (unsafe) → Allow**).
 4. Copy the **Web app URL** (it ends in `/exec`). Check it by opening it with `?action=menu` at the end: you
@@ -51,10 +57,11 @@ Full steps are in [google-sheet/SETUP.md](google-sheet/SETUP.md). In short:
 
 Without the URL the site still works with its built-in sample menu, but orders are not saved.
 
-**Already connected the sheet with an earlier version?** Paste the new `google-sheet/Code.gs` into Apps Script,
-save, then **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the
-same, and the Orders tab gets its new columns (customer_name, phone, address, upi_ref, paid_at) with the next
-order.
+**Already connected the sheet with an earlier version?** Paste the new `google-sheet/Code.gs` into Apps Script and
+save, run **setup** once (choose it in the toolbar, click **Run**, allow the new permissions), then **Deploy →
+Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same. `setup` adds the
+opening hours and pause switch to Settings, the Alerts tab, and the `status_at` column to Orders. Opening hours,
+the pause switch, alerts and tracking are explained in [SETUP.md](google-sheet/SETUP.md).
 
 ### If something goes wrong
 
@@ -76,42 +83,48 @@ src/
 ├── App.jsx                  Router (the pages) inside the providers (layout → menu → order)
 ├── pages/
 │   ├── HomePage.jsx         The main page: its sections in order
-│   ├── PilotPage/           The pilot page: PilotHeader (title), the ordering area, PageFooter
+│   ├── PilotPage/           The pilot page: PilotHeader (title, open/closed pill), ShopNotice (closed or
+│   │                        paused), the ordering area, PageFooter
+│   ├── TrackPage/           Order tracking: TrackHeader, TrackForm (order ID + phone), RecentOrders,
+│   │                        TrackResult (the steps), useOrderTracking (asks the sheet, refreshes every minute)
 │   └── LegalPage/           The policy pages: LegalHeader (title, policy tabs, date), LegalContents
 │                            (contents list), LegalDocument (the text), LegalText (links and placeholders)
 ├── sections/                One folder per main-page section, each with its own components and styles
 │   ├── Hero/                Headline, app screenshots (PhoneMockup), feature chips
 │   ├── About/               What Hungrr is: mission card and three pillars
-│   ├── Pilot/               The pilot at BIT Mesra: PilotPass (timings, delivery area, payment and
-│   │                        "Open the pilot menu") and OrderSteps (how ordering works)
+│   ├── Pilot/               The pilot at BIT Mesra: PilotPass (timings with open/closed status, delivery
+│   │                        area, payment, "Open the pilot menu" and "Track order") and OrderSteps
 │   ├── WhyHungrr/           BenefitRoad (the six benefits along a road)
 │   ├── Faq/                 FaqMenu (shared card), FaqBoard (desktop), FaqAccordion (mobile)
 │   └── Footer/              FooterRoad, Receipt (site map styled as a bill)
 ├── features/
 │   └── ordering/            Everything for ordering on the pilot page (see below)
 ├── components/              Reusable building blocks used in several places
-│   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField
+│   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField,
+│   │                        ShopStatusPill (Open now / Closed / Orders paused), Spinner (loading ring)
 │   └── layout/              PageCanvas, Section, Navbar, PageNav and PageFooter (top bar and footer of the
 │                            pilot and policy pages), ScrollManager (top of the page, or the linked
 │                            section, after moving pages)
 ├── context/                 App-wide state
 │   ├── LayoutProvider.jsx   Which design is showing (desktop/mobile) and its scale
 │   ├── MenuProvider.jsx     The menu from the Google Sheet (cached, with a built-in fallback)
+│   ├── ShopStatusProvider.jsx  Open, closed or paused: the sheet's hours and pause switch, in Indian time
 │   ├── OrderProvider.jsx    Ordering actions: cart, menu book, notepad, checkout, payment, bill
 │   └── orderReducer.js      All ordering state changes, as a pure reducer (+ the current order step)
 ├── hooks/                   useViewportWidth, useScrollMorph (mobile), useReveal (scroll animations),
 │                            useActiveSection (policy contents), useWhatsAppContact, useDocumentTitle
 ├── lib/                     Pure functions, no React: pricing, search, menu data, checkout (details and UPI
 │                            reference checks), UPI link, WhatsApp message, QR code, bill image, file
-│                            download, formatting, policy text (+ their tests)
+│                            download, formatting, policy text, opening hours, tracking (+ their tests)
 ├── services/
-│   └── sheetApi.js          Talks to the Google Sheet: load the menu, save orders and payments
+│   └── sheetApi.js          Talks to the Google Sheet: load the menu, check the hours and pause switch, save
+│                            orders and payments, track an order
 ├── config/site.js           Brand, page addresses (ROUTES), contact email, links, layout sizes, image paths
 ├── content/                 Page copy: about, ordering steps (howItWorks.js), benefits, FAQ, and the
 │                            policies in legal/ (business.js holds the business details they show)
 ├── data/menu-fallback.json  Built-in menu, used until the sheet answers or if it cannot be reached
 └── styles/                  tokens.css (colours, fonts, motion, section colours), global.css (base styles
-                             and the scroll animations), motion.module.css
+                             and the scroll animations), buttons.css (hover and press colours), motion.module.css
 ```
 
 The ordering feature in `features/ordering/`:
@@ -136,8 +149,9 @@ ClusterGuide.jsx             "How clusters work" card under the menu (mobile; on
 ## How the responsive layout works
 
 The approved designs are drawn on two canvases: **1440 px** wide for desktop and **390 px** for mobile.
-`PageCanvas` scales the canvas to the screen (laptops shrink it to fit, tablets grow the mobile design up to
-1.6×), so every size keeps the exact proportions of the design.
+`PageCanvas` scales the canvas to the full width of the screen (without the scrollbar), so every page fills the
+screen edge to edge and every size keeps the exact proportions of the design: a 1920 px monitor shows the desktop
+design at 1.33×, a 1280 px laptop at 0.89×, and an 820 px tablet shows the mobile design at 2.1×.
 
 - **Styles** are written for the desktop canvas. Mobile overrides sit at the end of each CSS module in
   `@media (max-width: 1023.98px) { … }`. Additions that exist only on desktop (the section panels, the
@@ -186,6 +200,10 @@ Nothing moves for visitors who have turned on reduced motion on their device.
   folder; anything used by more than one section moves to `src/components/`.
 - **CSS Modules** for all component styles; colours, fonts and easings come from the tokens in
   `styles/tokens.css`. Inline styles are only for values computed at run time (angles, the page scale).
+- **Buttons** keep their shape and colours in their own CSS module and add one tone class for hover and press
+  colours (`btn-yellow`, `btn-black`, `btn-light`, `btn-ghost`, `btn-soft`, `btn-row`, `btn-row-dark`; see
+  `styles/buttons.css`). Hover colours only apply with a mouse; on phones the press colour shows on tap. Buttons
+  that load something show the `Spinner` (for example `PrimaryButton busy`).
 - **State**: ordering state changes only through `orderReducer` actions (`useOrder().actions`); components
   never change it directly. Pure logic (prices, search, messages) lives in `src/lib` and has unit tests.
 - **Imports** use the `@/` alias for `src/` (`import { Icon } from '@/components/ui/Icon/Icon'`).
@@ -194,6 +212,10 @@ Nothing moves for visitors who have turned on reduced motion on their device.
 - **Text**: page copy is in `src/content/`, site-wide details in `src/config/site.js`, menu data in the sheet.
 
 ## How an order works
+
+Orders can be placed between `opens_at` and `closes_at` (Settings tab, Indian time) unless `orders_paused` is
+ticked. Otherwise the pilot page shows why at the top and greys out **Confirm order**; the menu can still be
+browsed. Pages that are already open check the sheet again every 2 minutes.
 
 All on the pilot page. The five steps (`OrderProgress`) stay in view while scrolling: on desktop as a rail on
 the left of the menu, which moves to a bar on top of the menu when it zooms in for paying; on mobile as a bar on
@@ -211,7 +233,12 @@ top of the menu. (They stick to the top of the screen with `position: sticky`, w
 5. **Confirm payment.** "Confirm payment" asks for the 12-digit UPI reference number from the customer's UPI
    app. The order in the sheet gets the number and becomes **Payment to verify**. The bill (with the customer's
    details and the UPI reference number) is saved to the device, and the customer can download it again and
-   send it to us on WhatsApp with the order filled in.
+   send it to us on WhatsApp with the order filled in. The team gets an alert (email and/or Telegram) to check
+   the payment.
+
+After that, the customer follows the order on the tracking page ("Track order" on the bill, or "Track your
+order" under the menu). It shows the status the team sets in the sheet: Payment to verify → Paid → Preparing →
+Out for delivery → Delivered.
 
 ## Build and deploy
 

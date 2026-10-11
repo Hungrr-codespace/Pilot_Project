@@ -37,7 +37,12 @@ function QuantityControl({ dishName, quantity, onChange }) {
   const { isMobile } = useLayout();
   if (quantity === 0) {
     return (
-      <button type="button" onClick={() => onChange(1)} aria-label={`Add ${dishName}`} className={styles.add}>
+      <button
+        type="button"
+        onClick={() => onChange(1)}
+        aria-label={`Add ${dishName}`}
+        className={`${styles.add} btn-light`}
+      >
         <Icon name="plus" size={isMobile ? 13 : 14} color="var(--color-black)" />
         ADD
       </button>

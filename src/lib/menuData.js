@@ -10,10 +10,13 @@
 //   QuickPicks   pick_id | name | match_words | photo | active | sort
 //
 // Result:
-//   settings     { gstRate, deliveryCharge, whatsapp, upiId, upiName, deliverTo }
+//   settings     { gstRate, deliveryCharge, whatsapp, upiId, upiName, deliverTo,
+//                  opensAt, closesAt (minutes after midnight, Indian time), ordersPaused, pauseMessage }
 //   clusters     [{ id, label, area }]
 //   restaurants  [{ id, name, initials, distance, isPureVeg, clusterId, categories: [{ id, name, dishes: [{ id, name, price, isVeg, description }] }] }]
 //   dishTypes    [{ id, name, matchWords: [...], photo }]   (the quick picks on the table)
+
+import { parseClock } from './orderHours';
 
 const str = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const num = (v, fallback = 0) => {
@@ -52,6 +55,10 @@ export const DEFAULT_SETTINGS = {
   upiId: 'rj09aditya@oksbi',
   upiName: 'Aditya Raj',
   deliverTo: 'BIT Mesra, Patna',
+  opensAt: 660, // 11:00 AM
+  closesAt: 1230, // 8:30 PM
+  ordersPaused: false,
+  pauseMessage: '',
 };
 
 function readSettings(rows) {
@@ -66,6 +73,18 @@ function readSettings(rows) {
     upiId: str(values.upi_id) || DEFAULT_SETTINGS.upiId,
     upiName: str(values.upi_name) || DEFAULT_SETTINGS.upiName,
     deliverTo: str(values.deliver_to) || DEFAULT_SETTINGS.deliverTo,
+    ...readOrderHours(values),
+  };
+}
+
+// Opening hours and the pause switch (Settings rows opens_at, closes_at, orders_paused, pause_message). Also
+// used for the quick status check while a page is open (see fetchShopStatus in services/sheetApi.js).
+export function readOrderHours(values) {
+  return {
+    opensAt: parseClock(values.opens_at) ?? DEFAULT_SETTINGS.opensAt,
+    closesAt: parseClock(values.closes_at) ?? DEFAULT_SETTINGS.closesAt,
+    ordersPaused: bool(values.orders_paused, DEFAULT_SETTINGS.ordersPaused),
+    pauseMessage: str(values.pause_message).slice(0, 160),
   };
 }
 

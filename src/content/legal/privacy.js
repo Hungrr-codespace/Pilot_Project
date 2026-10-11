@@ -48,6 +48,7 @@ export const PRIVACY_POLICY = {
             'To take your order, send it to the restaurants and deliver it to you.',
             'To check your payment against your UPI reference number.',
             'To contact you about your order: a delay, a dish that is not available, the delivery or a refund.',
+            'To show you where your order is when you track it with your order ID and phone number.',
             'To handle cancellations, refunds, complaints and disputes.',
             'To keep the records that tax and accounting laws require.',
             'To improve Hungrr, using totals such as the number of orders per restaurant, not profiles of individual people.',
@@ -74,6 +75,7 @@ export const PRIVACY_POLICY = {
             'Google stores our order records (in Google Sheets, through Google Apps Script). This website also loads its fonts from Google Fonts, so Google receives your IP address when you open it.',
             `${BUSINESS.websiteHost} hosts this website and may keep standard server logs, such as your IP address and browser type.`,
             'WhatsApp (Meta) carries the messages you send us there.',
+            'If our team uses Telegram for order alerts, those alerts carry your order ID, amount, UPI reference number and restaurants, but not your name, phone number or address.',
             'Your bank and UPI app process your payment under their own terms and privacy policies.',
             'Government authorities or courts, when the law requires us to.',
           ],
@@ -85,10 +87,11 @@ export const PRIVACY_POLICY = {
       id: 'on-your-device',
       title: 'What is saved on your device',
       blocks: [
-        "This website does not use cookies. It saves two things in your browser's storage:",
+        "This website does not use cookies. It saves three things in your browser's storage:",
         {
           list: [
             'Your name, phone number and address from your last order, so you do not have to type them again.',
+            'The IDs, dates and totals of orders paid for on this phone, so you can track them.',
             'A copy of the menu, so it opens quickly.',
           ],
         },

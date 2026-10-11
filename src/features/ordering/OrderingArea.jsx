@@ -1,8 +1,11 @@
 import clsx from 'clsx';
+import { Link } from 'react-router';
+import { ROUTES } from '@/config/site';
 import { useLayout } from '@/context/layout';
 import { useOrder } from '@/context/order';
 import { isOrderZoomed } from '@/context/orderReducer';
 import { Section } from '@/components/layout/Section/Section';
+import { Icon } from '@/components/ui/Icon/Icon';
 import { QuickPicksTable } from './QuickPicks/QuickPicksTable';
 import { MenuBook } from './MenuBook/MenuBook';
 import { OrderNotepad } from './OrderNotepad/OrderNotepad';
@@ -42,6 +45,18 @@ export function OrderingArea() {
           </>
         )}
       </div>
+      {!isZoomed && (
+        <div className={styles.trackRow}>
+          <span className={styles.trackText}>Already ordered?</span>
+          <Link to={ROUTES.track} className={`${styles.trackButton} btn-black`}>
+            <span className={styles.trackIcon}>
+              <Icon name="moped" size={isMobile ? 18 : 22} color="var(--color-black)" />
+            </span>
+            Track your order
+            <Icon name="arrowRight" size={isMobile ? 18 : 20} color="var(--color-white)" />
+          </Link>
+        </div>
+      )}
       {isMobile && <ClusterGuide className={styles.clusterGuide} />}
       {state.dialog === 'details' && <DetailsDialog />}
       {state.dialog === 'payment' && <PaymentDialog />}

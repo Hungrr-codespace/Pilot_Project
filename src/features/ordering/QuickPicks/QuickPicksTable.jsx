@@ -120,7 +120,7 @@ function TurnButton({ direction, isMobile, onClick }) {
       type="button"
       onClick={onClick}
       aria-label={direction === 'left' ? 'Previous dishes' : 'Next dishes'}
-      className={styles.turn}
+      className={`${styles.turn} btn-light`}
     >
       <Icon
         name={direction === 'left' ? 'chevronLeft' : 'chevronRight'}

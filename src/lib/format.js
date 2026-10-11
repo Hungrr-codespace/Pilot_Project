@@ -25,3 +25,13 @@ export function formatTimestamp(date) {
 export function billFileName(orderId) {
   return `hungrr-bill-${orderId || 'order'}.png`;
 }
+
+// How long ago something happened, for "Updated 5 min ago": "just now", "5 min ago", "2 h ago", or the date.
+export function timeAgo(date, now = new Date()) {
+  const minutes = Math.round((now - date) / 60000);
+  if (!Number.isFinite(minutes)) return '';
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)} h ago`;
+  return `on ${formatTimestamp(date)}`;
+}

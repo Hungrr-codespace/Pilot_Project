@@ -13,7 +13,7 @@ export function DishTypeFilter({ dishType, onClear }) {
         type="button"
         onClick={onClear}
         aria-label={`Remove the ${dishType.name} filter`}
-        className={styles.chip}
+        className={`${styles.chip} btn-black`}
       >
         {dishType.photo ? (
           <DishPhoto dishType={dishType} className={styles.photo} />

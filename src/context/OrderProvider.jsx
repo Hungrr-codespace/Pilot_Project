@@ -6,6 +6,7 @@ import { newOrderId } from '@/lib/orderId';
 import { summarizeOrder } from '@/lib/pricing';
 import { drawOrderSummary } from '@/lib/orderImage';
 import { saveFile } from '@/lib/download';
+import { saveRecentOrder } from '@/lib/tracking';
 import { submitOrder, submitPayment, toSheetOrder } from '@/services/sheetApi';
 import { useLayout } from './layout';
 import { useMenu } from './menu';
@@ -149,11 +150,13 @@ export function OrderProvider({ children }) {
 
     // UPI reference number given: save the bill, send the payment to the sheet, and tear off the bill.
     const confirmPayment = (upiRef) => {
-      const { state: s } = latest.current;
+      const { state: s, summary: sum } = latest.current;
       const timestamp = formatTimestamp(new Date());
       const fileName = billFileName(s.orderId);
       const photoUrl = drawBill({ timestamp, upiRef });
       submitPayment(sheetOrder({ upiRef }));
+      // Listed on the tracking page on this phone
+      saveRecentOrder({ id: s.orderId, placedAt: timestamp, total: sum.grandTotal });
       if (photoUrl) saveFile(photoUrl, fileName);
       dispatch({ type: 'order/sent', sentOrder: { timestamp, photoUrl: photoUrl || '', fileName, upiRef } });
       later('settle', NOTEPAD_LEAVE_MS, () => dispatch({ type: 'order/settled' }));

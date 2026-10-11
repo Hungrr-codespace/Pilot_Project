@@ -29,6 +29,12 @@
   font-weight: 500;
 }
 
+.back:hover {
+  color: var(--color-black);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .help {
   display: flex;
   align-items: center;
@@ -54,6 +60,10 @@
 
   .actions {
     gap: 8px;
+  }
+
+  .back:hover {
+    text-decoration: none;
   }
 
   .back {

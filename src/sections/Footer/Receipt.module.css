@@ -223,6 +223,28 @@
   letter-spacing: 5px;
 }
 
+/* Hover and press: the label underlines, the arrow deepens and nudges right */
+.link .linkArrow {
+  transition:
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.link:hover .linkLabel {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.link:hover .linkArrow {
+  background: var(--color-yellow-deep);
+  transform: translateX(3px);
+}
+
+.link:active .linkArrow {
+  background: var(--color-yellow-press);
+  transform: translateX(3px) scale(0.9);
+}
+
 @media (max-width: 1023.98px) {
   .receipt {
     align-self: center;

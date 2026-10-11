@@ -99,6 +99,22 @@
   color: var(--color-white);
 }
 
+/* − and + inside the black pill */
+.step {
+  transition:
+    background-color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.step:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.step:active {
+  background: rgba(255, 222, 33, 0.4);
+  transform: scale(0.88);
+}
+
 @media (max-width: 1023.98px) {
   .row {
     gap: 10px;

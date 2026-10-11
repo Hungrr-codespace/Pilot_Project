@@ -1,4 +1,4 @@
-// FAQ, grouped like courses on a menu.
+// FAQ, grouped like courses on a menu. {hours} in an answer shows the opening hours from the sheet.
 const COURSES = [
   {
     course: 'Starters',
@@ -9,7 +9,7 @@ const COURSES = [
       },
       {
         q: 'What are the ordering timings?',
-        a: 'Orders are open from 11:00 AM to 8:30 PM. Message us any time within these hours and we will get your food moving.',
+        a: 'Orders are open from {hours}. Message us any time within these hours and we will get your food moving.',
       },
     ],
   },

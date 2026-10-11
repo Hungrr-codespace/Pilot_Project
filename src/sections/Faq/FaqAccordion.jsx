@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { useWhatsAppContact } from '@/hooks/useWhatsAppContact';
+import { useShopStatus } from '@/context/shopStatus';
 import { Icon } from '@/components/ui/Icon/Icon';
 import motion from '@/styles/motion.module.css';
 import { FaqMenu, MenuDot, ToggleMark } from './FaqMenu';
@@ -14,6 +15,7 @@ const twoDigits = (n) => String(n).padStart(2, '0');
 export function FaqAccordion() {
   const [open, setOpen] = useState(1);
   const whatsapp = useWhatsAppContact();
+  const { hours } = useShopStatus();
 
   return (
     <>
@@ -27,7 +29,7 @@ export function FaqAccordion() {
                 type="button"
                 onClick={() => setOpen(isOpen ? 0 : question.number)}
                 aria-expanded={isOpen ? 'true' : 'false'}
-                className={styles.question}
+                className={`${styles.question} btn-row-dark`}
               >
                 <MenuDot compact />
                 <span className={styles.questionText}>{question.q}</span>
@@ -40,7 +42,7 @@ export function FaqAccordion() {
                       <Icon name="cloche" size={15} color="var(--color-black)" />
                       Now serving · Question {twoDigits(question.number)}
                     </span>
-                    <p className={styles.answerText}>{question.a}</p>
+                    <p className={styles.answerText}>{question.a.replace('{hours}', hours.sentence)}</p>
                   </div>
                   <svg
                     width="100%"

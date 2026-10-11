@@ -21,7 +21,7 @@ export function PageFooter({ helpText = 'Questions about your order?' }) {
         </div>
         <div className={styles.help}>
           <span className={styles.helpText}>{helpText}</span>
-          <ExternalLink href={whatsapp.href} className={styles.whatsapp}>
+          <ExternalLink href={whatsapp.href} className={`${styles.whatsapp} btn-yellow`}>
             <span className={styles.whatsappIcon}>
               <Icon name="whatsapp" size={isMobile ? 20 : 26} color="var(--color-yellow)" />
             </span>

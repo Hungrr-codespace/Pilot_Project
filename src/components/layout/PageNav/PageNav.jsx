@@ -19,11 +19,15 @@ export function PageNav({ className }) {
         <Wordmark className={styles.logo} />
       </Link>
       <div className={styles.actions}>
-        <Link to={ROUTES.home} className={styles.back}>
+        <Link to={ROUTES.home} className={clsx(styles.back, isMobile && 'btn-light')}>
           <Icon name="arrowLeft" size={isMobile ? 17 : 20} color="var(--color-black)" />
           {isMobile ? 'Home' : 'Back to Hungrr'}
         </Link>
-        <ExternalLink href={whatsapp.href} aria-label="Help on WhatsApp" className={styles.help}>
+        <ExternalLink
+          href={whatsapp.href}
+          aria-label="Help on WhatsApp"
+          className={`${styles.help} btn-black`}
+        >
           <Icon name="whatsapp" size={isMobile ? 22 : 20} color="var(--color-yellow)" />
           {!isMobile && 'Need help?'}
         </ExternalLink>

@@ -1,15 +1,31 @@
 import { useEffect, useState } from 'react';
 
-const readWidth = () => (typeof window === 'undefined' ? 1440 : window.innerWidth || 1440);
+// The window's width (as CSS media queries see it, scrollbar included) and the width pages can use (without
+// a vertical scrollbar), updated on resize and rotation.
+const read = () => {
+  if (typeof window === 'undefined') return { width: 1440, usableWidth: 1440 };
+  const width = window.innerWidth || 1440;
+  const usableWidth = Math.min(width, document.documentElement.clientWidth || width);
+  return { width, usableWidth };
+};
 
-// The browser window's width, updated on resize and rotation.
 export function useViewportWidth() {
-  const [width, setWidth] = useState(readWidth);
+  const [size, setSize] = useState(read);
   useEffect(() => {
-    const onResize = () => setWidth(readWidth());
+    const onResize = () =>
+      setSize((old) => {
+        const next = read();
+        return next.width === old.width && next.usableWidth === old.usableWidth ? old : next;
+      });
     window.addEventListener('resize', onResize);
+    // The scrollbar can appear or go once the page has rendered, without a resize
+    const observer = 'ResizeObserver' in window ? new ResizeObserver(onResize) : null;
+    observer?.observe(document.documentElement);
     onResize();
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      observer?.disconnect();
+    };
   }, []);
-  return width;
+  return size;
 }

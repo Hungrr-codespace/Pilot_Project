@@ -100,6 +100,33 @@
   color: var(--color-yellow);
 }
 
+/* Hover and press on the cover: its "Open the menu" pill fills yellow */
+.cta {
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
+}
+
+.open:hover .cta {
+  background: var(--color-yellow);
+  color: var(--color-black);
+}
+
+.open:hover .cta svg path {
+  fill: currentColor; /* the yellow book icon turns black on the yellow fill */
+}
+
+.open:active .cta {
+  background: var(--color-yellow-press);
+  transform: scale(0.95);
+}
+
+.open:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: -8px;
+}
+
 @media (max-width: 1023.98px) {
   .cover {
     width: 350px;
