@@ -1,0 +1,43 @@
+.section {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 1440px;
+  padding: 120px 80px 128px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  overflow: hidden;
+}
+
+.body {
+  display: flex;
+  align-items: stretch;
+  gap: 40px;
+}
+
+/* Desktop: a black panel between Why Hungrr (white) and the FAQ */
+@media (min-width: 1024px) {
+  .section {
+    background: var(--color-black);
+    border-radius: 96px;
+    --section-title: var(--color-white);
+    --section-text: #bdbdbd;
+    --section-muted: #a6a6a6;
+    --section-highlight: var(--color-yellow);
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .section {
+    position: relative;
+    width: 390px;
+    padding: 40px 20px 56px;
+    gap: 26px;
+    overflow: visible;
+  }
+
+  .body {
+    flex-direction: column;
+    gap: 22px;
+  }
+}

@@ -1,0 +1,247 @@
+.card {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 34px 32px 28px;
+  background: var(--color-black);
+  border-radius: 28px;
+  color: var(--color-white);
+}
+
+.token {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  background: var(--color-yellow);
+  border-radius: 50%;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-black);
+}
+
+.nameRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.name {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  overflow-wrap: anywhere;
+}
+
+.edit,
+.cancel,
+.signOut {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-yellow);
+}
+
+/* Changing the name */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.editLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-on-dark);
+}
+
+.editInput {
+  height: 54px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 2px solid var(--color-yellow);
+  border-radius: 14px;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-black);
+  outline: none;
+}
+
+.editInput:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 222, 33, 0.5);
+}
+
+.editError {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ff9b94;
+}
+
+.editActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  background: var(--color-yellow);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+.cancel {
+  height: 44px;
+}
+
+/* The phone number, locked */
+.phone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 22px;
+  align-self: stretch;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.22);
+}
+
+.phoneNumber {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.phoneNote {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text-on-dark);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  align-self: stretch;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.22);
+}
+
+.footEnd {
+  justify-content: flex-end;
+}
+
+.since {
+  font-size: 15px;
+  color: var(--color-text-on-dark);
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    position: static;
+    padding: 22px 20px 20px;
+    border-radius: 22px;
+  }
+
+  .token {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+  }
+
+  .nameRow {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .name {
+    font-size: 26px;
+  }
+
+  .edit,
+  .cancel,
+  .signOut {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .save {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 15px;
+  }
+
+  .cancel {
+    height: 40px;
+  }
+
+  .editForm {
+    margin-top: 14px;
+  }
+
+  .editInput {
+    height: 48px;
+    font-size: 19px;
+  }
+
+  .phone {
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+
+  .phoneNumber {
+    font-size: 18px;
+  }
+
+  .phoneNote,
+  .since {
+    font-size: 13.5px;
+  }
+
+  .foot {
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+}

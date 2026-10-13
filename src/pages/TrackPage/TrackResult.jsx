@@ -211,6 +211,24 @@ function OrderStatus({ order, checkedAt, refresh }) {
         </div>
       </div>
 
+      {(isCancelled || current === TRACK_STEPS.length - 1) && (
+        <div className={styles.rate}>
+          <span className={styles.rateText}>
+            <strong>{isCancelled ? 'Tell us what went wrong' : 'How was it?'}</strong>
+            {isCancelled
+              ? 'Your feedback helps us fix it for the next order.'
+              : 'It takes a minute, and it helps us choose what comes next.'}
+          </span>
+          <Link
+            to={`${ROUTES.feedback}?order=${order.order_id}`}
+            className={`${styles.rateButton} btn-black`}
+          >
+            <Icon name="star" size={isMobile ? 18 : 20} color="var(--color-yellow)" />
+            Rate your order
+          </Link>
+        </div>
+      )}
+
       <div className={styles.foot}>
         <span className={styles.checked}>
           {refresh.refreshNote === 'failed'

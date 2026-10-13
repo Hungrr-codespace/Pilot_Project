@@ -1,0 +1,154 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 36px 40px 40px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 32px;
+  box-shadow: var(--shadow-pop);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.group + .group {
+  padding-top: 26px;
+  border-top: 2px dashed var(--color-dashed);
+}
+
+.legend {
+  /* Floated, a legend becomes an ordinary item (not drawn on the dashed border) */
+  float: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-yellow);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.mono::placeholder {
+  text-transform: none;
+}
+
+.tagsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--color-text-body);
+  cursor: pointer;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--color-black);
+  cursor: pointer;
+}
+
+.serverError {
+  margin: -10px 0 0;
+  padding: 12px 16px;
+  background: #fdecea;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-nonveg);
+}
+
+.submit {
+  align-self: stretch;
+  justify-content: center;
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    gap: 22px;
+    padding: 20px 18px 22px;
+    border-radius: 24px;
+  }
+
+  .group {
+    gap: 12px;
+  }
+
+  .group + .group {
+    padding-top: 18px;
+  }
+
+  .legend {
+    gap: 10px;
+    margin-bottom: 2px;
+    font-size: 19px;
+  }
+
+  .step {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mono {
+    font-size: 15px;
+  }
+
+  .consent {
+    gap: 10px;
+    font-size: 14px;
+  }
+}

@@ -1,12 +1,14 @@
 # Connect the Google Sheet (about 10 minutes, once)
 
-> **Already connected your sheet with an earlier version?** Three things to do:
+> **Already connected your sheet with an earlier version?** Three things to do, before you put the new website
+> live (the website's sign-in needs the new script):
 >
 > 1. Open the sheet's **Extensions → Apps Script**, replace everything with the new `Code.gs` and **Save**.
 > 2. In the toolbar, choose **setup** in the function list, then click **Run**. Google asks for permission again
 >    (this version can send email and talk to Telegram): **Review permissions** → your account → **Advanced** →
->    **Go to Hungrr website (unsafe)** → **Allow**. `setup` adds the opening hours and pause switch to Settings,
->    a new **Alerts** tab, and a `status_at` column to Orders, then emails you a test alert.
+>    **Go to Hungrr website (unsafe)** → **Allow**. `setup` adds anything your sheet is missing (the opening hours
+>    and pause switch in Settings, the **Alerts**, **Reviews** and **Users** tabs, the `status_at` and `account`
+>    columns in Orders, and the secret that protects PINs), then emails you a test alert.
 > 3. **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same.
 >
 > Running `setup` again later is safe: it only adds what is missing.
@@ -29,8 +31,8 @@ sheet. A small Google Apps Script (free, runs on your Google account) connects t
    Name the project "Hungrr website".
 
 Then choose **setup** in the function list in the toolbar and click **Run**. Allow the permissions Google asks
-for (see step 3.3 below for the "unsafe" screen). This adds the opening hours, the pause switch and the Alerts
-tab, and sends you a test email.
+for (see step 3.3 below for the "unsafe" screen). This adds the opening hours, the pause switch, the Alerts,
+Reviews and Users tabs and the secret that protects PINs, and sends you a test email.
 
 ## 3. Publish it as a web app
 
@@ -116,6 +118,59 @@ hand, the `status_at` column fills in the time by itself, so the tracking page c
 The script only answers when the phone number matches the order, and never sends back the customer's name,
 phone, address or UPI reference number.
 
+## Reviews
+
+Customers rate an order at `/feedback` on the website (the tracking page links there once an order is delivered).
+They enter the order ID and the phone number they ordered with, so only real, paid orders can be rated, and each
+order has one review: sending it again updates the same row in the **Reviews** tab.
+
+| column | What it holds |
+| --- | --- |
+| `rating`, `tags` | 1 to 5 stars, and the tags the customer picked |
+| `comment` | The review in the customer's words (up to 280 characters) |
+| `improve` | Private: what they would add or improve. Never shown on the website. |
+| `name` | The name they chose to show with the review |
+| `show_on_site` | Yes if the customer agreed to show the review on the website |
+| `approved` | **You set this.** Yes shows the review (if `show_on_site` is Yes); No keeps it off |
+
+- **Approving:** read new rows and set `approved` to **Yes** or **No**. Approve for content (say No to abuse,
+  personal details or advertising), not for the rating: showing the low reviews too is what makes the good ones
+  believable. If a customer changes their words, `approved` empties again.
+- **The rating on the website** (average, star bars, most-loved tags) counts every review, shown or not.
+- **Low ratings:** a 1 or 2-star review sends an alert (email with the words, Telegram with the stars and tags),
+  so someone can call the customer back.
+- **Removing a review:** if a customer asks, set `approved` to No (or delete the row). The website updates within
+  about a minute.
+
+## Accounts (the customer's khata)
+
+Customers sign in with their phone number and a 6-digit PIN they pick. The website asks them when they open the
+pilot menu (they can just look at the menu instead) and again at **Confirm order**: an order is placed only by a
+signed-in customer, so it always belongs to their account. Their khata (`/account`) lists their orders, lets them
+track and rate each one, and change their name. Each account is one row in the **Users** tab:
+
+| column | What it holds |
+| --- | --- |
+| `phone` | The account's key, a 10-digit number. One account per number. Don't change it. |
+| `name` | The customer's name. Customers can change it on the website; you can correct it here. |
+| `pin_hash`, `pin_salt` | A scrambled form of the PIN, never the PIN itself. Nobody, including you, can read the PIN. |
+| `failed_tries`, `locked_until` | Five wrong PINs in a row lock the account for 15 minutes. |
+| `created_at`, `updated_at`, `last_sign_in_at` | Filled in by the script. |
+| `notes` | Your own notes. |
+
+- **Orders and accounts:** an order placed while signed in gets the account's number in the Orders tab's new
+  `account` column. Orders from before accounts existed have it empty; the customer adds them to their khata by
+  typing the order ID from the bill (the phone number on the order must match their account).
+- **Forgotten PIN:** check the message really comes from that number (for example, the customer messages you on
+  WhatsApp from it), then clear their `pin_hash` cell. Their next sign-in asks them to pick a new PIN, and any
+  device still signed in with the old one is signed out. Ask them to sign in straight away.
+- **Locked out after wrong PINs:** it unlocks by itself after 15 minutes. To unlock sooner, clear `locked_until`.
+- **Closing an account** (if a customer asks): delete their row in Users. Their orders stay in Orders.
+- **The secret:** `setup` stores a random secret in the script's **Project Settings → Script properties**
+  (`ACCOUNT_SECRET`). It scrambles PINs and signs sign-ins. Don't change or delete it: every PIN would stop
+  working and everyone would be signed out.
+- A sign-in lasts 60 days on a device, or until the customer signs out.
+
 ## If you change Code.gs later
 
 **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy.** The URL stays the same, so the
@@ -123,10 +178,12 @@ website needs no change.
 
 ## Good to know
 
-- The Orders tab now holds customers' names, phone numbers and addresses. Keep the sheet private: share it only
-  with the people who handle orders.
+- The Orders and Users tabs hold customers' names, phone numbers and addresses. Keep the sheet private: share it
+  only with the people who handle orders.
 - The web app URL is public, like the website. Through it, anyone can read the menu tabs (which the website shows
-  anyway), submit orders, and look up an order's status if they know both its ID and phone number. They cannot
-  read the Orders or Alerts tabs. The script recalculates every price and total from
+  anyway), submit orders, look up an order's status or rate it if they know both its ID and phone number, read
+  the approved reviews (without phone numbers or order IDs), open an account, and see whether a phone number has
+  one. An account's orders and name are only shown with its PIN. They cannot read the Orders, Users or Alerts
+  tabs, or the reviews that are not approved. The script recalculates every price and total from
   the sheet and ignores dishes that are not on the menu.
 - Keep the first row (column names) of every tab as it is. You can reorder columns or add your own extra columns.

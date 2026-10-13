@@ -390,6 +390,47 @@
   color: var(--color-text-subtle);
 }
 
+/* Delivered (or cancelled): ask for a rating */
+.rate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 36px 24px;
+  padding: 20px 22px;
+  background: var(--color-yellow-soft);
+  border-radius: 20px;
+}
+
+.rateText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+.rateText strong {
+  font-size: 20px;
+  color: var(--color-black);
+}
+
+.rateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 52px;
+  padding: 0 22px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-white);
+}
+
 .foot {
   display: flex;
   align-items: center;
@@ -626,6 +667,28 @@
 
   .totalNote {
     font-size: 12.5px;
+  }
+
+  .rate {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin: 0 18px 18px;
+    padding: 16px;
+  }
+
+  .rateText {
+    font-size: 14px;
+  }
+
+  .rateText strong {
+    font-size: 17px;
+  }
+
+  .rateButton {
+    justify-content: center;
+    height: 48px;
+    font-size: 15px;
   }
 
   .foot {

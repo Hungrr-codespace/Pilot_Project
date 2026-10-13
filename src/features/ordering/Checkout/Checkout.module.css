@@ -4,6 +4,59 @@
   gap: 16px;
 }
 
+/* Signed in: who the order is for, from the account (a line from the customer's khata) */
+.orderingAs {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  row-gap: 2px;
+  padding: 12px 18px 14px;
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-paper-border);
+  border-radius: 14px;
+}
+
+.asLabel {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+.asName {
+  font-family: var(--font-hand);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.notYou {
+  grid-row: 2 / span 2;
+  grid-column: 2;
+  align-self: center;
+  padding: 4px 2px;
+  background: none;
+  border: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-black);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.notYou:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.asPhone {
+  font-size: 16px;
+  color: var(--color-text-body);
+}
+
 /* "₹559.90 paid for order HG-…" above the reference number box */
 .paidFor {
   display: flex;
@@ -44,5 +97,22 @@
   .refInput {
     font-size: 21px;
     letter-spacing: 1.5px;
+  }
+
+  .orderingAs {
+    padding: 10px 14px 12px;
+  }
+
+  .asLabel {
+    font-size: 13px;
+  }
+
+  .asName {
+    font-size: 22px;
+  }
+
+  .asPhone,
+  .notYou {
+    font-size: 14px;
   }
 }

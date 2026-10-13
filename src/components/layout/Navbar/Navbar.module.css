@@ -27,6 +27,12 @@
   font-weight: 500;
 }
 
+.end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .orderNow {
   display: flex;
   align-items: center;

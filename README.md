@@ -3,13 +3,21 @@
 The Hungrr website, built with React 18, React Router and Vite. It has these pages:
 
 - **Main page (`/`)**: what Hungrr is and what it strives to do, the pilot at BIT Mesra (timings, delivery
-  area, payment and how ordering works), why Hungrr, and the FAQ. "Order now" and "Open the pilot menu" lead
-  to the pilot page, and "Track order" (next to it) to the tracking page.
+  area, payment and how ordering works), why Hungrr, pilot reviews, and the FAQ. "Order now" and "Open the
+  pilot menu" lead to the pilot page, and "Track order" (next to it) to the tracking page. "Sign in" sits at
+  the top right (the customer's name once signed in).
 - **Pilot page (`/pilot`)**: the menu (the quick-picks table and the menu book), the order notepad, and the
   checkout: delivery details, UPI QR, and payment confirmation with the 12-digit UPI reference number. It says
-  whether ordering is open, closed or paused, and has a "Track your order" button under the menu.
+  whether ordering is open, closed or paused, and has a "Track your order" button under the menu. Arriving
+  signed out, the sign-in opens first ("Just look at the menu" closes it); ordering needs an account.
+- **Khata (`/account`)**: the signed-in customer's page: their name (which they can change), phone number, and
+  every order they have placed, each opening to its dishes and charges with "Track order" and "Rate this
+  order". Older orders can be added with the order ID on the bill.
 - **Tracking page (`/track`)**: the order ID and phone number show the order's status from the sheet (no account
   needed), with the orders paid for on this phone listed for one-tap tracking.
+- **Feedback page (`/feedback`)**: customers rate a paid order with its order ID and phone number: stars,
+  tags, a few words, a private suggestion for the team, and whether to show the review on the website (with a
+  live preview of the card). The tracking page links here once an order is delivered.
 - **Policy pages**: Privacy Policy (`/privacy-policy`), Terms & Conditions (`/terms`) and Refund & Cancellation
   Policy (`/refund-policy`), linked from both footers. Each has an "In short" summary, numbered sections and a
   contents list. Their text is in `src/content/legal/`.
@@ -80,13 +88,16 @@ the pause switch, alerts and tracking are explained in [SETUP.md](google-sheet/S
 ```
 src/
 ├── main.jsx                 Entry point: global styles + <App />
-├── App.jsx                  Router (the pages) inside the providers (layout → menu → order)
+├── App.jsx                  Router (the pages) inside the providers (layout → menu → status → account → order)
 ├── pages/
 │   ├── HomePage.jsx         The main page: its sections in order
 │   ├── PilotPage/           The pilot page: PilotHeader (title, open/closed pill), ShopNotice (closed or
 │   │                        paused), the ordering area, PageFooter
-│   ├── TrackPage/           Order tracking: TrackHeader, TrackForm (order ID + phone), RecentOrders,
-│   │                        TrackResult (the steps), useOrderTracking (asks the sheet, refreshes every minute)
+│   ├── TrackPage/           Order tracking: TrackForm (order ID + phone), RecentOrders, TrackResult (the
+│   │                        steps, and "Rate your order" once delivered), useOrderTracking (refreshes every minute)
+│   ├── FeedbackPage/        Rate an order: FeedbackForm (four steps), the live card preview, the thank-you
+│   ├── AccountPage/         The khata: RegularCard (name, phone, sign out), KhataLedger (the orders, the
+│   │                        total paid, adding an earlier order), useKhata (loads the orders)
 │   └── LegalPage/           The policy pages: LegalHeader (title, policy tabs, date), LegalContents
 │                            (contents list), LegalDocument (the text), LegalText (links and placeholders)
 ├── sections/                One folder per main-page section, each with its own components and styles
@@ -95,30 +106,40 @@ src/
 │   ├── Pilot/               The pilot at BIT Mesra: PilotPass (timings with open/closed status, delivery
 │   │                        area, payment, "Open the pilot menu" and "Track order") and OrderSteps
 │   ├── WhyHungrr/           BenefitRoad (the six benefits along a road)
+│   ├── Reviews/             ReviewSummary (average, star bars, most-loved tags, "Rate your order") and
+│   │                        ReviewCarousel (approved reviews in a sideways-scrolling row)
 │   ├── Faq/                 FaqMenu (shared card), FaqBoard (desktop), FaqAccordion (mobile)
 │   └── Footer/              FooterRoad, Receipt (site map styled as a bill)
 ├── features/
-│   └── ordering/            Everything for ordering on the pilot page (see below)
+│   ├── account/             SignInDialog (phone → PIN, or name and a new PIN; locked; welcome stamp),
+│   │                        PinInput (six boxes), AccountButton (Sign in / the customer's name, top right)
+│   ├── ordering/            Everything for ordering on the pilot page (see below)
+│   └── reviews/             ReviewCard, StarRating (shows stars), StarInput (picks stars), TagPicker,
+│                            useReviews (loads the summary and reviews once per visit)
 ├── components/              Reusable building blocks used in several places
 │   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField,
 │   │                        ShopStatusPill (Open now / Closed / Orders paused), Spinner (loading ring)
 │   └── layout/              PageCanvas, Section, Navbar, PageNav and PageFooter (top bar and footer of the
-│                            pilot and policy pages), ScrollManager (top of the page, or the linked
+│                            pilot and policy pages), PageHeader (yellow header of the tracking and feedback
+│                            pages), ScrollManager (top of the page, or the linked
 │                            section, after moving pages)
 ├── context/                 App-wide state
 │   ├── LayoutProvider.jsx   Which design is showing (desktop/mobile) and its scale
 │   ├── MenuProvider.jsx     The menu from the Google Sheet (cached, with a built-in fallback)
 │   ├── ShopStatusProvider.jsx  Open, closed or paused: the sheet's hours and pause switch, in Indian time
+│   ├── AccountProvider.jsx  Who is signed in on this device, and the sign-in dialog (openSignIn)
 │   ├── OrderProvider.jsx    Ordering actions: cart, menu book, notepad, checkout, payment, bill
 │   └── orderReducer.js      All ordering state changes, as a pure reducer (+ the current order step)
 ├── hooks/                   useViewportWidth, useScrollMorph (mobile), useReveal (scroll animations),
 │                            useActiveSection (policy contents), useWhatsAppContact, useDocumentTitle
 ├── lib/                     Pure functions, no React: pricing, search, menu data, checkout (details and UPI
 │                            reference checks), UPI link, WhatsApp message, QR code, bill image, file
-│                            download, formatting, policy text, opening hours, tracking (+ their tests)
+│                            download, formatting, policy text, opening hours, tracking, reviews, accounts
+│                            (+ their tests)
 ├── services/
-│   └── sheetApi.js          Talks to the Google Sheet: load the menu, check the hours and pause switch, save
-│                            orders and payments, track an order
+│   ├── sheetApi.js          Talks to the Google Sheet: load the menu, check the hours and pause switch, save
+│                            orders and payments, track an order, load and send reviews
+│   └── accountApi.js        Accounts: sign up, sign in, the khata, change the name, add an earlier order
 ├── config/site.js           Brand, page addresses (ROUTES), contact email, links, layout sizes, image paths
 ├── content/                 Page copy: about, ordering steps (howItWorks.js), benefits, FAQ, and the
 │                            policies in legal/ (business.js holds the business details they show)
@@ -226,8 +247,9 @@ top of the menu. (They stick to the top of the screen with `position: sticky`, w
    restaurants.
 2. **Review order.** The notepad shows the order with GST and one delivery charge per rider (one rider per
    cluster). Quantities can still be changed.
-3. **Your details.** "Confirm order" opens a dialog for name, phone number and delivery address (remembered on
-   the device for next time). The order gets its ID (for example `HG-261006-K7Q2`) and is saved in the sheet as
+3. **Your details.** "Confirm order" asks a signed-out customer to sign in first. Then a dialog shows who is
+   ordering (from the account, with "Not you?") and asks for the delivery address (remembered on the device for
+   next time). The order gets its ID (for example `HG-261006-K7Q2`) and is saved in the sheet as
    **Awaiting payment**.
 4. **Pay by UPI.** The QR has the exact amount, with the order ID in the payment note.
 5. **Confirm payment.** "Confirm payment" asks for the 12-digit UPI reference number from the customer's UPI
@@ -239,6 +261,35 @@ top of the menu. (They stick to the top of the screen with `position: sticky`, w
 After that, the customer follows the order on the tracking page ("Track order" on the bill, or "Track your
 order" under the menu). It shows the status the team sets in the sheet: Payment to verify → Paid → Preparing →
 Out for delivery → Delivered.
+
+## How accounts work
+
+- **Signing in:** phone number first. A new number gets "Open your khata" (name and a 6-digit PIN, typed
+  twice); a known one asks for its PIN. PINs that are too easy (123456, 111111) are refused. Five wrong PINs
+  lock the account for 15 minutes.
+- **On the sheet:** one row per phone number in the **Users** tab. The PIN is never stored: only an HMAC-SHA256
+  of it with a random salt and a secret kept in the script's properties. A sign-in returns a token signed with
+  the same secret, kept on the device for 60 days (`hungrr-account-v1`). Clearing a customer's `pin_hash` in
+  the sheet resets their PIN and signs them out everywhere.
+- **Orders:** sent with the token, so the sheet writes the account's number in the order's `account` column
+  (and uses the account's phone number for the order). The khata lists the account's orders that were paid
+  for, newest first, with their dishes and review. Orders placed before signing in join it with their order ID
+  (only if the order's phone number is the account's).
+- **What can change:** only the name. The phone number is the account's key; the team changes it by hand.
+- Setting up and resetting PINs: see [google-sheet/SETUP.md](google-sheet/SETUP.md#accounts-the-customers-khata).
+
+## How reviews work
+
+- **Who can rate:** anyone with a paid order, using its order ID and the phone number it was placed with (the
+  script checks both, and refuses orders still awaiting payment). One review per order; sending again updates
+  it. Reviews land in the sheet's **Reviews** tab.
+- **What is shown:** the main page's Reviews section shows a review only when the customer agreed to share it
+  and the team has set `approved` to Yes. Changed words go back to waiting. The public list never includes
+  phone numbers, order IDs or the private suggestions.
+- **The rating:** the average, star bars and most-loved tags count every review, shown or not, so the score is
+  not just the approved ones.
+- **Low ratings:** 1 or 2 stars send the team an alert, to call the customer back.
+- Setting up and approving: see [google-sheet/SETUP.md](google-sheet/SETUP.md#reviews).
 
 ## Build and deploy
 
@@ -257,6 +308,17 @@ The pilot and policy pages have their own addresses (`/pilot`, `/terms`…), so 
 to `index.html`. This is
 already set up: Cloudflare Pages does it on its own, Netlify reads `netlify.toml`, and Vercel reads
 `vercel.json`. (Don't add a `_redirects` file with `/* /index.html 200`: Cloudflare rejects that rule.)
+
+### Hostinger
+
+- **Business or Cloud plan (recommended):** Hostinger builds the site from GitHub. In hPanel: **Websites → Add
+  website → Node.js Web App → Import Git repository**, pick this repository, check the build settings (build
+  command `npm run build`, output directory `dist`), add the environment variable `VITE_SHEET_API_URL`, and
+  **Deploy**. Every push to GitHub deploys again. Hostinger adds the page-address routing (`.htaccess`) itself.
+- **Other plans:** build on your computer (`.env` with `VITE_SHEET_API_URL`, then `npm run build`), and upload
+  everything inside `dist/` plus `hosting/hostinger/.htaccess` to `public_html` with the File Manager. Repeat
+  for every update.
+- Then connect the domain in hPanel, and turn on SSL and **Force HTTPS**. The Google Sheet needs no change.
 
 Vercel's free Hobby plan is for non-commercial use, so for a business use a paid Vercel plan or another host.
 Then add your domain (hungrr.in) in the host's domain settings, and add the DNS records it shows you at the

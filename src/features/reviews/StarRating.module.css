@@ -1,0 +1,54 @@
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.empty,
+.full {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+
+.empty path {
+  fill: #e4dec8;
+}
+
+.dark .empty path {
+  fill: #3a3a3a;
+}
+
+.full path {
+  fill: var(--color-yellow);
+  stroke: #c89b00;
+  stroke-width: 0.8;
+}
+
+.dark .full path {
+  stroke: none;
+}
+
+.fillClip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* On the yellow summary card: black stars */
+.onYellow .empty path {
+  fill: rgba(0, 0, 0, 0.16);
+}
+
+.onYellow .full path {
+  fill: var(--color-black);
+  stroke: none;
+}

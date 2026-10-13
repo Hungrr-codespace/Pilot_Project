@@ -1,0 +1,185 @@
+/* The form beside a live preview of the review card */
+.body {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 64px;
+  align-items: start;
+  width: 1440px;
+  box-sizing: border-box;
+  padding: 72px 80px 120px;
+}
+
+.side {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding-top: 8px;
+}
+
+.eyebrow {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.preview {
+  width: 380px;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text-subtle);
+}
+
+.note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* After sending */
+.thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 48px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 32px;
+  box-shadow: var(--shadow-pop);
+  text-align: center;
+}
+
+.thanksIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.thanksTitle {
+  margin: 22px 0 0;
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.thanksText {
+  max-width: 480px;
+  margin: 12px 0 0;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+}
+
+.thanksActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.thanksPrimary,
+.thanksSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 54px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.thanksPrimary {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.thanksSecondary {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  color: var(--color-black);
+}
+
+.thanksSecondary:last-child {
+  background: var(--color-light-gray);
+  border-color: transparent;
+}
+
+@media (max-width: 1023.98px) {
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+    width: 390px;
+    padding: 24px 16px 48px;
+  }
+
+  .side {
+    position: static;
+    gap: 14px;
+    padding-top: 0;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+  }
+
+  .preview {
+    width: 100%;
+  }
+
+  .note {
+    font-size: 13.5px;
+  }
+
+  .thanks {
+    padding: 36px 20px;
+    border-radius: 24px;
+  }
+
+  .thanksIcon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .thanksTitle {
+    margin-top: 16px;
+    font-size: 30px;
+  }
+
+  .thanksText {
+    font-size: 15.5px;
+  }
+
+  .thanksActions {
+    flex-direction: column;
+    align-self: stretch;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .thanksPrimary,
+  .thanksSecondary {
+    justify-content: center;
+    height: 50px;
+    font-size: 16px;
+  }
+}

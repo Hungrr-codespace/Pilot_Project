@@ -1,0 +1,65 @@
+.button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 22px 0 18px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+/* Signed in: the initials on a yellow token, then the first name */
+.signedIn {
+  padding: 0 20px 0 6px;
+}
+
+.token {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--color-yellow);
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-black);
+}
+
+.name {
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1023.98px) {
+  .round {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .round.signedIn {
+    padding: 0;
+    background: var(--color-yellow);
+  }
+
+  .round .token {
+    width: auto;
+    height: auto;
+    background: none;
+    border: 0;
+    font-size: 15px;
+  }
+}

@@ -10,7 +10,7 @@ export function RecentOrders({ orders, activeId, onPick }) {
   return (
     <section className={styles.recent} aria-labelledby="recent-orders">
       <h2 id="recent-orders" className={styles.eyebrow}>
-        Ordered on this device
+        Ordered on this phone
       </h2>
       <ul className={styles.list}>
         {orders.map((order) => (

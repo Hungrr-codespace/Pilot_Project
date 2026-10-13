@@ -8,13 +8,14 @@ import { Hero } from '@/sections/Hero/Hero';
 import { About } from '@/sections/About/About';
 import { Pilot } from '@/sections/Pilot/Pilot';
 import { WhyHungrr } from '@/sections/WhyHungrr/WhyHungrr';
+import { Reviews } from '@/sections/Reviews/Reviews';
 import { Faq } from '@/sections/Faq/Faq';
 import { Footer } from '@/sections/Footer/Footer';
 
 // The main page: what Hungrr is, the pilot (how ordering works, timings, and the way into the pilot menu),
-// why Hungrr, and the FAQ.
+// why Hungrr, reviews from the pilot, and the FAQ.
 export function HomePage() {
-  useDocumentTitle('Hungrr');
+  useDocumentTitle('Hungrr – Order smarter, not harder');
   const { isMobile } = useLayout();
   const canvasRef = useRef(null);
   useScrollMorph(canvasRef, isMobile); // mobile: sections morph into each other
@@ -28,6 +29,7 @@ export function HomePage() {
       <About />
       <Pilot />
       <WhyHungrr />
+      <Reviews />
       <Faq />
       <Footer />
     </PageCanvas>

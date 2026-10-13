@@ -1,0 +1,89 @@
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+.stars {
+  display: flex;
+  gap: 6px;
+}
+
+.star {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.star:hover {
+  transform: scale(1.12);
+}
+
+.star:active {
+  transform: scale(0.9);
+}
+
+.star svg {
+  display: block;
+  overflow: visible;
+}
+
+.star path {
+  fill: var(--color-white);
+  stroke: var(--color-black);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  transition: fill 0.15s ease;
+}
+
+.on path {
+  fill: var(--color-yellow);
+}
+
+/* The real radio buttons, invisible but focusable */
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.star:has(.input:focus-visible) {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.word {
+  font-family: var(--font-hand);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.wordEmpty {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-faint);
+}
+
+.error {
+  flex-basis: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-nonveg);
+}
+
+@media (max-width: 1023.98px) {
+  .stars {
+    gap: 4px;
+  }
+
+  .word {
+    font-size: 20px;
+  }
+}

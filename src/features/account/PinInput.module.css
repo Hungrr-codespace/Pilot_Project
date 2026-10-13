@@ -1,0 +1,144 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.show {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  background: var(--color-light-gray);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+/* The six ledger cells, with the real input stretched invisibly over them */
+.cells {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 12px;
+  font-family: var(--font-hand);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-ink);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.filled {
+  background: var(--color-paper);
+}
+
+/* Where the next digit goes */
+.current {
+  background: var(--color-yellow);
+  box-shadow: 0 0 0 3px rgba(255, 222, 33, 0.45);
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  background: var(--color-ink);
+  border-radius: 50%;
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  font-size: 16px; /* 16 px or more: phones don't zoom in on focus */
+  caret-color: transparent;
+  cursor: pointer;
+}
+
+.invalid .cell {
+  border-color: var(--color-nonveg);
+}
+
+.hint,
+.error {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.hint {
+  color: var(--color-text-subtle);
+}
+
+.error {
+  font-weight: 500;
+  color: var(--color-nonveg);
+}
+
+@media (max-width: 1023.98px) {
+  .label {
+    font-size: 14px;
+  }
+
+  .show {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .cells {
+    gap: 7px;
+  }
+
+  .cell {
+    height: 52px;
+    border-radius: 10px;
+    font-size: 26px;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .hint,
+  .error {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}

@@ -18,7 +18,7 @@ const COURSES = [
     questions: [
       {
         q: 'How do I place an order?',
-        a: 'Open the pilot menu. Turn the table and tap a dish, or open the menu and search. Add your dishes and tap Review to check GST and delivery. Confirm, add your name, phone and delivery address, then scan the QR and pay by UPI. Tap Confirm payment, enter the 12-digit UPI reference number, and send us your bill on WhatsApp.',
+        a: 'Open the pilot menu. Turn the table and tap a dish, or open the menu and search. Add your dishes and tap Review to check GST and delivery. Confirm, sign in with your phone number and PIN, add your delivery address, then scan the QR and pay by UPI. Tap Confirm payment, enter the 12-digit UPI reference number, and send us your bill on WhatsApp.',
       },
       {
         q: 'How does multi-restaurant ordering work?',

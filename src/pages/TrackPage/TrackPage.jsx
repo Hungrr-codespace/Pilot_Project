@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { useAccount } from '@/context/account';
 import { useLayout } from '@/context/layout';
 import { useOrder } from '@/context/order';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -7,7 +8,7 @@ import { normalizePhone } from '@/lib/checkout';
 import { loadRecentOrders, normalizeOrderId } from '@/lib/tracking';
 import { PageCanvas } from '@/components/layout/PageCanvas/PageCanvas';
 import { PageFooter } from '@/components/layout/PageFooter/PageFooter';
-import { TrackHeader } from './TrackHeader';
+import { PageHeader } from '@/components/layout/PageHeader/PageHeader';
 import { TrackForm } from './TrackForm';
 import { RecentOrders } from './RecentOrders';
 import { TrackResult } from './TrackResult';
@@ -16,18 +17,19 @@ import styles from './TrackPage.module.css';
 
 // Order tracking (/track): the order ID and the phone number it was placed with, checked against the sheet.
 // No account needed. /track?order=HG-… fills in the order ID (and tracks it straight away when this phone has
-// ordered before, so its number is known).
+// ordered before or the customer is signed in, so its number is known).
 export function TrackPage() {
   useDocumentTitle('Track your order – Hungrr');
   const { isMobile } = useLayout();
   const { state } = useOrder();
+  const { user } = useAccount();
   const [params, setParams] = useSearchParams();
   const tracker = useOrderTracking();
   const formRef = useRef(null);
   const [recent] = useState(loadRecentOrders);
   const [values, setValues] = useState(() => ({
     orderId: params.get('order') || '',
-    phone: state.customer.phone || '',
+    phone: user?.phone || state.customer.phone || '',
   }));
   const [errors, setErrors] = useState({});
 
@@ -58,7 +60,11 @@ export function TrackPage() {
 
   return (
     <PageCanvas key={isMobile ? 'mobile' : 'desktop'}>
-      <TrackHeader />
+      <PageHeader
+        pill="Order tracking"
+        title="Track your order"
+        lead="Enter your order ID and the phone number you ordered with to see where your food is, from payment to your door."
+      />
       <main className={styles.body}>
         <div className={styles.side}>
           <TrackForm

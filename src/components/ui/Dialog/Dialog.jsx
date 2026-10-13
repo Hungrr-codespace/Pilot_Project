@@ -9,7 +9,9 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input, textarea, select, [ta
 
 // A pop-up box over the page: dims everything behind it, keeps keyboard focus inside, closes with Escape or the
 // × button. It is drawn outside the page canvas, so it scales itself to match the design (see PageCanvas).
-export function Dialog({ eyebrow, title, description, onClose, className, children }) {
+// It puts the cursor in its first text box, unless `focusInput` is false (then the keyboard stays down on phones
+// until the customer taps a box).
+export function Dialog({ eyebrow, title, description, onClose, focusInput = true, className, children }) {
   const { scale } = useLayout();
   const titleId = useId();
   const cardRef = useRef(null);
@@ -24,7 +26,7 @@ export function Dialog({ eyebrow, title, description, onClose, className, childr
     const { overflow } = document.body.style;
     document.body.style.overflow = 'hidden'; // the page behind stays put
 
-    (card.querySelector('input, textarea') || card).focus({ preventScroll: true });
+    ((focusInput && card.querySelector('input, textarea')) || card).focus({ preventScroll: true });
 
     const onKeyDown = (event) => {
       if (event.key === 'Escape') onCloseRef.current?.();
@@ -47,6 +49,7 @@ export function Dialog({ eyebrow, title, description, onClose, className, childr
       document.body.style.overflow = overflow;
       previous?.focus?.({ preventScroll: true });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, when the dialog opens
   }, []);
 
   return createPortal(

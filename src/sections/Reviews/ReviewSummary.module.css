@@ -1,0 +1,221 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  flex-shrink: 0;
+  width: 420px;
+  box-sizing: border-box;
+  padding: 36px 36px 32px;
+  background: var(--color-yellow);
+  border-radius: 36px;
+  color: var(--color-black);
+}
+
+.eyebrow {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.average {
+  font-size: 88px;
+  line-height: 0.9;
+  font-weight: 700;
+  letter-spacing: -2px;
+}
+
+.scoreSide {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.count {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.none {
+  font-size: 34px;
+  font-weight: 600;
+}
+
+.noneText {
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+/* How the stars split: 5 to 1 */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.barLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: 30px;
+}
+
+.track {
+  flex: 1;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+}
+
+.barCount {
+  width: 28px;
+  text-align: right;
+}
+
+.loved {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lovedLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  padding: 6px 14px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 60px;
+  margin-top: auto;
+  padding: 0 24px 0 8px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-white);
+}
+
+.ctaIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--color-yellow);
+  border-radius: var(--radius-pill);
+}
+
+.ctaNote {
+  margin-top: -10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    width: auto;
+    gap: 16px;
+    padding: 22px 20px 20px;
+    border-radius: 24px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .average {
+    font-size: 60px;
+  }
+
+  .count {
+    font-size: 15px;
+  }
+
+  .none {
+    font-size: 24px;
+  }
+
+  .noneText {
+    font-size: 14.5px;
+  }
+
+  .bar {
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .track {
+    height: 8px;
+  }
+
+  .tag {
+    padding: 5px 11px;
+    font-size: 12.5px;
+  }
+
+  .cta {
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .ctaIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ctaNote {
+    margin-top: -6px;
+    font-size: 12.5px;
+  }
+}

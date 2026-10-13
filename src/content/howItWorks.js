@@ -10,7 +10,7 @@ export const ORDER_STEPS = [
   },
   {
     title: 'Add your details and pay',
-    text: 'Review your order note, add your name, phone number and delivery address, then scan the QR with the amount filled in and pay by UPI.',
+    text: 'Review your order note, sign in with your phone number and PIN, add your delivery address, then scan the QR with the amount filled in and pay by UPI.',
   },
   {
     title: 'Confirm your payment',

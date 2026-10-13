@@ -8,6 +8,7 @@ import { drawOrderSummary } from '@/lib/orderImage';
 import { saveFile } from '@/lib/download';
 import { saveRecentOrder } from '@/lib/tracking';
 import { submitOrder, submitPayment, toSheetOrder } from '@/services/sheetApi';
+import { useAccount } from './account';
 import { useLayout } from './layout';
 import { useMenu } from './menu';
 import { OrderContext } from './order';
@@ -19,6 +20,7 @@ const NOTEPAD_LEAVE_MS = 800; // the notepad slides away after the payment is co
 // Holds the ordering state and the actions that change it. Components read it with useOrder().
 export function OrderProvider({ children }) {
   const menu = useMenu();
+  const account = useAccount();
   const { isMobile, scale } = useLayout();
   const [state, dispatch] = useReducer(orderReducer, menu, (m) => ({
     ...initialOrderState,
@@ -42,9 +44,9 @@ export function OrderProvider({ children }) {
   const bookRef = useRef(null);
 
   // Actions read the latest values through this ref, so they never go stale and can stay stable.
-  const latest = useRef({ state, summary, menu, isMobile, scale });
+  const latest = useRef({ state, summary, menu, isMobile, scale, account });
   useLayoutEffect(() => {
-    latest.current = { state, summary, menu, isMobile, scale };
+    latest.current = { state, summary, menu, isMobile, scale, account };
   });
 
   const timers = useRef({});
@@ -118,19 +120,28 @@ export function OrderProvider({ children }) {
       });
     };
 
-    // "Confirm order" on the order note: first ask where to deliver.
+    // "Confirm order" on the order note: sign in first (the order goes into the customer's khata), then ask
+    // where to deliver.
     const confirmOrder = () => {
-      if (latest.current.summary.isEmpty) return;
+      const { summary: sum, account: acc } = latest.current;
+      if (sum.isEmpty) return;
+      if (!acc.signedIn) {
+        acc.openSignIn({ reason: 'order', onDone: () => dispatch({ type: 'checkout/askDetails' }) });
+        return;
+      }
       dispatch({ type: 'checkout/askDetails' });
     };
 
     // Delivery details given: remember them, show the QR, and note the order in the sheet as awaiting payment.
-    const saveDetails = (customer) => {
-      const orderId = latest.current.state.orderId || newOrderId();
+    // Signed in, the name and phone number are the account's, and the sheet links the order to it.
+    const saveDetails = (details) => {
+      const { state: s, account: acc } = latest.current;
+      const customer = acc.user ? { ...details, name: acc.user.name, phone: acc.user.phone } : details;
+      const orderId = s.orderId || newOrderId();
       saveCustomer(customer);
       dispatch({ type: 'checkout/detailsSaved', customer, orderId });
       scrollToPayment();
-      submitOrder(sheetOrder({ orderId, customer }));
+      submitOrder(sheetOrder({ orderId, customer }), acc.token);
     };
 
     const drawBill = ({ timestamp, upiRef }) => {
@@ -154,7 +165,7 @@ export function OrderProvider({ children }) {
       const timestamp = formatTimestamp(new Date());
       const fileName = billFileName(s.orderId);
       const photoUrl = drawBill({ timestamp, upiRef });
-      submitPayment(sheetOrder({ upiRef }));
+      submitPayment(sheetOrder({ upiRef }), latest.current.account.token);
       // Listed on the tracking page on this phone
       saveRecentOrder({ id: s.orderId, placedAt: timestamp, total: sum.grandTotal });
       if (photoUrl) saveFile(photoUrl, fileName);

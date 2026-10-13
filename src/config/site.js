@@ -28,6 +28,8 @@ export const ROUTES = {
   terms: '/terms',
   refunds: '/refund-policy',
   track: '/track', // order tracking: order ID + phone number
+  feedback: '/feedback', // rate an order (order ID + phone number)
+  account: '/account', // the customer's khata: their orders, name and sign-out
 };
 
 // Sections of the main page, in order. Used by the navigation and the footer.
@@ -35,6 +37,7 @@ export const NAV_LINKS = [
   { href: '#about', label: 'About' },
   { href: '#pilot', label: 'Pilot' },
   { href: '#why', label: 'Why Hungrr' },
+  { href: '#reviews', label: 'Reviews' },
   { href: '#faq', label: 'FAQ' },
 ];
 

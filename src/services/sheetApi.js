@@ -4,6 +4,9 @@
 //   POST {action:'order', order}   → the order in Orders ("Awaiting payment") and its dishes in OrderItems
 //   POST {action:'payment', order} → the same order with its UPI reference number ("Payment to verify")
 //   POST {action:'track', order_id, phone} → the order's status, if the phone number matches the order
+//   POST {action:'review', review}  → a customer's rating and feedback (one per paid order)
+//   GET  ?action=reviews           → the ratings summary and the approved reviews
+// The account calls (sign up, sign in, the khata) are in accountApi.js and go through callSheet below.
 // Without VITE_SHEET_API_URL the site runs on the built-in menu (src/data/menu-fallback.json) and logs no orders.
 import fallbackRows from '@/data/menu-fallback.json';
 import { normalizeMenu, readOrderHours } from '@/lib/menuData';
@@ -106,9 +109,68 @@ export async function trackOrder({ orderId, phone, timeoutMs = 9000 }) {
   }
 }
 
+// The ratings summary and the reviews that may be shown ({ summary, reviews }), or null without a sheet or
+// when it cannot be reached.
+export async function fetchReviews({ timeoutMs = 9000 } = {}) {
+  if (!SHEET_API_URL) return null;
+  try {
+    const data = await getJson({ action: 'reviews' }, timeoutMs);
+    return data?.ok
+      ? { summary: data.summary, reviews: Array.isArray(data.reviews) ? data.reviews : [] }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+// Sends a review. → { ok: true } or { ok: false, error: 'not_found' | 'not_paid' | 'unavailable' }
+export async function submitReview(review, { timeoutMs = 12000 } = {}) {
+  if (!SHEET_API_URL) return { ok: false, error: 'unavailable' };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'review', review }),
+      signal: controller.signal,
+    });
+    const data = res.ok ? await res.json() : null;
+    if (data?.ok) return { ok: true };
+    return { ok: false, error: ['not_found', 'not_paid'].includes(data?.error) ? data.error : 'unavailable' };
+  } catch {
+    return { ok: false, error: 'unavailable' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// A POST to the script that waits for its answer (JSON), or { ok: false, error: 'unavailable' } when there is
+// no sheet, no connection, or no answer in time. text/plain keeps it a simple request Apps Script accepts.
+export async function callSheet(body, { timeoutMs = 12000 } = {}) {
+  if (!SHEET_API_URL) return { ok: false, error: 'unavailable' };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const data = res.ok ? await res.json() : null;
+    return data && typeof data === 'object' ? data : { ok: false, error: 'unavailable' };
+  } catch {
+    return { ok: false, error: 'unavailable' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Fire-and-forget: the customer never waits for the sheet. `no-cors` + text/plain keeps it a simple request
 // that Apps Script accepts, and `keepalive` lets it finish even if the customer leaves for WhatsApp right away.
-function post(action, order) {
+// With the sign-in `token`, the sheet links the order to the customer's account.
+function post(action, order, token) {
   if (!SHEET_API_URL || !order?.order_id) return;
   try {
     fetch(SHEET_API_URL, {
@@ -116,7 +178,7 @@ function post(action, order) {
       mode: 'no-cors',
       keepalive: true,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, order }),
+      body: JSON.stringify(token ? { action, order, token } : { action, order }),
     }).catch(() => {});
   } catch {
     /* never block the order */
@@ -124,11 +186,11 @@ function post(action, order) {
 }
 
 // The customer has given delivery details and sees the QR: the order is waiting for payment.
-export const submitOrder = (order) => post('order', order);
+export const submitOrder = (order, token) => post('order', order, token);
 
 // The customer has paid and entered the UPI reference number. Sends the whole order again, so the sheet
 // still gets it even if the first request was lost.
-export const submitPayment = (order) => post('payment', order);
+export const submitPayment = (order, token) => post('payment', order, token);
 
 // The order as the sheet expects it (see saveOrder_ in google-sheet/Code.gs).
 export function toSheetOrder({ orderId, summary, customer, upiRef, device }) {

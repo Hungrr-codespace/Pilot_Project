@@ -42,8 +42,23 @@ export const TERMS = {
           list: [
             'You choose dishes from one or more partner restaurants. Restaurants are grouped in clusters along the same route, and one rider brings everything from one cluster.',
             'Before you pay, the order note shows the item total, GST and the delivery charge. Please check it carefully.',
-            'You give your name, phone number and delivery address, scan the QR code and pay by UPI, then enter the 12-digit UPI reference number from your UPI app.',
+            'You sign in to your account, give your delivery address, scan the QR code and pay by UPI, then enter the 12-digit UPI reference number from your UPI app.',
             'We check your payment and send your order to the restaurants. Your order is accepted once we have checked your payment. If we cannot accept it, we will tell you and refund you in full.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'account',
+      title: 'Your account',
+      blocks: [
+        {
+          list: [
+            'To order, you open an account (your khata) with your mobile number and a 6-digit PIN. Each number can have one account, and the number must be yours.',
+            'Keep your PIN to yourself. Orders placed while signed in to your account are treated as yours.',
+            'After five wrong PINs in a row, your account locks for 15 minutes. If you forget your PIN, message us from your number and we will reset it.',
+            'You can change the name on your account. To change its phone number, message us.',
+            'You can close your account at any time by messaging us. We may close or lock an account that is used to place fake orders or to misuse the website.',
           ],
         },
       ],
@@ -108,6 +123,17 @@ export const TERMS = {
           ],
         },
         'If you do, we may refuse or cancel your orders.',
+      ],
+    },
+    {
+      id: 'reviews',
+      title: 'Reviews and feedback',
+      blocks: [
+        'You can rate an order you paid for, with its order ID and the phone number you ordered with. Each order has one review: if you send another, it replaces the first.',
+        "Your review should be honest and about your own order. Please do not include abuse, threats, other people's personal details, false claims or advertising.",
+        'If you agree to share your review, you let us show your stars, tags and words, the name you choose, the month and the restaurants you ordered from, on this website. We check every review before it appears. We do not edit your words, and we do not leave a review out because its rating is low. We may leave out a review that breaks the rules above.',
+        'The overall rating on our website counts every review, whether it is shown or not. Your suggestions for us are read only by our team, and we may use your ideas to improve Hungrr.',
+        'You can ask us to take your review off the website at any time.',
       ],
     },
     {

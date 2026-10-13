@@ -6,10 +6,11 @@ import { useWhatsAppContact } from '@/hooks/useWhatsAppContact';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { Wordmark } from '@/components/ui/Wordmark/Wordmark';
 import { ExternalLink } from '@/components/ui/ExternalLink/ExternalLink';
+import { AccountButton } from '@/features/account/AccountButton';
 import styles from './PageNav.module.css';
 
-// The top bar of the inner pages (pilot menu, policies): the logo and a way back to the main site, and help on
-// WhatsApp. The page's header positions it through `className`.
+// The top bar of the inner pages (pilot menu, policies): the logo, a way back to the main site, sign-in (or the
+// customer's khata), and help on WhatsApp. The page's header positions it through `className`.
 export function PageNav({ className }) {
   const { isMobile } = useLayout();
   const whatsapp = useWhatsAppContact();
@@ -23,6 +24,7 @@ export function PageNav({ className }) {
           <Icon name="arrowLeft" size={isMobile ? 17 : 20} color="var(--color-black)" />
           {isMobile ? 'Home' : 'Back to Hungrr'}
         </Link>
+        <AccountButton />
         <ExternalLink
           href={whatsapp.href}
           aria-label="Help on WhatsApp"

@@ -1,0 +1,770 @@
+.area {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.refresh,
+.retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+/* The ledger page: cream paper, the black stitched binding, a double rule under the column heads */
+.ledger {
+  --cols: 84px minmax(0, 1fr) 108px 180px 20px;
+  position: relative;
+  padding: 26px 36px 26px 92px;
+  background: var(--color-paper);
+  border: 2px solid var(--color-black);
+  border-radius: 28px;
+}
+
+.binding {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  background: var(--color-black);
+  border-radius: 26px 0 0 26px;
+}
+
+.binding::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -18px;
+  width: 4px;
+  border-left: 1px solid var(--color-paper-border);
+  border-right: 1px solid var(--color-paper-border);
+}
+
+.stitch {
+  position: absolute;
+  left: 23px;
+  top: 26px;
+  bottom: 26px;
+  width: 3px;
+  background: repeating-linear-gradient(180deg, var(--color-yellow) 0 12px, transparent 12px 22px);
+  border-radius: 2px;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 14px;
+  padding: 0 12px 10px;
+  border-bottom: 4px double var(--color-black);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+.right {
+  text-align: right;
+}
+
+/* One order */
+.entry {
+  border-bottom: 1px solid var(--color-paper-border);
+}
+
+.entryOpen {
+  background: rgba(255, 222, 33, 0.1);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 16px 12px;
+  background: none;
+  border: 0;
+  border-radius: 12px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.date {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-hand);
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+
+.time {
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-subtle);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.orderId {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.what {
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amount {
+  font-family: var(--font-hand);
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.done .dot {
+  background: var(--color-green);
+}
+
+.active .dot {
+  background: var(--color-yellow-deep);
+  box-shadow: 0 0 0 3px rgba(255, 222, 33, 0.35);
+}
+
+.cancelled {
+  color: var(--color-text-subtle);
+}
+
+.cancelled .dot {
+  background: var(--color-dashed);
+}
+
+/* A rubber stamp on rated orders */
+.stamp {
+  padding: 2px 9px 3px;
+  border: 2px solid var(--color-green);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-green);
+  transform: rotate(-4deg);
+  transform-origin: left center;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* Opened: the dishes, the charges, and what to do next */
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 10px 40px;
+  padding: 4px 12px 24px calc(84px + 14px + 12px); /* under the Order column */
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+
+.qty {
+  font-weight: 700;
+}
+
+.dish {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+
+.restaurant {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.lineTotal {
+  font-weight: 700;
+}
+
+.charges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  font-size: 16px;
+}
+
+.charges > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.charges dt {
+  color: var(--color-text-muted);
+}
+
+.charges dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.grand {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1.5px dashed var(--color-dashed);
+}
+
+.grand dt,
+.grand dd {
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.reviewNote {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.rate {
+  background: var(--color-yellow);
+}
+
+.action:global(.btn-soft) {
+  background: var(--color-light-gray);
+  border-color: transparent;
+}
+
+/* The closing line: a double rule and the total paid */
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 14px 12px 0;
+  border-top: 4px double var(--color-black);
+}
+
+.totalLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.totalNote {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+.totalAmount {
+  font-family: var(--font-hand);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+/* Loading, failed, empty */
+@keyframes shimmer {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 12px 8px;
+}
+
+.loadingLine {
+  height: 46px;
+  background: #efe8d2;
+  border-radius: 10px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 26px 12px 8px;
+  font-size: 17px;
+  color: var(--color-text-body);
+}
+
+.message p {
+  margin: 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px;
+}
+
+.emptyLine,
+.blankLine {
+  height: 62px;
+  border-bottom: 1px solid var(--color-paper-border);
+}
+
+.emptyLine {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 24px;
+  color: var(--color-ink-soft);
+}
+
+.blankLine {
+  display: block;
+}
+
+.blankLine:last-child {
+  border-bottom: 0;
+}
+
+.cta {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 26px 0 8px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+.ctaBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-yellow);
+  border-radius: 50%;
+}
+
+/* Adding an earlier order */
+.claim {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 18px 32px;
+  align-items: start;
+  margin-top: 8px;
+  padding: 24px 28px;
+  background: var(--color-white);
+  border: 1.5px dashed var(--color-dashed);
+  border-radius: 22px;
+}
+
+.claimTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.claimLead {
+  margin: 6px 0 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.claimRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.claimField {
+  flex: 1;
+  min-width: 0;
+}
+
+.claimInput {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.claimInput::placeholder {
+  text-transform: none;
+}
+
+.claimButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+  margin-top: 27px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingLine {
+    animation: none;
+  }
+
+  .chevron {
+    transition: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .area {
+    gap: 14px;
+  }
+
+  .heading {
+    font-size: 24px;
+  }
+
+  .refresh,
+  .retry {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .ledger {
+    padding: 8px 12px 16px 38px;
+    border-radius: 22px;
+  }
+
+  .binding {
+    width: 22px;
+    border-radius: 20px 0 0 20px;
+  }
+
+  .binding::after {
+    right: -8px;
+    width: 3px;
+  }
+
+  .stitch {
+    left: 9px;
+    top: 18px;
+    bottom: 18px;
+    width: 2.5px;
+    background: repeating-linear-gradient(180deg, var(--color-yellow) 0 9px, transparent 9px 16px);
+  }
+
+  .row {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'date main amount'
+      'date status status';
+    gap: 6px 10px;
+    align-items: start;
+    padding: 14px 6px;
+  }
+
+  .date {
+    grid-area: date;
+    font-size: 18px;
+  }
+
+  .time {
+    font-size: 11px;
+  }
+
+  .main {
+    grid-area: main;
+  }
+
+  .orderId {
+    font-size: 12.5px;
+    letter-spacing: 0;
+  }
+
+  .what {
+    font-size: 13.5px;
+    white-space: normal;
+  }
+
+  .amount {
+    grid-area: amount;
+    font-size: 20px;
+  }
+
+  .statusCell {
+    grid-area: status;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+
+  .status {
+    gap: 6px;
+    font-size: 14px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .stamp {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .panel {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 2px 6px 18px 68px;
+  }
+
+  .item {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 6px;
+    font-size: 16.5px;
+  }
+
+  .restaurant {
+    font-size: 12px;
+  }
+
+  .charges {
+    font-size: 14px;
+  }
+
+  .reviewNote {
+    margin-top: 2px;
+    font-size: 13.5px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .action {
+    justify-content: center;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .total {
+    flex-wrap: wrap;
+    padding: 12px 6px 0;
+  }
+
+  .totalLabel {
+    flex-direction: column;
+    gap: 2px;
+    font-size: 16px;
+  }
+
+  .totalNote {
+    font-size: 13px;
+  }
+
+  .totalAmount {
+    font-size: 24px;
+  }
+
+  .loading {
+    padding: 14px 6px 4px;
+    gap: 12px;
+  }
+
+  .loadingLine {
+    height: 52px;
+  }
+
+  .message {
+    padding: 16px 6px 6px;
+    font-size: 15px;
+  }
+
+  .empty {
+    padding: 0 6px;
+  }
+
+  .emptyLine,
+  .blankLine {
+    height: 52px;
+  }
+
+  .emptyLine {
+    font-size: 19px;
+  }
+
+  .cta {
+    align-self: stretch;
+    justify-content: center;
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .ctaBadge {
+    width: 36px;
+    height: 36px;
+  }
+
+  .claim {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .claimTitle {
+    font-size: 18px;
+  }
+
+  .claimLead {
+    font-size: 14px;
+  }
+
+  .claimRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .claimButton {
+    justify-content: center;
+    height: 50px;
+    margin-top: 0;
+    font-size: 15px;
+  }
+}

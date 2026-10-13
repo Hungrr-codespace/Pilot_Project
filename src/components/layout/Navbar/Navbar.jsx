@@ -8,10 +8,11 @@ import { Icon } from '@/components/ui/Icon/Icon';
 import { Wordmark } from '@/components/ui/Wordmark/Wordmark';
 import motion from '@/styles/motion.module.css';
 import { ExternalLink } from '@/components/ui/ExternalLink/ExternalLink';
+import { AccountButton } from '@/features/account/AccountButton';
 import styles from './Navbar.module.css';
 
-// Main page navigation: section links and an "Order now" button (to the pilot menu) on desktop; a WhatsApp
-// button and a menu on mobile.
+// Main page navigation: section links, "Sign in" (or the signed-in customer's name) and an "Order now" button
+// (to the pilot menu) on desktop; the account button, a WhatsApp button and a menu on mobile.
 export function Navbar() {
   const { isMobile } = useLayout();
   return isMobile ? <MobileNavbar /> : <DesktopNavbar />;
@@ -36,10 +37,13 @@ function DesktopNavbar() {
           </a>
         ))}
       </div>
-      <Link to={ROUTES.pilot} className={`${styles.orderNow} btn-black`}>
-        <Icon name="cutlery" size={20} color="var(--color-yellow)" />
-        Order now
-      </Link>
+      <div className={styles.end}>
+        <AccountButton />
+        <Link to={ROUTES.pilot} className={`${styles.orderNow} btn-black`}>
+          <Icon name="cutlery" size={20} color="var(--color-yellow)" />
+          Order now
+        </Link>
+      </div>
     </nav>
   );
 }
@@ -53,6 +57,7 @@ function MobileNavbar() {
       <nav className={styles.nav}>
         <HomeLink />
         <div className={styles.actions}>
+          <AccountButton />
           <ExternalLink
             href={whatsapp.href}
             aria-label="Message us on WhatsApp"

@@ -1,0 +1,146 @@
+/* A cream comment card with a yellow top edge */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 360px;
+  min-height: 300px;
+  box-sizing: border-box;
+  padding: 26px 26px 22px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-paper-border);
+  border-top: 8px solid var(--color-yellow);
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+/* Big quote mark behind the words */
+.comment {
+  position: relative;
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 21px;
+  line-height: 1.4;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.comment::before {
+  content: '“';
+  position: absolute;
+  left: -6px;
+  top: -26px;
+  font-family: Georgia, serif;
+  font-size: 72px;
+  line-height: 1;
+  color: rgba(255, 222, 33, 0.55);
+  z-index: -1;
+}
+
+.noComment {
+  color: var(--color-ink-soft);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  padding: 4px 10px;
+  background: var(--color-yellow-soft);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.by {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 2px dashed var(--color-paper-border);
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.month {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.from {
+  margin-top: -8px;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 1023.98px) {
+  .card {
+    width: 280px;
+    min-height: 250px;
+    gap: 11px;
+    padding: 18px 18px 16px;
+    border-top-width: 6px;
+    border-radius: 18px;
+  }
+
+  .comment {
+    font-size: 17px;
+  }
+
+  .comment::before {
+    top: -20px;
+    font-size: 56px;
+  }
+
+  .verified {
+    font-size: 11.5px;
+  }
+
+  .tag {
+    font-size: 11.5px;
+  }
+
+  .name {
+    font-size: 15px;
+  }
+
+  .month {
+    font-size: 10.5px;
+  }
+
+  .from {
+    font-size: 12px;
+  }
+}
