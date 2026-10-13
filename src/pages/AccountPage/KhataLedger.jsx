@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { ROUTES } from '@/config/site';
 import { useAccount } from '@/context/account';
 import { useLayout } from '@/context/layout';
-import { khataTotals } from '@/lib/account';
+import { canRate, khataTotals } from '@/lib/account';
 import { formatRupees, plural } from '@/lib/format';
 import { TRACK_STEPS, normalizeOrderId } from '@/lib/tracking';
 import { claimOrder } from '@/services/accountApi';
@@ -164,7 +164,7 @@ function LedgerEntry({ order, open, onToggle }) {
   const { isMobile } = useLayout();
   const status = statusOf(order.status);
   const count = (order.items || []).reduce((n, item) => n + (Number(item.qty) || 0), 0);
-  const finished = status.tone !== 'active';
+  const rateable = canRate(order);
   const panelId = `khata-${order.order_id}`;
   return (
     <div className={clsx(styles.entry, open && styles.entryOpen)}>
@@ -249,7 +249,7 @@ function LedgerEntry({ order, open, onToggle }) {
               <Icon name="moped" size={isMobile ? 18 : 20} color="var(--color-black)" />
               Track order
             </Link>
-            {finished && !order.review && (
+            {rateable && !order.review && (
               <Link
                 to={`${ROUTES.feedback}?order=${order.order_id}`}
                 className={`${styles.action} ${styles.rate} btn-yellow`}

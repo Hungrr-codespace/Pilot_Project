@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { cleanPin, firstName, initials, khataTotals, pinProblem, validateNewAccount } from './account';
+import {
+  canRate,
+  cleanPin,
+  firstName,
+  initials,
+  khataTotals,
+  pinProblem,
+  validateNewAccount,
+} from './account';
 
 describe('PIN rules', () => {
   it('keeps only six digits', () => {
@@ -66,5 +74,26 @@ describe('khataTotals', () => {
     ];
     expect(khataTotals(orders)).toEqual({ orders: 3, counted: 2, paid: 332.75, rated: 1 });
     expect(khataTotals(undefined)).toEqual({ orders: 0, counted: 0, paid: 0, rated: 0 });
+  });
+});
+
+describe('canRate', () => {
+  const now = Date.parse('2026-10-13T14:00:00Z');
+  const hoursAgo = (h) => new Date(now - h * 60 * 60 * 1000).toISOString();
+
+  it('allows delivered and cancelled orders straight away', () => {
+    expect(canRate({ status: 'Delivered', created_at: hoursAgo(0.5) }, now)).toBe(true);
+    expect(canRate({ status: 'Cancelled', created_at: hoursAgo(0.5) }, now)).toBe(true);
+  });
+
+  it('allows a paid order whose status was never moved on, 3 hours after it was placed', () => {
+    expect(canRate({ status: 'Payment to verify', created_at: hoursAgo(1) }, now)).toBe(false);
+    expect(canRate({ status: 'Payment to verify', created_at: hoursAgo(3) }, now)).toBe(true);
+    expect(canRate({ status: 'Paid', created_at: hoursAgo(26) }, now)).toBe(true);
+  });
+
+  it('never allows an unpaid order', () => {
+    expect(canRate({ status: 'Awaiting payment', created_at: hoursAgo(48) }, now)).toBe(false);
+    expect(canRate({ status: '', created_at: hoursAgo(48) }, now)).toBe(false);
   });
 });

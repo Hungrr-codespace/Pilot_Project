@@ -73,6 +73,20 @@ export function khataTotals(orders) {
   };
 }
 
+// Whether an order in the khata can be rated: once it is delivered or cancelled, or (for any paid order) a few
+// hours after it was placed, because the status in the sheet isn't always moved on to Delivered.
+export const RATE_AFTER_HOURS = 3;
+
+export function canRate(order, now = Date.now()) {
+  const status = String(order?.status ?? '')
+    .trim()
+    .toLowerCase();
+  if (!status || status === 'awaiting payment') return false;
+  if (status === 'delivered' || status === 'cancelled') return true;
+  const placed = new Date(order.created_at).getTime();
+  return Number.isFinite(placed) && now - placed >= RATE_AFTER_HOURS * 60 * 60 * 1000;
+}
+
 // The sign-in on this device: { token, user: { phone, name, since } }.
 const SESSION_KEY = 'hungrr-account-v1';
 
