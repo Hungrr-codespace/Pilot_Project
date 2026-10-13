@@ -14,7 +14,7 @@ import { Footer } from '@/sections/Footer/Footer';
 // The main page: what Hungrr is, the pilot (how ordering works, timings, and the way into the pilot menu),
 // why Hungrr, and the FAQ.
 export function HomePage() {
-  useDocumentTitle('Hungrr – Order smarter, not harder');
+  useDocumentTitle('Hungrr');
   const { isMobile } = useLayout();
   const canvasRef = useRef(null);
   useScrollMorph(canvasRef, isMobile); // mobile: sections morph into each other

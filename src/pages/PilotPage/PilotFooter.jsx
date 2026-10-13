@@ -33,7 +33,7 @@ export function PilotFooter() {
           © {LAUNCH_YEAR} {BRAND.name}
         </span>
         <nav aria-label="More from Hungrr" className={styles.links}>
-          <Link to={ROUTES.home}>Main site</Link>
+          <Link to={ROUTES.home}>Home</Link>
           {LEGAL_LINKS.map((link) => (
             <a key={link.href} href={link.href}>
               {link.label}
