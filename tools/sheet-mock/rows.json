@@ -1,0 +1,432 @@
+{
+ "Settings": [
+  {
+   "key": "gst_percent",
+   "value": 5,
+   "note": "GST added on the item total, in %"
+  },
+  {
+   "key": "delivery_charge_per_rider",
+   "value": 50,
+   "note": "Delivery charge in ₹ for each rider (one rider per cluster in the order)"
+  },
+  {
+   "key": "whatsapp_number",
+   "value": "917979037042",
+   "note": "WhatsApp number with country code, digits only"
+  },
+  {
+   "key": "upi_id",
+   "value": "rj09aditya@oksbi",
+   "note": "UPI ID customers pay to"
+  },
+  {
+   "key": "upi_name",
+   "value": "Aditya Raj",
+   "note": "Name shown in the UPI app"
+  },
+  {
+   "key": "deliver_to",
+   "value": "BIT Mesra, Patna",
+   "note": "Shown on the order summary photo"
+  }
+ ],
+ "Clusters": [
+  {
+   "cluster_id": "c1",
+   "label": "Cluster 01",
+   "area": "[Area name]",
+   "sort": 1
+  },
+  {
+   "cluster_id": "c2",
+   "label": "Cluster 02",
+   "area": "[Area name]",
+   "sort": 2
+  }
+ ],
+ "Restaurants": [
+  {
+   "restaurant_id": "bt",
+   "name": "Babai Tiffins",
+   "initials": "BT",
+   "cluster_id": "c1",
+   "distance": "X.X km",
+   "veg_only": true,
+   "active": true,
+   "sort": 1
+  },
+  {
+   "restaurant_id": "ad",
+   "name": "Al Daaz",
+   "initials": "AD",
+   "cluster_id": "c2",
+   "distance": "X.X km",
+   "veg_only": false,
+   "active": true,
+   "sort": 2
+  },
+  {
+   "restaurant_id": "pc",
+   "name": "Palacia Cafe & Restaurant",
+   "initials": "PC",
+   "cluster_id": "c1",
+   "distance": "X.X km",
+   "veg_only": false,
+   "active": true,
+   "sort": 3
+  },
+  {
+   "restaurant_id": "ch",
+   "name": "Cafe Hideout",
+   "initials": "CH",
+   "cluster_id": "c2",
+   "distance": "X.X km",
+   "veg_only": false,
+   "active": true,
+   "sort": 4
+  },
+  {
+   "restaurant_id": "r5",
+   "name": "Restaurant name",
+   "initials": "",
+   "cluster_id": "c2",
+   "distance": "X.X km",
+   "veg_only": false,
+   "active": true,
+   "sort": 5
+  }
+ ],
+ "Dishes": [
+  {
+   "dish_id": "bt1",
+   "restaurant_id": "bt",
+   "category": "Idli, Vada & Mysore Bajji",
+   "name": "Idli (2 Pcs)",
+   "price": 59,
+   "veg": true,
+   "description": "Serves 1 · Authentic Andhra-style idlis",
+   "available": true,
+   "sort": 1
+  },
+  {
+   "dish_id": "bt2",
+   "restaurant_id": "bt",
+   "category": "Idli, Vada & Mysore Bajji",
+   "name": "Idli (3 Pcs)",
+   "price": 85,
+   "veg": true,
+   "description": "Serves 1 · Authentic Andhra-style idlis",
+   "available": true,
+   "sort": 2
+  },
+  {
+   "dish_id": "bt3",
+   "restaurant_id": "bt",
+   "category": "Idli, Vada & Mysore Bajji",
+   "name": "Ghee Karam Idli (2 Pcs)",
+   "price": 79,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 3
+  },
+  {
+   "dish_id": "bt4",
+   "restaurant_id": "bt",
+   "category": "Idli, Vada & Mysore Bajji",
+   "name": "Mysore Bajji (4 Pcs)",
+   "price": 115,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 4
+  },
+  {
+   "dish_id": "bt5",
+   "restaurant_id": "bt",
+   "category": "Idli, Vada & Mysore Bajji",
+   "name": "Mysore Bajji Family Pack (10 Pcs)",
+   "price": 150,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 5
+  },
+  {
+   "dish_id": "bt6",
+   "restaurant_id": "bt",
+   "category": "Dosa",
+   "name": "Ghee Karam Dosa",
+   "price": 125,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 6
+  },
+  {
+   "dish_id": "bt7",
+   "restaurant_id": "bt",
+   "category": "Dosa",
+   "name": "Masala Dosa",
+   "price": 115,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 7
+  },
+  {
+   "dish_id": "bt8",
+   "restaurant_id": "bt",
+   "category": "Dosa",
+   "name": "Ghee Karam Masala Dosa",
+   "price": 150,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 8
+  },
+  {
+   "dish_id": "bt9",
+   "restaurant_id": "bt",
+   "category": "Beverages",
+   "name": "Mango Lassi",
+   "price": 119,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 9
+  },
+  {
+   "dish_id": "ad1",
+   "restaurant_id": "ad",
+   "category": "Mandi",
+   "name": "Chicken Mandi (Boneless)",
+   "price": 320,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 10
+  },
+  {
+   "dish_id": "ad2",
+   "restaurant_id": "ad",
+   "category": "Mandi",
+   "name": "Mutton Mandi",
+   "price": 420,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 11
+  },
+  {
+   "dish_id": "pc1",
+   "restaurant_id": "pc",
+   "category": "Pizza",
+   "name": "Margherita Pizza",
+   "price": 199,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 12
+  },
+  {
+   "dish_id": "pc2",
+   "restaurant_id": "pc",
+   "category": "Pizza",
+   "name": "Farmhouse Pizza",
+   "price": 249,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 13
+  },
+  {
+   "dish_id": "pc3",
+   "restaurant_id": "pc",
+   "category": "Pizza",
+   "name": "Chicken Tikka Pizza",
+   "price": 299,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 14
+  },
+  {
+   "dish_id": "pc4",
+   "restaurant_id": "pc",
+   "category": "Starters",
+   "name": "Drums of Heaven",
+   "price": 249,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 15
+  },
+  {
+   "dish_id": "pc5",
+   "restaurant_id": "pc",
+   "category": "Drinks",
+   "name": "Cold Coffee",
+   "price": 129,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 16
+  },
+  {
+   "dish_id": "pc6",
+   "restaurant_id": "pc",
+   "category": "Drinks",
+   "name": "Virgin Mojito",
+   "price": 119,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 17
+  },
+  {
+   "dish_id": "pc7",
+   "restaurant_id": "pc",
+   "category": "Drinks",
+   "name": "Fresh Lime Soda",
+   "price": 79,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 18
+  },
+  {
+   "dish_id": "ch1",
+   "restaurant_id": "ch",
+   "category": "Starters",
+   "name": "Paneer Tikka",
+   "price": 229,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 19
+  },
+  {
+   "dish_id": "ch2",
+   "restaurant_id": "ch",
+   "category": "Chowmein",
+   "name": "Veg Chowmein",
+   "price": 149,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 20
+  },
+  {
+   "dish_id": "ch3",
+   "restaurant_id": "ch",
+   "category": "Chowmein",
+   "name": "Chicken Chowmein",
+   "price": 179,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 21
+  },
+  {
+   "dish_id": "ch4",
+   "restaurant_id": "ch",
+   "category": "Soups",
+   "name": "Veg Manchow Soup",
+   "price": 119,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 22
+  },
+  {
+   "dish_id": "ch5",
+   "restaurant_id": "ch",
+   "category": "Soups",
+   "name": "Hot & Sour Soup",
+   "price": 119,
+   "veg": true,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 23
+  },
+  {
+   "dish_id": "ch6",
+   "restaurant_id": "ch",
+   "category": "Soups",
+   "name": "Chicken Sweet Corn Soup",
+   "price": 139,
+   "veg": false,
+   "description": "[Dish description from the menu]",
+   "available": true,
+   "sort": 24
+  }
+ ],
+ "QuickPicks": [
+  {
+   "pick_id": "dosa",
+   "name": "Dosa",
+   "match_words": "dosa",
+   "photo": "dosa.jpg",
+   "active": true,
+   "sort": 1
+  },
+  {
+   "pick_id": "chicken",
+   "name": "Chicken",
+   "match_words": "chicken",
+   "photo": "chicken.jpg",
+   "active": true,
+   "sort": 2
+  },
+  {
+   "pick_id": "pizza",
+   "name": "Pizza",
+   "match_words": "pizza",
+   "photo": "pizza.jpg",
+   "active": true,
+   "sort": 3
+  },
+  {
+   "pick_id": "mandi",
+   "name": "Mandi",
+   "match_words": "mandi",
+   "photo": "",
+   "active": true,
+   "sort": 4
+  },
+  {
+   "pick_id": "lassi",
+   "name": "Lassi",
+   "match_words": "lassi",
+   "photo": "",
+   "active": true,
+   "sort": 5
+  },
+  {
+   "pick_id": "burger",
+   "name": "Burger",
+   "match_words": "burger",
+   "photo": "burger.jpg",
+   "active": true,
+   "sort": 6
+  },
+  {
+   "pick_id": "biryani",
+   "name": "Biryani",
+   "match_words": "biryani",
+   "photo": "biryani.jpg",
+   "active": true,
+   "sort": 7
+  },
+  {
+   "pick_id": "idli",
+   "name": "Idli",
+   "match_words": "idli",
+   "photo": "idli.jpg",
+   "active": true,
+   "sort": 8
+  }
+ ]
+}

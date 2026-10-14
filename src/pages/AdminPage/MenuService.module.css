@@ -1,0 +1,213 @@
+.service {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-black);
+}
+
+.date {
+  font-family: var(--font-hand);
+  font-size: 19px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Taking orders / paused: a white card with a green or red lamp */
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-paper-border);
+  border-radius: 16px;
+}
+
+.paused {
+  background: #fdecea;
+  border-color: var(--color-nonveg);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lamp {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--color-green);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(19, 136, 8, 0.14);
+}
+
+.paused .lamp {
+  background: var(--color-nonveg);
+  box-shadow: 0 0 0 5px rgba(179, 38, 30, 0.14);
+}
+
+.statusText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statusTitle {
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.statusNote {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.messageRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.messageRow > input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The notice board: a preview of the black bar at the top of the site */
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--color-white);
+  text-align: center;
+}
+
+.preview svg {
+  flex-shrink: 0;
+}
+
+.previewEmpty {
+  background: transparent;
+  border: 1.5px dashed rgba(0, 0, 0, 0.22);
+  color: var(--color-text-faint);
+}
+
+.noticeFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -4px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.noticeFoot > button {
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.unsaved {
+  color: #a86a00;
+}
+
+.done,
+.failed {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.failed {
+  color: var(--color-nonveg);
+}
+
+@media (max-width: 1023.98px) {
+  .service {
+    gap: 18px;
+  }
+
+  .heading {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+
+  .date {
+    font-size: 16px;
+  }
+
+  .status {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .statusRow {
+    gap: 11px;
+  }
+
+  .statusTitle {
+    font-size: 18px;
+  }
+
+  .statusNote {
+    font-size: 12.5px;
+  }
+
+  .preview {
+    min-height: 38px;
+    padding: 7px 12px;
+    font-size: 13.5px;
+  }
+
+  .noticeFoot {
+    font-size: 11px;
+  }
+
+  .noticeFoot > button {
+    font-size: 13px;
+  }
+
+  .done,
+  .failed {
+    font-size: 13px;
+  }
+}

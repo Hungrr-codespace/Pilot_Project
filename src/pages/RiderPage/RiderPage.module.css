@@ -1,0 +1,258 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Live location: a black card that turns green-edged while sharing */
+.share {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+  background: var(--color-black);
+  border: 3px solid var(--color-black);
+  border-radius: 24px;
+  color: var(--color-white);
+}
+
+.shareOn {
+  border-color: var(--color-green);
+}
+
+.shareHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shareIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--color-yellow);
+  border-radius: 50%;
+}
+
+.shareTitle {
+  flex: 1;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.shareText {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--color-text-on-dark);
+}
+
+.shareNote {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-yellow);
+}
+
+.jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* A delivery slip: white paper, a stub along the top */
+.slip {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.slipHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--color-yellow);
+  border-bottom: 2px dashed var(--color-black);
+}
+
+.slipId {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.slipStatus {
+  padding: 4px 12px;
+  background: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slipStatusOn {
+  background: var(--color-green);
+  color: var(--color-white);
+}
+
+.leg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.legLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-subtle);
+}
+
+.stop {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stopName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.ready {
+  padding: 2px 8px;
+  background: var(--color-light-gray);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.readyOn {
+  background: var(--color-green);
+  color: var(--color-white);
+}
+
+.item {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--color-ink);
+}
+
+.customer {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.address {
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.paid {
+  font-size: 14px;
+  color: var(--color-green);
+}
+
+.slipActions {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px 18px;
+}
+
+.stepButton,
+.call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stepButton {
+  flex: 1;
+  background: var(--color-black);
+  border: 0;
+  color: var(--color-white);
+}
+
+.call {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  color: var(--color-black);
+}
+
+@media (max-width: 1023.98px) {
+  .layout {
+    gap: 22px;
+  }
+
+  .share {
+    padding: 18px 18px;
+    border-radius: 20px;
+  }
+
+  .shareIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .shareTitle {
+    font-size: 18px;
+  }
+
+  .shareText {
+    font-size: 14.5px;
+  }
+
+  .shareNote {
+    font-size: 13px;
+  }
+
+  .slipHead,
+  .leg,
+  .slipActions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .slipId {
+    font-size: 14px;
+  }
+
+  .stopName {
+    font-size: 15.5px;
+  }
+
+  .item {
+    font-size: 16px;
+  }
+
+  .customer {
+    font-size: 17px;
+  }
+
+  .address {
+    font-size: 15px;
+  }
+
+  .stepButton,
+  .call {
+    height: 48px;
+    font-size: 15.5px;
+  }
+}

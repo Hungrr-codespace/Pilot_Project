@@ -3,6 +3,7 @@
 // the totals and the UPI reference number of the payment.
 import { formatIndianPhone, formatUpiRef } from './checkout';
 import { formatRupees } from './format';
+import { chargeLines } from './pricing';
 
 const WIDTH = 520;
 const HEADER_TOP = 170; // first ruled line when there is no address
@@ -53,7 +54,8 @@ export function drawOrderSummary({ summary, orderId, customer, timestamp, upiRef
   ctx.font = '400 18px Kalam, cursive';
   const address = wrapText(ctx, `Deliver to: ${customer?.address || ''}`, right - left, 3);
   const firstLine = HEADER_TOP + address.length * ADDRESS_LINE;
-  const height = firstLine + rows.length * LINE + 4 * LINE + 120 + (upiRef ? 40 : 0);
+  const charges = chargeLines(summary);
+  const height = firstLine + rows.length * LINE + (charges.length + 1) * LINE + 120 + (upiRef ? 40 : 0);
 
   canvas.width = WIDTH * SCALE;
   canvas.height = height * SCALE;
@@ -131,17 +133,14 @@ export function drawOrderSummary({ summary, orderId, customer, timestamp, upiRef
   ctx.lineTo(right, y - 22);
   ctx.stroke();
   ctx.setLineDash([]);
-  const charges = [
-    ['Item total', formatRupees(summary.itemTotal)],
-    [`GST (${summary.gstRate}%)`, formatRupees(summary.gst)],
-    [summary.deliveryLabel, formatRupees(summary.delivery)],
-  ];
   ctx.font = '400 18px Kalam, cursive';
-  charges.forEach(([label, value]) => {
+  charges.forEach(({ label, text, discount }) => {
+    ctx.fillStyle = discount ? '#138808' : INK; // an offer or coupon in green
     ctx.fillText(label, left, y);
-    textAt(value, right, y, 'right');
+    textAt(text, right, y, 'right');
     y += LINE;
   });
+  ctx.fillStyle = INK;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(left, y - 22);

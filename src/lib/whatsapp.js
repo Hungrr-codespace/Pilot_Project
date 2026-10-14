@@ -1,6 +1,7 @@
 // WhatsApp links and the order message the customer sends us with the bill.
 import { formatIndianPhone, formatUpiRef } from './checkout';
 import { formatRupees } from './format';
+import { dealLabel } from './deals';
 
 export function whatsappLink(number, text) {
   return `https://wa.me/${number}` + (text ? `?text=${encodeURIComponent(text)}` : '');
@@ -24,6 +25,7 @@ export function buildOrderMessage({ summary, orderId, customer, upiRef }) {
     text += `\n${restaurant.name}\n`;
     text += items.map(({ dish, qty }) => `• ${qty}× ${dish.name}`).join('\n') + '\n';
   });
+  if (summary.discount) text += `\n${dealLabel(summary.deal)}: −${formatRupees(summary.discount)}`;
   text += `\nGrand total: ${formatRupees(summary.grandTotal)} (incl. GST and delivery), paid by UPI.\n`;
   text += 'Attaching my bill.';
   return text;

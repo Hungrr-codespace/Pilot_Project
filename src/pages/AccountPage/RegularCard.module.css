@@ -157,6 +157,97 @@
   color: var(--color-text-on-dark);
 }
 
+/* Links for staff (Staff tab of the sheet) */
+.team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-self: stretch;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.22);
+}
+
+.teamTitle {
+  flex-basis: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-on-dark);
+}
+
+.teamLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1.5px solid var(--color-yellow);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-yellow);
+}
+
+/* The stamp card towards the automatic offer */
+.stamps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: stretch;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.22);
+}
+
+.stampsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-yellow);
+}
+
+.holes {
+  display: grid;
+  grid-template-columns: repeat(var(--holes), minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hole {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  max-width: 52px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  font-family: var(--font-hand);
+  font-size: 17px;
+  color: var(--color-text-on-dark);
+}
+
+.stamped {
+  background: var(--color-yellow);
+  border: 0;
+  transform: rotate(-8deg);
+}
+
+.reward {
+  border: 2px solid var(--color-yellow);
+  color: var(--color-yellow);
+}
+
+/* The next order gets the offer */
+.rewardNext {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.stampsText {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text-on-dark);
+}
+
 .foot {
   display: flex;
   align-items: center;
@@ -240,8 +331,29 @@
     font-size: 13.5px;
   }
 
-  .foot {
+  .foot,
+  .stamps {
     margin-top: 18px;
     padding-top: 16px;
+  }
+
+  .stamps {
+    gap: 10px;
+  }
+
+  .stampsTitle {
+    font-size: 16px;
+  }
+
+  .holes {
+    gap: 6px;
+  }
+
+  .hole {
+    font-size: 14px;
+  }
+
+  .stampsText {
+    font-size: 13.5px;
   }
 }

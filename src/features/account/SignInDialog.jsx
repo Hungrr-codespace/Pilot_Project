@@ -65,8 +65,10 @@ export function SignInDialog({ reason = 'nav', onSignedIn, onFinished, onClose }
   );
 
   const signedIn = (res) => {
-    onSignedIn({ token: res.token, user: res.user });
-    account.current = res.user;
+    // The user, with the staff pages they may open (admin, rider, restaurant)
+    const user = { ...res.user, roles: res.roles || [] };
+    onSignedIn({ token: res.token, user });
+    account.current = user;
     setWelcomeName(firstName(res.user?.name) || 'friend');
     go('done');
   };

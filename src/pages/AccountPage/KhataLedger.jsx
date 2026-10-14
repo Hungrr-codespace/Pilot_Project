@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import clsx from 'clsx';
 import { ROUTES } from '@/config/site';
 import { useAccount } from '@/context/account';
 import { useLayout } from '@/context/layout';
+import { useOrder } from '@/context/order';
 import { canRate, khataTotals } from '@/lib/account';
 import { formatRupees, plural } from '@/lib/format';
 import { TRACK_STEPS, normalizeOrderId } from '@/lib/tracking';
@@ -166,6 +167,14 @@ function LedgerEntry({ order, open, onToggle }) {
   const count = (order.items || []).reduce((n, item) => n + (Number(item.qty) || 0), 0);
   const rateable = canRate(order);
   const panelId = `khata-${order.order_id}`;
+  const { actions } = useOrder();
+  const navigate = useNavigate();
+  const canReorder = (order.items || []).some((item) => item.dish_id);
+  // "Order again": the same dishes on a fresh order note, on the pilot page
+  const orderAgain = () => {
+    actions.reorder({ orderId: order.order_id, items: order.items });
+    navigate(`${ROUTES.pilot}#menu`);
+  };
   return (
     <div className={clsx(styles.entry, open && styles.entryOpen)}>
       <button
@@ -238,6 +247,12 @@ function LedgerEntry({ order, open, onToggle }) {
               <dt>Delivery, {plural(order.riders || 1, 'rider')}</dt>
               <dd>{formatRupees(order.delivery)}</dd>
             </div>
+            {order.discount > 0 && (
+              <div className={styles.discount}>
+                <dt>{order.coupon || 'Discount'}</dt>
+                <dd>−{formatRupees(order.discount)}</dd>
+              </div>
+            )}
             <div className={styles.grand}>
               <dt>Total</dt>
               <dd>{formatRupees(order.grand_total)}</dd>
@@ -245,6 +260,16 @@ function LedgerEntry({ order, open, onToggle }) {
           </dl>
           {order.review && <p className={styles.reviewNote}>{REVIEW_STATE[order.review.state]}</p>}
           <div className={styles.actions}>
+            {canReorder && (
+              <button
+                type="button"
+                onClick={orderAgain}
+                className={`${styles.action} ${styles.again} btn-black`}
+              >
+                <Icon name="refresh" size={isMobile ? 18 : 20} color="var(--color-yellow)" />
+                Order again
+              </button>
+            )}
             <Link to={`${ROUTES.track}?order=${order.order_id}`} className={`${styles.action} btn-light`}>
               <Icon name="moped" size={isMobile ? 18 : 20} color="var(--color-black)" />
               Track order

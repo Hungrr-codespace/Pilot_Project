@@ -1,0 +1,383 @@
+/* A tear-off coupon: dashed border, a round notch cut out of each side */
+.box {
+  --pad: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px var(--pad);
+  background: var(--color-yellow-soft);
+  border: 1.5px dashed var(--color-black);
+  border-radius: 14px;
+}
+
+.notchLeft,
+.notchRight {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  background: var(--color-white);
+  border: 1.5px dashed var(--color-black);
+  border-radius: 50%;
+}
+
+.notchLeft {
+  left: -10px;
+  clip-path: inset(0 0 0 50%);
+}
+
+.notchRight {
+  right: -10px;
+  clip-path: inset(0 50% 0 0);
+}
+
+.offerOn,
+.offerOff {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.offerOn {
+  color: var(--color-green);
+}
+
+.offerOff {
+  color: var(--color-text-subtle);
+}
+
+.offerOn svg,
+.offerOff svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  outline: none;
+}
+
+.input::placeholder {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--color-text-faint);
+}
+
+.input:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-yellow);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-nonveg);
+}
+
+.apply {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 86px;
+  height: 46px;
+  padding: 0 18px;
+  background: var(--color-black);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+/* Applied: the code stamped in mono, what it gives, and × to remove */
+.applied {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.code {
+  padding: 4px 10px;
+  border: 2px solid var(--color-green);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-green);
+  transform: rotate(-2deg);
+}
+
+.what {
+  flex: 1;
+  font-size: 15px;
+  color: var(--color-text-body);
+}
+
+.saving {
+  white-space: nowrap;
+}
+
+.remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-white);
+  border-radius: 50%;
+}
+
+.problem {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-nonveg);
+}
+
+.note {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 1023.98px) {
+  .box {
+    --pad: 14px;
+    gap: 8px;
+    padding: 12px var(--pad);
+  }
+
+  .offerOn,
+  .offerOff,
+  .what {
+    font-size: 13.5px;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+
+  .input,
+  .apply {
+    height: 42px;
+  }
+
+  .input {
+    font-size: 15px;
+  }
+
+  .apply {
+    min-width: 74px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .code {
+    font-size: 13px;
+  }
+
+  .problem,
+  .note {
+    font-size: 13px;
+  }
+}
+
+/* "Coupons for you": the coupons listed at checkout, each with its saving and an Apply button */
+.notchLeft.onLine {
+  left: calc(-1 * var(--pad) - 10px);
+}
+
+.notchRight.onLine {
+  right: calc(-1 * var(--pad) - 10px);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.listHead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.listRule {
+  flex: 1;
+  height: 0;
+  border-top: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+.choices {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.choice,
+.choiceMuted {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.16);
+}
+
+.choice:last-child,
+.choiceMuted:last-child {
+  border-bottom: 0;
+}
+
+.choiceCode {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  background: var(--color-white);
+  border: 1.5px dashed var(--color-black);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.choiceText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.choiceDeal {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.choiceSaves {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.choiceGap {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.choiceMuted .choiceSaves {
+  font-weight: 500;
+  color: var(--color-text-subtle);
+}
+
+.choiceMuted .choiceCode,
+.choiceMuted .choiceDeal {
+  opacity: 0.6;
+}
+
+.choiceApply {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 70px;
+  height: 34px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+.more {
+  align-self: flex-start;
+  padding: 2px 0;
+  background: none;
+  border: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+@media (max-width: 1023.98px) {
+  .listHead {
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+  }
+
+  .choice,
+  .choiceMuted {
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .choiceCode {
+    padding: 2px 6px;
+    font-size: 11.5px;
+    letter-spacing: 0.5px;
+  }
+
+  .choiceDeal {
+    font-size: 12.5px;
+  }
+
+  .choiceSaves,
+  .choiceGap {
+    font-size: 11.5px;
+  }
+
+  .choiceApply {
+    min-width: 58px;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+
+  .more {
+    font-size: 12.5px;
+  }
+}

@@ -7,7 +7,7 @@ export const TERMS = {
   lead: 'The rules for using this website and ordering from Hungrr during the pilot.',
   summary: [
     'During the pilot we deliver only to the {campus} campus, from {hours}.',
-    'Your total includes the dishes, GST and one delivery charge for each rider your order needs.',
+    'Your total includes the dishes, GST and one delivery charge for each rider your order needs, less any offer or coupon (one per order).',
     'You pay by UPI and enter your UPI reference number. Your order is accepted once we have checked the payment.',
     'The restaurants prepare the food and we bring it to you. If something goes wrong, our {refunds} explains what happens.',
   ],
@@ -41,7 +41,7 @@ export const TERMS = {
         {
           list: [
             'You choose dishes from one or more partner restaurants. Restaurants are grouped in clusters along the same route, and one rider brings everything from one cluster.',
-            'Before you pay, the order note shows the item total, GST and the delivery charge. Please check it carefully.',
+            'Before you pay, the order note shows the item total, GST, the delivery charge and any discount. Please check it carefully.',
             'You sign in to your account, give your delivery address, scan the QR code and pay by UPI, then enter the 12-digit UPI reference number from your UPI app.',
             'We check your payment and send your order to the restaurants. Your order is accepted once we have checked your payment. If we cannot accept it, we will tell you and refund you in full.',
           ],
@@ -73,6 +73,23 @@ export const TERMS = {
             'For now we accept UPI only. Pay the exact total through the QR code on this website. We will never ask for your UPI PIN, an OTP or a bank password.',
             'Enter the UPI reference number of your own payment. If the number is wrong or the payment does not match, we may hold or cancel the order until it is sorted out.',
             'If a price on the website is clearly wrong (for example, a typing error), we will tell you before your food is prepared. You can then pay the correct price or cancel for a full refund.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'offers',
+      title: 'Offers and coupons',
+      blocks: [
+        {
+          list: [
+            'Offers and coupons are for orders placed while signed in to your account. Each order can use one offer or coupon: if more than one applies, we use the one that saves you more.',
+            'Each offer or coupon has its own conditions, shown on the website when you apply it, such as a minimum order, the dates it is valid, a cap on the discount and how many times it can be used.',
+            'Offers based on your number of orders (for example, free delivery on every 5th order) count your paid orders in your account that were not cancelled.',
+            'A discount on the food comes off before GST is added. We check the offer or coupon again when your order is saved. If it stopped being valid in the meantime (for example, the last use was taken a moment earlier), we will contact you before accepting the order.',
+            'If an order is cancelled, its coupon use is returned and the order does not count towards an offer. Refunds are for the amount you paid.',
+            'Offers and coupons have no cash value, cannot be exchanged or transferred, and can be changed or ended by us at any time without affecting orders already placed.',
+            'If an offer or coupon is misused (for example, through several accounts for one person, or a code shared against its conditions), we may refuse it or cancel the order and refund what was paid.',
           ],
         },
       ],

@@ -30,6 +30,9 @@ export const ROUTES = {
   track: '/track', // order tracking: order ID + phone number
   feedback: '/feedback', // rate an order (order ID + phone number)
   account: '/account', // the customer's khata: their orders, name and sign-out
+  admin: '/admin', // the team's back office (Staff tab: role admin)
+  rider: '/rider', // riders: jobs and live location (Staff tab: role rider)
+  partner: '/partner', // restaurants: dishes to prepare (Staff tab: role restaurant)
 };
 
 // Sections of the main page, in order. Used by the navigation and the footer.

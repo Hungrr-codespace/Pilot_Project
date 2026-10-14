@@ -28,6 +28,18 @@
   color: var(--color-ink);
 }
 
+.label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: 12px;
+}
+
+/* An offer or coupon, in green */
+.discount {
+  color: var(--color-green);
+}
+
 .grand {
   margin-top: 4px;
   height: 40px;

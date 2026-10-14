@@ -11,6 +11,9 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
+# The app manifest ("Add to home screen")
+AddType application/manifest+json .webmanifest
+
 # Caching: the built scripts and styles have a fingerprint in their names, so browsers can keep them for a
 # year. Images and fonts for a week. index.html is always checked, so visitors get a new version right away.
 <IfModule mod_headers.c>
@@ -21,6 +24,10 @@
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
   <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # The service worker and the app manifest must always be checked, or phones keep an old version
+  <FilesMatch "^(sw\.js|manifest\.webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>

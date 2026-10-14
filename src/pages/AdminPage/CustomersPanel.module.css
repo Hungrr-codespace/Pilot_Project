@@ -1,0 +1,212 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.search {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.prefix {
+  font-size: 18px;
+  color: var(--color-text-subtle);
+}
+
+.phoneInput {
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+.result {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 26px;
+  background: var(--color-black);
+  border-radius: 24px;
+  color: var(--color-white);
+}
+
+.cardPhone {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-yellow);
+}
+
+.cardName {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 4px;
+  padding-top: 14px;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.22);
+}
+
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.facts dt {
+  color: var(--color-text-on-dark);
+}
+
+.facts dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
+}
+
+.done {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--color-yellow);
+}
+
+.noAccount {
+  margin: 4px 0 0;
+  font-size: 16px;
+  color: var(--color-text-on-dark);
+}
+
+.ordersTitle {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.orderList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.order {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) 150px 90px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 15px;
+}
+
+.order:last-child {
+  border-bottom: 0;
+}
+
+.orderId {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.orderWhat {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text-muted);
+}
+
+.orderStatus {
+  font-weight: 600;
+}
+
+.orderTotal {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-align: right;
+}
+
+@media (max-width: 1023.98px) {
+  .layout {
+    gap: 20px;
+  }
+
+  .searchRow {
+    flex-wrap: wrap;
+  }
+
+  .searchRow button {
+    flex-basis: 100%;
+  }
+
+  .result {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+
+  .cardName {
+    font-size: 22px;
+  }
+
+  .facts > div {
+    font-size: 13.5px;
+  }
+
+  .order {
+    grid-template-columns: 1fr auto;
+    gap: 2px 10px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+
+  .orderWhat {
+    grid-column: 1;
+  }
+
+  .orderStatus {
+    grid-row: 2;
+    grid-column: 2;
+    text-align: right;
+  }
+}

@@ -40,7 +40,7 @@ export function AccountPage() {
       <main className={styles.body}>
         {user ? (
           <>
-            <RegularCard />
+            <RegularCard progress={khata.progress} />
             <KhataLedger khata={khata} />
           </>
         ) : (

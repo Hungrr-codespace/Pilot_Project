@@ -1,6 +1,7 @@
-// Cart totals: item total, GST and delivery (one rider per delivery cluster in the order).
+// Cart totals: item total, the offer or coupon, GST and delivery (one rider per delivery cluster in the order).
 import { allDishes } from './menuData';
-import { plural } from './format';
+import { formatRupees, plural } from './format';
+import { bestDeal, dealLabel } from './deals';
 
 // Number of dishes from one restaurant in the cart.
 export function countInCart(restaurant, cart) {
@@ -17,7 +18,9 @@ export function ridersNeeded(restaurants, clusters, cart) {
 
 // The full order summary used by the notepad, the order photo, the UPI link and the sheet.
 //   lines: [{ restaurant, items: [{ dish, qty, lineTotal }] }]
-export function summarizeOrder({ restaurants, clusters, cart, settings }) {
+// `deals` are the offer and coupon rules the customer can use (see deals.js): the one that saves the most is
+// applied. A discount on the food comes off before GST; free delivery takes off the delivery charge.
+export function summarizeOrder({ restaurants, clusters, cart, settings, deals = [] }) {
   const lines = [];
   let itemCount = 0;
   let itemTotal = 0;
@@ -35,9 +38,11 @@ export function summarizeOrder({ restaurants, clusters, cart, settings }) {
 
   const riders = ridersNeeded(restaurants, clusters, cart);
   const gstRate = settings.gstRate;
-  const gst = Math.round(itemTotal * gstRate) / 100;
   const delivery = itemCount > 0 ? settings.deliveryCharge * riders : 0;
-  const grandTotal = itemTotal + gst + delivery;
+  const deal = bestDeal(deals, itemTotal, delivery);
+  const taxable = Math.round((itemTotal - deal.onItems) * 100) / 100;
+  const gst = Math.round(taxable * gstRate) / 100;
+  const grandTotal = Math.round((taxable + gst + delivery - deal.onDelivery) * 100) / 100;
 
   return {
     lines,
@@ -48,9 +53,31 @@ export function summarizeOrder({ restaurants, clusters, cart, settings }) {
     gst,
     riders,
     delivery,
+    deal: deal.rule, // the offer or coupon applied, or null
+    discountOnItems: deal.onItems,
+    discountOnDelivery: deal.onDelivery,
+    discount: Math.round((deal.onItems + deal.onDelivery) * 100) / 100,
     grandTotal,
     gstLabel: `GST (${gstRate}%)`,
     deliveryLabel: `Delivery charge (${plural(riders, 'rider')})`,
     isEmpty: itemCount === 0,
   };
+}
+
+// The charge lines of a bill, in order: [{ label, amount, text, discount? }]. A discount shows as "−₹39".
+export function chargeLines(summary) {
+  const line = (label, amount, discount = false) => ({
+    label,
+    amount,
+    discount,
+    text: discount ? `−${formatRupees(amount)}` : formatRupees(amount),
+  });
+  const label = dealLabel(summary.deal);
+  return [
+    line('Item total', summary.itemTotal),
+    ...(summary.discountOnItems ? [line(label, summary.discountOnItems, true)] : []),
+    line(summary.gstLabel, summary.gst),
+    line(summary.deliveryLabel, summary.delivery),
+    ...(summary.discountOnDelivery ? [line(label, summary.discountOnDelivery, true)] : []),
+  ];
 }

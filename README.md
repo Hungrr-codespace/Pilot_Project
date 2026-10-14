@@ -10,14 +10,23 @@ The Hungrr website, built with React 18, React Router and Vite. It has these pag
   checkout: delivery details, UPI QR, and payment confirmation with the 12-digit UPI reference number. It says
   whether ordering is open, closed or paused, and has a "Track your order" button under the menu. Arriving
   signed out, the sign-in opens first ("Just look at the menu" closes it); ordering needs an account.
-- **Khata (`/account`)**: the signed-in customer's page: their name (which they can change), phone number, and
-  every order they have placed, each opening to its dishes and charges with "Track order" and "Rate this
-  order". Older orders can be added with the order ID on the bill.
+- **Khata (`/account`)**: the signed-in customer's page: their name (which they can change), phone number, a
+  stamp card towards the automatic offer, and every order they have placed, each opening to its dishes and
+  charges with "Order again", "Track order" and "Rate this order". Older orders can be added with the order ID
+  on the bill. Team members also see links to their pages here.
 - **Tracking page (`/track`)**: the order ID and phone number show the order's status from the sheet (no account
-  needed), with the orders paid for on this phone listed for one-tap tracking.
+  needed), with the orders paid for on this phone listed for one-tap tracking. While the order is out for
+  delivery, it shows the rider's first name and a live map.
 - **Feedback page (`/feedback`)**: customers rate a paid order with its order ID and phone number: stars,
   tags, a few words, a private suggestion for the team, and whether to show the review on the website (with a
   live preview of the card). The tracking page links here once an order is delivered.
+- **Team pages**, for phone numbers listed in the sheet's **Staff** tab (signed in with their Hungrr account):
+  - **Admin (`/admin`)**: the live order board, offers and coupons, review approvals, the menu (laid out like the
+    menu book, with a switch on every restaurant and dish) and the site notice, customer look-up (PIN reset), and
+    the day's numbers.
+  - **Rider (`/rider`)**: live location sharing and the rider's delivery slips (Picked up, Delivered).
+  - **Restaurant (`/partner`)**: the kitchen's tickets for today's paid orders with its dishes (Start preparing,
+    Ready for pickup).
 - **Policy pages**: Privacy Policy (`/privacy-policy`), Terms & Conditions (`/terms`) and Refund & Cancellation
   Policy (`/refund-policy`), linked from both footers. Each has an "In short" summary, numbered sections and a
   contents list. Their text is in `src/content/legal/`.
@@ -33,6 +42,11 @@ All pages:
   Sheet, and every order (with the customer's details and UPI reference number) is written back to it. The team
   gets an email or Telegram alert when a payment needs checking. Set this up once: see
   [Connect the Google Sheet](#connect-the-google-sheet).
+- An optional one-line notice at the top (Settings → `site_banner`), and on phones a card to add Hungrr to the
+  home screen like an app.
+
+How each of the newer features works, and what to check when one goes wrong, is in
+[docs/FEATURES.md](docs/FEATURES.md).
 
 ## Commands
 
@@ -56,20 +70,24 @@ Full steps are in [google-sheet/SETUP.md](google-sheet/SETUP.md). In short:
    Google Sheet (no **.XLSX** label next to its name). Keep the tab names and the first row of every tab.
 2. In the sheet: **Extensions → Apps Script**. Replace the sample code with all of `google-sheet/Code.gs` and
    save. Open Apps Script from inside the sheet: that is how the script knows which sheet to use. Then choose
-   **setup** in the toolbar's function list and click **Run** (it adds the Alerts tab and sends you a test email).
+   **setup** in the toolbar's function list and click **Run** (it adds the tabs and columns the sheet is
+   missing and sends you a test email).
 3. **Deploy → New deployment → Web app**, with *Execute as: Me* and *Who has access: Anyone*. Allow the
    permissions Google asks for (**Advanced → Go to Hungrr website (unsafe) → Allow**).
 4. Copy the **Web app URL** (it ends in `/exec`). Check it by opening it with `?action=menu` at the end: you
    should see your tabs as text.
 5. Copy `.env.example` to `.env` and paste the URL after `VITE_SHEET_API_URL=`. Restart `npm run dev`.
+6. Open an account on the website with your phone number, then add that number to the **Staff** tab with
+   `role` = `admin`. `/admin` now opens for you.
 
 Without the URL the site still works with its built-in sample menu, but orders are not saved.
 
 **Already connected the sheet with an earlier version?** Paste the new `google-sheet/Code.gs` into Apps Script and
 save, run **setup** once (choose it in the toolbar, click **Run**, allow the new permissions), then **Deploy →
-Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same. `setup` adds the
-opening hours and pause switch to Settings, the Alerts tab, and the `status_at` column to Orders. Opening hours,
-the pause switch, alerts and tracking are explained in [SETUP.md](google-sheet/SETUP.md).
+Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same. `setup` adds
+what the sheet is missing: the Users, Staff, Coupons and Offers tabs, `site_banner` in Settings, and the new
+Orders and OrderItems columns. Then add your number to Staff as `admin` (step 6 above). Everything is explained in
+[SETUP.md](google-sheet/SETUP.md).
 
 ### If something goes wrong
 
@@ -82,6 +100,8 @@ the pause switch, alerts and tracking are explained in [SETUP.md](google-sheet/S
 | Changed `Code.gs` | **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same. A **New deployment** would create a different URL. |
 | Menu changes don't show | The script keeps a copy for about a minute. Wait, then reload. |
 | Orders don't reach the sheet | Check `VITE_SHEET_API_URL` is set, then restart `npm run dev` (locally) or redeploy (online). |
+| `/admin` says "This page is for the Hungrr team" | Your number isn't in Staff with `role` = `admin` (or `active` is FALSE), or the script wasn't redeployed. Reload the page after fixing it. |
+| Anything else | [docs/FEATURES.md](docs/FEATURES.md) has a "Problems" list for each feature, and how to watch what the script answers. |
 
 ## Project structure
 
@@ -91,13 +111,20 @@ src/
 ├── App.jsx                  Router (the pages) inside the providers (layout → menu → status → account → order)
 ├── pages/
 │   ├── HomePage.jsx         The main page: its sections in order
-│   ├── PilotPage/           The pilot page: PilotHeader (title, open/closed pill), ShopNotice (closed or
-│   │                        paused), the ordering area, PageFooter
+│   ├── PilotPage/           The pilot page: PilotHeader (title, open/closed pill, offer pill), ShopNotice
+│   │                        (closed or paused), ReorderNotice (after Order again), the ordering area, PageFooter
 │   ├── TrackPage/           Order tracking: TrackForm (order ID + phone), RecentOrders, TrackResult (the
-│   │                        steps, and "Rate your order" once delivered), useOrderTracking (refreshes every minute)
+│   │                        steps, the rider's map, and "Rate your order" once delivered), useOrderTracking
+│   │                        (refreshes every minute, every 20 s while out for delivery)
 │   ├── FeedbackPage/        Rate an order: FeedbackForm (four steps), the live card preview, the thank-you
-│   ├── AccountPage/         The khata: RegularCard (name, phone, sign out), KhataLedger (the orders, the
-│   │                        total paid, adding an earlier order), useKhata (loads the orders)
+│   ├── AccountPage/         The khata: RegularCard (name, phone, stamp card, team links, sign out),
+│   │                        KhataLedger (the orders, Order again, the total paid, adding an earlier order),
+│   │                        useKhata (loads the orders and the offer progress)
+│   ├── AdminPage/           The admin page: AdminPage (tabs), OrdersBoard, OffersPanel, ReviewsQueue,
+│   │                        MenuSwitches (the menu book: MenuService, MenuIndex, MenuPage), CustomersPanel,
+│   │                        NumbersPanel; admin.module.css (shared styles)
+│   ├── RiderPage/           The rider page: delivery slips, useLocationSharing (GPS every 20 s, screen awake)
+│   ├── PartnerPage/         The restaurant (kitchen) page: tickets by New, Preparing, Ready, Picked up
 │   └── LegalPage/           The policy pages: LegalHeader (title, policy tabs, date), LegalContents
 │                            (contents list), LegalDocument (the text), LegalText (links and placeholders)
 ├── sections/                One folder per main-page section, each with its own components and styles
@@ -114,38 +141,55 @@ src/
 │   ├── account/             SignInDialog (phone → PIN, or name and a new PIN; locked; welcome stamp),
 │   │                        PinInput (six boxes), AccountButton (Sign in / the customer's name, top right)
 │   ├── ordering/            Everything for ordering on the pilot page (see below)
-│   └── reviews/             ReviewCard, StarRating (shows stars), StarInput (picks stars), TagPicker,
-│                            useReviews (loads the summary and reviews once per visit)
+│   ├── reviews/             ReviewCard, StarRating (shows stars), StarInput (picks stars), TagPicker,
+│   │                        useReviews (loads the summary and reviews once per visit)
+│   ├── staff/               StaffPage (frame of the team pages, "for the team" message), useStaff (calls,
+│   │                        polling every 20 s, loading)
+│   ├── tracking/            RiderOnMap (loads the map only when needed) and RiderMap (Leaflet, OpenStreetMap)
+│   └── install/             InstallPrompt (the "add to home screen" card on phones)
 ├── components/              Reusable building blocks used in several places
 │   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField,
-│   │                        ShopStatusPill (Open now / Closed / Orders paused), Spinner (loading ring)
+│   │                        ShopStatusPill (Open now / Closed / Orders paused), Spinner (loading ring),
+│   │                        Switch (on/off toggle of the team pages)
 │   └── layout/              PageCanvas, Section, Navbar, PageNav and PageFooter (top bar and footer of the
 │                            pilot and policy pages), PageHeader (yellow header of the tracking and feedback
-│                            pages), ScrollManager (top of the page, or the linked
-│                            section, after moving pages)
+│                            pages), SiteBanner (the notice at the top), ScrollManager (top of the page, or the
+│                            linked section, after moving pages)
 ├── context/                 App-wide state
 │   ├── LayoutProvider.jsx   Which design is showing (desktop/mobile) and its scale
 │   ├── MenuProvider.jsx     The menu from the Google Sheet (cached, with a built-in fallback)
 │   ├── ShopStatusProvider.jsx  Open, closed or paused: the sheet's hours and pause switch, in Indian time
 │   ├── AccountProvider.jsx  Who is signed in on this device, and the sign-in dialog (openSignIn)
-│   ├── OrderProvider.jsx    Ordering actions: cart, menu book, notepad, checkout, payment, bill
+│   ├── OrderProvider.jsx    Ordering actions: cart, menu book, notepad, checkout, offers and coupons, order
+│   │                        again, payment, bill
 │   └── orderReducer.js      All ordering state changes, as a pure reducer (+ the current order step)
 ├── hooks/                   useViewportWidth, useScrollMorph (mobile), useReveal (scroll animations),
 │                            useActiveSection (policy contents), useWhatsAppContact, useDocumentTitle
 ├── lib/                     Pure functions, no React: pricing, search, menu data, checkout (details and UPI
 │                            reference checks), UPI link, WhatsApp message, QR code, bill image, file
-│                            download, formatting, policy text, opening hours, tracking, reviews, accounts
-│                            (+ their tests)
+│                            download, formatting, policy text, opening hours, tracking, reviews, accounts,
+│                            deals (offer and coupon sums), staff (order board, codes, messages) (+ their tests)
 ├── services/
 │   ├── sheetApi.js          Talks to the Google Sheet: load the menu, check the hours and pause switch, save
 │                            orders and payments, track an order, load and send reviews
-│   └── accountApi.js        Accounts: sign up, sign in, the khata, change the name, add an earlier order
+│   ├── accountApi.js        Accounts: sign up, sign in, the khata, change the name, add an earlier order,
+│   │                        check offers and coupons
+│   └── staffApi.js          The team pages: one call (area, op) with the sign-in
 ├── config/site.js           Brand, page addresses (ROUTES), contact email, links, layout sizes, image paths
 ├── content/                 Page copy: about, ordering steps (howItWorks.js), benefits, FAQ, and the
 │                            policies in legal/ (business.js holds the business details they show)
 ├── data/menu-fallback.json  Built-in menu, used until the sheet answers or if it cannot be reached
 └── styles/                  tokens.css (colours, fonts, motion, section colours), global.css (base styles
                              and the scroll animations), buttons.css (hover and press colours), motion.module.css
+
+public/
+├── manifest.webmanifest     The app's name, colours and icons for "add to home screen"
+├── icons/                   App icons (192, 512, maskable, Apple)
+└── sw.js                    Service worker: pages from the network (last copy kept for offline), built files
+                             kept after first use, nothing else stored
+google-sheet/                Code.gs (the Apps Script), SETUP.md, the starting sheet (.xlsx)
+tools/sheet-mock/            Runs Code.gs in Node against a pretend sheet, with test suites (see its README)
+docs/FEATURES.md             How each feature works, for debugging
 ```
 
 The ordering feature in `features/ordering/`:
@@ -159,7 +203,8 @@ MenuBook/                    MenuBook (desktop spread / mobile pages), BookCover
                              IntroPage, RestaurantIndex, RestaurantDetails, DishMenu
 OrderNotepad/                OrderNotepad, OrderSheet (cart), PaymentSheet (UPI QR), OrderSlip (the bill),
                              OrderSentCard, NoteSheet, NoteButtons, OrderCharges
-Checkout/                    DetailsDialog (name, phone, address), PaymentDialog (12-digit UPI reference)
+Checkout/                    DetailsDialog (who is ordering, address, DealBox), DealBox (the offer, the
+                             coupon field and "Coupons for you"), PaymentDialog (12-digit UPI reference)
 components/                  Parts shared by the pages: RestaurantRow, ClusterGroup, DishRow, CategoryTabs,
                              SearchField, DishTypeFilter, OrderBar, ClusterMap, ClusterMates, EmptyState…
 hooks/useMenuBook.js         What the book shows (filters, groups, open restaurant), derived from state
@@ -246,10 +291,11 @@ top of the menu. (They stick to the top of the screen with `position: sticky`, w
 1. **Pick dishes.** The customer turns the table or opens the menu and adds dishes from one or more
    restaurants.
 2. **Review order.** The notepad shows the order with GST and one delivery charge per rider (one rider per
-   cluster). Quantities can still be changed.
+   cluster), and the offer's discount if this order gets one. Quantities can still be changed.
 3. **Your details.** "Confirm order" asks a signed-out customer to sign in first. Then a dialog shows who is
    ordering (from the account, with "Not you?") and asks for the delivery address (remembered on the device for
-   next time). The order gets its ID (for example `HG-261006-K7Q2`) and is saved in the sheet as
+   next time). A coupon code can be applied here; one offer per order, the one that saves more. The order gets
+   its ID (for example `HG-261006-K7Q2`) and is saved in the sheet as
    **Awaiting payment**.
 4. **Pay by UPI.** The QR has the exact amount, with the order ID in the payment note.
 5. **Confirm payment.** "Confirm payment" asks for the 12-digit UPI reference number from the customer's UPI
@@ -259,8 +305,23 @@ top of the menu. (They stick to the top of the screen with `position: sticky`, w
    the payment.
 
 After that, the customer follows the order on the tracking page ("Track order" on the bill, or "Track your
-order" under the menu). It shows the status the team sets in the sheet: Payment to verify → Paid → Preparing →
+order" under the menu). It shows the status the team sets on the admin page or in the sheet: Payment to verify → Paid → Preparing →
 Out for delivery → Delivered.
+
+## How offers, the team pages and the app work
+
+- **Offers and coupons:** one automatic offer (every Nth paid order, set on the admin page) and coupon codes
+  (₹ off, % off with a cap, or free delivery; dates, minimum order and use limits). The same sums run on the
+  website (`lib/deals.js`) and in the script, which checks again when it saves the order. A discount on the food
+  comes off before GST.
+- **Team pages:** every call carries the sign-in token; the script checks it and the Staff row for that role
+  before answering. The website's copy of the roles only decides which links to show.
+- **Live tracking:** the rider page sends the phone's position every 20 seconds while sharing is on; the script
+  keeps it for 15 minutes and shows it only to the customer of the order that rider is carrying.
+- **Add to home screen:** `manifest.webmanifest` and `sw.js` (registered in the built site only). To make every
+  installed phone drop old files, change `CACHE` in `sw.js`.
+
+Details, files and problems for each: [docs/FEATURES.md](docs/FEATURES.md).
 
 ## How accounts work
 
@@ -317,7 +378,7 @@ already set up: Cloudflare Pages does it on its own, Netlify reads `netlify.toml
   **Deploy**. Every push to GitHub deploys again. Hostinger adds the page-address routing (`.htaccess`) itself.
 - **Other plans:** build on your computer (`.env` with `VITE_SHEET_API_URL`, then `npm run build`), and upload
   everything inside `dist/` plus `hosting/hostinger/.htaccess` to `public_html` with the File Manager. Repeat
-  for every update.
+  for every update. Keep the `.htaccess`: it also makes sure phones always get the newest `sw.js` and manifest.
 - Then connect the domain in hPanel, and turn on SSL and **Force HTTPS**. The Google Sheet needs no change.
 
 Vercel's free Hobby plan is for non-commercial use, so for a business use a paid Vercel plan or another host.
@@ -338,3 +399,5 @@ company where you bought the domain. HTTPS is set up automatically.
   `src/config/site.js`.
 - The About section's words (mission, pillars) are a first draft in `src/content/about.js`: edit them to say it
   your way.
+- Your team in the sheet's **Staff** tab (admin, riders, restaurants with their `restaurant_id`), and the
+  automatic offer and first coupons on the admin page.

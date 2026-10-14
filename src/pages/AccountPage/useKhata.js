@@ -4,7 +4,8 @@ import { fetchAccount } from '@/services/accountApi';
 
 // The signed-in customer's orders from the sheet.
 //   phase: 'loading' | 'ready' | 'failed' (and 'idle' when signed out)
-//   orders (newest first), unclaimed (earlier orders with this number not in the khata yet), reload()
+//   orders (newest first), unclaimed (earlier orders with this number not in the khata yet), progress (towards
+//   the automatic offer, see lib/deals.js), reload()
 // The sheet answering "signed out" (PIN reset, or 60 days passed) ends the sign-in on this device.
 export function useKhata() {
   const account = useAccount();
@@ -13,7 +14,12 @@ export function useKhata() {
   useLayoutEffect(() => {
     accountRef.current = account;
   });
-  const [data, setData] = useState({ phase: token ? 'loading' : 'idle', orders: [], unclaimed: 0 });
+  const [data, setData] = useState({
+    phase: token ? 'loading' : 'idle',
+    orders: [],
+    unclaimed: 0,
+    progress: null,
+  });
   const latest = useRef(0);
 
   const load = useCallback(
@@ -25,8 +31,20 @@ export function useKhata() {
       if (request !== latest.current) return;
       const acc = accountRef.current;
       if (res.ok) {
-        if (res.user && res.user.name !== acc.user?.name) acc.setUser(res.user);
-        setData({ phase: 'ready', orders: res.orders || [], unclaimed: res.unclaimed || 0 });
+        const roles = res.roles || [];
+        if (
+          res.user &&
+          (res.user.name !== acc.user?.name ||
+            JSON.stringify(roles) !== JSON.stringify(acc.user?.roles || []))
+        ) {
+          acc.setUser({ ...res.user, roles });
+        }
+        setData({
+          phase: 'ready',
+          orders: res.orders || [],
+          unclaimed: res.unclaimed || 0,
+          progress: res.progress || null,
+        });
       } else if (res.error === 'signed_out') {
         acc.forgetSignIn();
       } else {

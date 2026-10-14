@@ -73,6 +73,7 @@ function readSettings(rows) {
     upiId: str(values.upi_id) || DEFAULT_SETTINGS.upiId,
     upiName: str(values.upi_name) || DEFAULT_SETTINGS.upiName,
     deliverTo: str(values.deliver_to) || DEFAULT_SETTINGS.deliverTo,
+    siteBanner: str(values.site_banner).slice(0, 140), // the notice at the top of every page (admin page)
     ...readOrderHours(values),
   };
 }
@@ -157,6 +158,16 @@ export function normalizeMenu(raw) {
       .map((c) => ({ id: str(c.cluster_id), label: str(c.label), area: str(c.area) })),
     restaurants: readRestaurants(rows('Restaurants'), rows('Dishes')),
     dishTypes: readQuickPicks(rows('QuickPicks')),
+    // Automatic offers everyone can see (e.g. every 5th order: free delivery); coupon codes are never here
+    offers: rows('offers')
+      .filter((o) => Number(o.every_n) >= 2 && ['amount', 'percent', 'free_delivery'].includes(o.type))
+      .map((o) => ({
+        name: str(o.name),
+        every_n: Number(o.every_n),
+        type: o.type,
+        value: Number(o.value) || 0,
+        max_discount: Number(o.max_discount) || 0,
+      })),
   };
 }
 

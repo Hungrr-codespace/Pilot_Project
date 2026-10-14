@@ -24,6 +24,17 @@
  *   POST {"action":"claim_order","token":…,"order_id":"HG-…"} → an order placed before signing in, added to
  *                                                               the account (its phone number must match)
  *
+ *   POST {"action":"deals","token":…,"coupon":"CODE"}      → the automatic offer this order would get (every
+ *                                                         Nth order) and the coupon's rule, or why it can't be used,
+ *                                                         plus the coupons listed at checkout for this customer
+ *   POST {"action":"admin","op":…,"token":…}                → the admin page (only phone numbers listed as admin in
+ *                                                         Staff): order board, statuses, riders, coupons, offers,
+ *                                                         reviews, menu switches, customers, numbers, banner
+ *   POST {"action":"rider","op":…,"token":…}                → the rider page (role rider in Staff): jobs, location,
+ *                                                         picked up, delivered
+ *   POST {"action":"partner","op":…,"token":…}              → the restaurant page (role restaurant in Staff): the
+ *                                                         restaurant's dishes to prepare, preparing, ready
+ *
  * Accounts: one row per phone number in Users. The PIN itself is never stored: only a scrambled version
  * (HMAC-SHA256 with a random salt and a secret kept in the script's properties, not in the sheet). A sign-in
  * gives the browser a token signed with the same secret; it lasts 60 days, and stops working as soon as the
@@ -42,8 +53,8 @@
 const MENU_TABS = ['Settings', 'Clusters', 'Restaurants', 'Dishes', 'QuickPicks'];
 const ORDER_HEAD = ['order_id', 'created_at', 'status', 'status_at', 'customer_name', 'phone', 'address', 'upi_ref', 'paid_at',
   'restaurants', 'clusters', 'riders', 'items', 'item_total', 'gst', 'delivery', 'grand_total', 'site_total',
-  'total_check', 'device', 'notes', 'account'];
-const ITEM_HEAD = ['order_id', 'created_at', 'restaurant', 'dish_id', 'dish', 'qty', 'price', 'line_total'];
+  'total_check', 'device', 'notes', 'account', 'coupon', 'discount', 'rider', 'picked_up_at', 'delivered_at'];
+const ITEM_HEAD = ['order_id', 'created_at', 'restaurant', 'dish_id', 'dish', 'qty', 'price', 'line_total', 'ready_at'];
 const STATUSES = ['Awaiting payment', 'Payment to verify', 'Paid', 'Preparing', 'Out for delivery', 'Delivered',
   'Cancelled'];
 const CACHE_SECONDS = 60;   // the website sees sheet edits within about a minute
@@ -60,11 +71,22 @@ const PIN_TRIES = 5;          // wrong PINs in a row before an account is locked
 const LOCK_MINUTES = 15;
 const SESSION_DAYS = 60;      // how long a sign-in lasts on a device
 const MAX_ACCOUNT_ORDERS = 50;
+const STAFF_HEAD = ['phone', 'name', 'role', 'restaurant_id', 'active', 'last_lat', 'last_lng', 'last_seen_at', 'notes'];
+const STAFF_ROLES = ['admin', 'rider', 'restaurant'];
+const COUPON_HEAD = ['code', 'name', 'type', 'value', 'min_order', 'max_discount', 'starts_on', 'ends_on', 'max_uses',
+  'per_customer', 'active', 'show_at_checkout', 'created_at', 'created_by', 'notes'];
+const DEAL_TYPES = ['amount', 'percent', 'free_delivery'];   // ₹ off the food, % off the food, no delivery charge
+const OFFER_HEAD = ['offer_id', 'name', 'every_n', 'reward', 'value', 'max_discount', 'active', 'notes'];
+const DEFAULT_OFFER = ['nth-order', 'Every 5th order: free delivery', 5, 'free_delivery', '', '', true,
+  'The customer\'s 5th, 10th, 15th… paid order gets this. Change it on the admin page.'];
+const LOCATION_MINUTES = 15;  // a rider's position older than this is not shown to the customer
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O or 1/I, so codes are easy to read out
 const NEW_SETTINGS = [   // added by setup() when missing
   ['opens_at', '11:00 AM', 'When orders open each day (Indian time)'],
   ['closes_at', '8:30 PM', 'Last time to place an order'],
   ['orders_paused', false, 'Tick to stop new orders right away (rain, rush, exams). Untick to open again.'],
-  ['pause_message', '', 'Optional: shown to customers while paused, e.g. Back at 6 PM after the rain.']
+  ['pause_message', '', 'Optional: shown to customers while paused, e.g. Back at 6 PM after the rain.'],
+  ['site_banner', '', 'Optional: a one-line notice at the top of every page, e.g. Rain today: deliveries 20 min late.']
 ];
 const ALERT_SETTINGS = [
   ['alert_emails', '', 'Email addresses for alerts, separated by commas'],
@@ -93,6 +115,9 @@ function readMenu_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const menu = { updated_at: new Date().toISOString() };
   MENU_TABS.forEach(function (name) { menu[name] = rows_(ss.getSheetByName(name)); });
+  menu.offers = activeOffers_(ss).map(function (o) {   // shown to everyone (coupon codes never are)
+    return { name: o.name, every_n: o.every_n, type: o.type, value: o.value, max_discount: o.max_discount };
+  });
   return menu;
 }
 
@@ -145,6 +170,19 @@ function doPost(e) {
   if (action === 'track') return json_(track_(body));
   if (action === 'account_start') return json_(accountStart_(body));
   if (action === 'account') return json_(account_(body));
+  if (action === 'deals') return json_(dealsCheck_(body));
+  if (action === 'admin' || action === 'rider' || action === 'partner') {
+    const ops = { admin: ADMIN_OPS, rider: RIDER_OPS, partner: PARTNER_OPS }[action];
+    const op = ops[String(body.op || '')];
+    if (!op) return json_({ ok: false, error: 'Unknown action' });
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const who = staffFor_(ss, body.token, action === 'partner' ? 'restaurant' : action);
+    if (who.error) return json_({ ok: false, error: who.error });
+    if (!op.write) return json_(op.run(ss, body, who));
+    const staffLock = LockService.getScriptLock();
+    staffLock.waitLock(20000);
+    try { return json_(op.run(ss, body, who)); } finally { staffLock.releaseLock(); }
+  }
   if (ACCOUNT_WRITES[action]) {
     const accountLock = LockService.getScriptLock();
     accountLock.waitLock(20000);
@@ -195,13 +233,20 @@ function saveOrder_(o, isPayment, token) {
   });
   if (!lines.length) return { ok: false, error: 'No items' };
 
-  // Same maths as the website: GST on the item total, one rider (and one delivery charge) per cluster.
+  // Same maths as the website: one rider (and one delivery charge) per cluster; one offer per order (the automatic
+  // offer or the coupon, whichever saves more); a discount on the food comes off before GST.
   const itemTotal = lines.reduce(function (s, l) { return s + l.qty * l.price; }, 0);
-  const gst = Math.round(itemTotal * gstRate) / 100;
   const clusterIds = unique_(lines.map(function (l) { return l.cluster; }).filter(String));
   const riders = Math.max(1, clusterIds.length);
   const delivery = perRider * riders;
-  const grand = Math.round((itemTotal + gst + delivery) * 100) / 100;
+  const askedCoupon = String(o.coupon || '').trim().toUpperCase().slice(0, 20);
+  const deals = signedIn ? dealsFor_(ss, signedIn.phone, id, askedCoupon) : { offer: null, coupon: null, error: '' };
+  if (askedCoupon && deals.error) notes.push('Coupon ' + askedCoupon + ' not applied: ' + deals.error);
+  const best = bestDeal_([deals.offer, deals.coupon], itemTotal, delivery);
+  const taxable = Math.round((itemTotal - best.onItems) * 100) / 100;
+  const gst = Math.round(taxable * gstRate) / 100;
+  const discount = Math.round((best.onItems + best.onDelivery) * 100) / 100;
+  const grand = Math.round((taxable + gst + delivery - best.onDelivery) * 100) / 100;
   const siteTotal = num_(o.grand_total, NaN);
   const check = isNaN(siteTotal) ? '' : (Math.abs(siteTotal - grand) < 0.01 ? 'OK' : 'CHECK: site showed ' + siteTotal);
 
@@ -248,7 +293,12 @@ function saveOrder_(o, isPayment, token) {
     total_check: check,
     device: safe_(o.device),
     notes: safe_(notes.join('; ')),
-    account: linked ? "'" + linked : ''
+    account: linked ? "'" + linked : '',
+    coupon: best.rule ? safe_(best.rule.label) : '',
+    discount: discount || '',
+    rider: current('rider') ? "'" + String(current('rider')).replace(/^'/, '') : '',   // set by the admin page
+    picked_up_at: current('picked_up_at'),
+    delivered_at: current('delivered_at')
   };
   ORDER_HEAD.forEach(function (name) { row[col[name] - 1] = values[name]; });
   const rowAt = rowNum || orders.getLastRow() + 1;
@@ -262,7 +312,7 @@ function saveOrder_(o, isPayment, token) {
   const itemRows = lines.map(function (l) {
     const r = blankRow_(iwidth);
     const v = { order_id: id, created_at: createdAt, restaurant: l.restaurant, dish_id: l.dishId, dish: l.dish,
-      qty: l.qty, price: l.price, line_total: l.qty * l.price };
+      qty: l.qty, price: l.price, line_total: l.qty * l.price, ready_at: '' };
     ITEM_HEAD.forEach(function (name) { r[icol[name] - 1] = v[name]; });
     return r;
   });
@@ -278,7 +328,7 @@ function saveOrder_(o, isPayment, token) {
     });
   }
 
-  return { ok: true, order_id: id, status: nextStatus, grand_total: grand, total_check: check };
+  return { ok: true, order_id: id, status: nextStatus, grand_total: grand, discount: discount, total_check: check };
 }
 
 // ------------------------------------------------------------------ tracking (POST)
@@ -301,8 +351,21 @@ function track_(body) {
     created_at: iso(get('created_at')), paid_at: iso(get('paid_at')), status_at: iso(get('status_at')),
     restaurants: String(get('restaurants') || ''), riders: num_(get('riders'), 1),
     item_total: num_(get('item_total'), 0), gst: num_(get('gst'), 0), delivery: num_(get('delivery'), 0),
-    grand_total: num_(get('grand_total'), 0), items: items
+    discount: num_(get('discount'), 0), coupon: String(get('coupon') || ''),
+    grand_total: num_(get('grand_total'), 0), items: items,
+    rider: riderForCustomer_(ss, get('rider'), String(get('status') || ''))
   } };
+}
+
+// The rider's first name and last position, for the customer's map: only while the order is out for delivery and
+// the position is recent. Never the rider's phone number.
+function riderForCustomer_(ss, riderPhone, status) {
+  const phone = phone10_(riderPhone);
+  if (!phone || status !== 'Out for delivery') return null;
+  const staff = staffRow_(ss, phone, 'rider');
+  const loc = riderLocation_(phone);
+  return { name: staff ? String(staff.name || '').split(' ')[0] : 'Your rider',
+    lat: loc ? loc.lat : null, lng: loc ? loc.lng : null, at: loc ? loc.at : '' };
 }
 
 // The order with this ID, if the phone number matches it: { id, rowNum, get(column name) }, or null.
@@ -452,7 +515,8 @@ function signUp_(b) {
   if (existing) {
     existing.write({ pin_hash: "'" + hash, pin_salt: "'" + salt, failed_tries: 0, locked_until: '',
       updated_at: now, last_sign_in_at: now });
-    return { ok: true, token: makeToken_(phone, hash), user: publicUser_(findUser_(ss, phone)) };
+    return { ok: true, token: makeToken_(phone, hash), user: publicUser_(findUser_(ss, phone)),
+      roles: rolesFor_(ss, phone) };
   }
   const u = usersTab_(ss);
   const row = blankRow_(u.sheet.getLastColumn());
@@ -460,7 +524,8 @@ function signUp_(b) {
     pin_hash: "'" + hash, pin_salt: "'" + salt, failed_tries: 0, locked_until: '', notes: '' };
   USER_HEAD.forEach(function (h) { row[u.col[h] - 1] = values[h]; });
   u.sheet.getRange(u.sheet.getLastRow() + 1, 1, 1, row.length).setValues([row]);
-  return { ok: true, token: makeToken_(phone, hash), user: publicUser_(findUser_(ss, phone)) };
+  return { ok: true, token: makeToken_(phone, hash), user: publicUser_(findUser_(ss, phone)),
+    roles: rolesFor_(ss, phone) };
 }
 
 function signIn_(b) {
@@ -484,7 +549,7 @@ function signIn_(b) {
     return { ok: false, error: 'wrong_pin', tries_left: PIN_TRIES - tries };
   }
   user.write({ failed_tries: 0, locked_until: '', last_sign_in_at: new Date() });
-  return { ok: true, token: makeToken_(phone, stored), user: publicUser_(user) };
+  return { ok: true, token: makeToken_(phone, stored), user: publicUser_(user), roles: rolesFor_(ss, phone) };
 }
 
 // The signed-in account, and with `orders` its orders (newest first).
@@ -492,11 +557,12 @@ function account_(b) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const user = readToken_(ss, b.token);
   if (!user) return { ok: false, error: 'signed_out' };
-  const out = { ok: true, user: publicUser_(user) };
+  const out = { ok: true, user: publicUser_(user), roles: rolesFor_(ss, user.phone) };
   if (b.orders) {
     const found = accountOrders_(ss, user.phone);
     out.orders = found.orders;
     out.unclaimed = found.unclaimed;
+    out.progress = offerProgress_(ss, user.phone);
   }
   return out;
 }
@@ -546,8 +612,8 @@ function accountOrders_(ss, phone) {
   mine.forEach(function (r) { ids[String(r.order_id).trim()] = []; });
   rows_(ss.getSheetByName('OrderItems')).forEach(function (r) {
     const list = ids[String(r.order_id).trim()];
-    if (list) list.push({ dish: String(r.dish || ''), qty: num_(r.qty, 0), restaurant: String(r.restaurant || ''),
-      price: num_(r.price, 0), line_total: num_(r.line_total, 0) });
+    if (list) list.push({ dish_id: String(r.dish_id || ''), dish: String(r.dish || ''), qty: num_(r.qty, 0),
+      restaurant: String(r.restaurant || ''), price: num_(r.price, 0), line_total: num_(r.line_total, 0) });
   });
   const yes = function (v) { return v === true || /^(yes|true|y|1)$/i.test(String(v || '').trim()); };
   const reviews = {};
@@ -567,8 +633,8 @@ function accountOrders_(ss, phone) {
       return { order_id: id, status: String(r.status || '').trim(), created_at: iso(r.created_at),
         paid_at: iso(r.paid_at), status_at: iso(r.status_at), restaurants: String(r.restaurants || ''),
         riders: num_(r.riders, 1), item_total: num_(r.item_total, 0), gst: num_(r.gst, 0),
-        delivery: num_(r.delivery, 0), grand_total: num_(r.grand_total, 0), items: ids[id],
-        review: reviews[id] || null };
+        delivery: num_(r.delivery, 0), discount: num_(r.discount, 0), coupon: String(r.coupon || ''),
+        grand_total: num_(r.grand_total, 0), items: ids[id], review: reviews[id] || null };
     })
   };
 }
@@ -687,6 +753,622 @@ function sameText_(a, b) {
   return diff === 0;
 }
 
+// ------------------------------------------------------------------ offers and coupons
+// One offer per order: the automatic offer (every Nth paid order, from the Offers tab) or a coupon code (from the
+// Coupons tab), whichever saves more. A rule: { kind, label, name, type, value, max_discount, min_order }, where
+// type is amount (₹ off the food), percent (% off the food, up to max_discount) or free_delivery.
+
+// What the website asks while the customer is checking out: the offer this order would get, and the coupon's
+// rule or why it can't be used ('not_found', 'inactive', 'not_started', 'expired', 'used_up', 'used_by_you').
+function dealsCheck_(b) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const user = readToken_(ss, b.token);
+  if (!user) return { ok: false, error: 'signed_out' };
+  const code = String(b.coupon || '').trim().toUpperCase().slice(0, 20);
+  const orders = rows_(ss.getSheetByName('Orders'));
+  const deals = dealsFor_(ss, user.phone, '', code, orders);
+  return { ok: true, offer: deals.offer, coupon: deals.coupon, coupon_error: code ? deals.error : '',
+    progress: offerProgress_(ss, user.phone, orders), available: checkoutCoupons_(ss, user.phone, orders) };
+}
+
+// The coupons listed at checkout for this customer: switched on, "show at checkout" ticked, and usable by them
+// today. Their names stay private (customers see the code and the discount).
+function checkoutCoupons_(ss, phone, orders) {
+  const today = istDay_(new Date());
+  return rows_(ss.getSheetByName('Coupons')).map(couponFrom_)
+    .filter(function (c) {
+      return c.code && truthy_(c.show_at_checkout, false) && DEAL_TYPES.indexOf(c.type) >= 0 &&
+        !couponProblem_(c, orders, phone, '', today);
+    })
+    .slice(0, 12)
+    .map(function (c) {
+      return { kind: 'coupon', label: c.code, code: c.code, type: c.type, value: c.value,
+        max_discount: c.max_discount, min_order: c.min_order, ends_on: c.ends_on ? istDay_(c.ends_on) : '' };
+    });
+}
+
+// Why a coupon can't be used today, or '' when it can: 'inactive', 'not_started', 'expired', 'used_up', or (with
+// `phone`) 'used_by_you'. `skipId` leaves the order being saved out of the counts.
+function couponProblem_(c, orders, phone, skipId, today) {
+  if (!truthy_(c.active, false)) return 'inactive';
+  if (c.starts_on && istDay_(c.starts_on) > today) return 'not_started';
+  if (c.ends_on && istDay_(c.ends_on) < today) return 'expired';
+  const uses = orders.filter(function (r) {
+    return countsAsPaid_(r) && String(r.coupon || '').trim().toUpperCase() === c.code &&
+      String(r.order_id).trim() !== skipId;
+  });
+  const maxUses = num_(c.max_uses, 0);
+  if (maxUses > 0 && uses.length >= maxUses) return 'used_up';
+  const perCustomer = num_(c.per_customer, 0);
+  if (phone && perCustomer > 0 &&
+    uses.filter(function (r) { return phone10_(r.account) === phone; }).length >= perCustomer) return 'used_by_you';
+  return '';
+}
+
+// The automatic offer and the coupon for an account's order (`orderId` is left out of the counts, so sending the
+// same order again gives the same answer).
+function dealsFor_(ss, phone, orderId, code, orders) {
+  orders = orders || rows_(ss.getSheetByName('Orders'));
+  const out = { offer: null, coupon: null, error: '' };
+  const before = paidOrders_(orders, phone, orderId).length;
+  activeOffers_(ss).some(function (o) {
+    if ((before + 1) % o.every_n !== 0) return false;
+    out.offer = { kind: 'offer', label: o.name, name: o.name, type: o.type, value: o.value,
+      max_discount: o.max_discount, min_order: 0 };
+    return true;
+  });
+  if (!code) return out;
+  const c = findCoupon_(ss, code);
+  if (!c) { out.error = 'not_found'; return out; }
+  out.error = couponProblem_(c, orders, phone, orderId, istDay_(new Date()));
+  if (!out.error) {
+    out.coupon = { kind: 'coupon', label: c.code, code: c.code, name: c.name, type: c.type, value: c.value,
+      max_discount: c.max_discount, min_order: c.min_order };
+  }
+  return out;
+}
+
+// { rule, onItems, onDelivery }: the rule that saves the most on this order (the website does the same sums).
+function bestDeal_(rules, itemTotal, delivery) {
+  let best = { rule: null, onItems: 0, onDelivery: 0 };
+  rules.forEach(function (rule) {
+    const d = dealAmount_(rule, itemTotal, delivery);
+    if (d.onItems + d.onDelivery > best.onItems + best.onDelivery) best = { rule: rule, onItems: d.onItems, onDelivery: d.onDelivery };
+  });
+  return best;
+}
+
+function dealAmount_(rule, itemTotal, delivery) {
+  const none = { onItems: 0, onDelivery: 0 };
+  if (!rule || itemTotal <= 0 || itemTotal < num_(rule.min_order, 0)) return none;
+  const value = num_(rule.value, 0);
+  if (rule.type === 'free_delivery') return { onItems: 0, onDelivery: delivery };
+  if (rule.type === 'amount') return { onItems: Math.min(value, itemTotal), onDelivery: 0 };
+  if (rule.type === 'percent') {
+    let off = Math.round(itemTotal * Math.min(value, 100)) / 100;
+    const cap = num_(rule.max_discount, 0);
+    if (cap > 0) off = Math.min(off, cap);
+    return { onItems: off, onDelivery: 0 };
+  }
+  return none;
+}
+
+// How far the customer is towards the automatic offer: { name, every_n, done, next_gets_it, … } or null.
+function offerProgress_(ss, phone, orders) {
+  const offer = activeOffers_(ss)[0];
+  if (!offer) return null;
+  const count = paidOrders_(orders || rows_(ss.getSheetByName('Orders')), phone, '').length;
+  return { name: offer.name, every_n: offer.every_n, type: offer.type, value: offer.value,
+    max_discount: offer.max_discount, paid_orders: count, done: count % offer.every_n,
+    next_gets_it: (count + 1) % offer.every_n === 0 };
+}
+
+function activeOffers_(ss) {
+  return rows_(ss.getSheetByName('Offers'))
+    .filter(function (r) { return truthy_(r.active, false) && num_(r.every_n, 0) >= 2 && DEAL_TYPES.indexOf(String(r.reward).trim()) >= 0; })
+    .map(function (r) {
+      return { offer_id: String(r.offer_id || ''), name: String(r.name || '').replace(/^'/, ''), every_n: Math.floor(num_(r.every_n, 0)),
+        type: String(r.reward).trim(), value: num_(r.value, 0), max_discount: num_(r.max_discount, 0) };
+    });
+}
+
+// An account's orders that count: paid for (or further along), not cancelled.
+function paidOrders_(orders, phone, skipId) {
+  return orders.filter(function (r) {
+    return phone10_(r.account) === phone && countsAsPaid_(r) && String(r.order_id).trim() !== skipId;
+  });
+}
+
+function countsAsPaid_(r) {
+  const s = String(r.status || '').trim();
+  return s && s !== 'Awaiting payment' && s !== 'Cancelled';
+}
+
+function findCoupon_(ss, code) {
+  const want = String(code || '').trim().toUpperCase();
+  if (!want) return null;
+  return rows_(ss.getSheetByName('Coupons')).map(couponFrom_).filter(function (c) { return c.code === want; })[0] || null;
+}
+
+// A Coupons row, tidied (the code in capitals, numbers as numbers).
+function couponFrom_(r) {
+  return { code: String(r.code || '').trim().toUpperCase(), name: String(r.name || '').replace(/^'/, ''),
+    type: String(r.type || '').trim(), value: num_(r.value, 0), min_order: num_(r.min_order, 0),
+    max_discount: num_(r.max_discount, 0), starts_on: r.starts_on, ends_on: r.ends_on, max_uses: r.max_uses,
+    per_customer: r.per_customer, active: r.active, show_at_checkout: r.show_at_checkout };
+}
+
+// ------------------------------------------------------------------ staff (admin, riders, restaurants)
+// The Staff tab lists the phone numbers that may use the admin, rider and restaurant pages. They sign in with their
+// usual account (phone number and PIN); the role decides which page opens.
+function staffFor_(ss, token, role) {
+  const user = readToken_(ss, token);
+  if (!user) return { error: 'signed_out' };
+  const row = staffRow_(ss, user.phone, role);
+  if (!row) return { error: 'not_staff' };
+  return { phone: user.phone, name: String(row.name || user.get('name') || ''), restaurantId: String(row.restaurant_id || '').trim() };
+}
+
+function staffRow_(ss, phone, role) {
+  return rows_(ss.getSheetByName('Staff')).filter(function (r) {
+    return phone10_(r.phone) === phone && String(r.role || '').trim().toLowerCase() === role && truthy_(r.active, true);
+  })[0] || null;
+}
+
+// The pages this account may open: [{ role, restaurant_id, restaurant }].
+function rolesFor_(ss, phone) {
+  const rests = index_(rows_(ss.getSheetByName('Restaurants')), 'restaurant_id');
+  return rows_(ss.getSheetByName('Staff'))
+    .filter(function (r) { return phone10_(r.phone) === phone && truthy_(r.active, true) && STAFF_ROLES.indexOf(String(r.role || '').trim().toLowerCase()) >= 0; })
+    .map(function (r) {
+      const id = String(r.restaurant_id || '').trim();
+      return { role: String(r.role).trim().toLowerCase(), restaurant_id: id, restaurant: rests[id] ? String(rests[id].name) : '' };
+    });
+}
+
+function staffList_(ss, role) {
+  return rows_(ss.getSheetByName('Staff'))
+    .filter(function (r) { return String(r.role || '').trim().toLowerCase() === role && truthy_(r.active, true) && phone10_(r.phone); })
+    .map(function (r) {
+      const loc = riderLocation_(phone10_(r.phone));
+      return { phone: phone10_(r.phone), name: String(r.name || ''), seen_at: loc ? loc.at : String(r.last_seen_at || '') };
+    });
+}
+
+// The rider's last position: kept in the script's cache (fast, no sheet write every few seconds) and copied to
+// the Staff tab at most once a minute.
+function riderLocation_(phone) {
+  try {
+    const hit = CacheService.getScriptCache().get('loc:' + phone);
+    if (!hit) return null;
+    const loc = JSON.parse(hit);
+    return Date.now() - Date.parse(loc.at) <= LOCATION_MINUTES * 60000 ? loc : null;
+  } catch (err) { return null; }
+}
+
+// ---- orders as the staff pages see them
+function orderRows_(ss) {
+  const sheet = sheet_(ss, 'Orders', ORDER_HEAD);
+  return { sheet: sheet, col: columns_(sheet, ORDER_HEAD) };
+}
+
+// Updates cells of one order: { column: value }. Returns false when the order isn't there.
+function writeOrder_(ss, orderId, changes) {
+  const o = orderRows_(ss);
+  const rowNum = findRow_(o.sheet, o.col.order_id, String(orderId || '').trim().toUpperCase());
+  if (!rowNum) return false;
+  Object.keys(changes).forEach(function (name) {
+    if (o.col[name]) o.sheet.getRange(rowNum, o.col[name]).setValue(changes[name]);
+  });
+  return true;
+}
+
+function setStatus_(ss, orderId, status) {
+  const now = new Date();
+  const changes = { status: status, status_at: now };
+  if (status === 'Out for delivery') changes.picked_up_at = now;
+  if (status === 'Delivered') changes.delivered_at = now;
+  return writeOrder_(ss, orderId, changes);
+}
+
+// Orders with their dishes, for the staff pages. `keep(row)` picks the orders.
+function staffOrders_(ss, keep) {
+  const orders = rows_(ss.getSheetByName('Orders')).filter(keep);
+  const items = {};
+  orders.forEach(function (r) { items[String(r.order_id).trim()] = []; });
+  const dishes = index_(rows_(ss.getSheetByName('Dishes')), 'dish_id');
+  rows_(ss.getSheetByName('OrderItems')).forEach(function (r) {
+    const list = items[String(r.order_id).trim()];
+    if (!list) return;
+    const d = dishes[String(r.dish_id || '').trim()];
+    list.push({ dish_id: String(r.dish_id || ''), dish: String(r.dish || ''), qty: num_(r.qty, 0),
+      restaurant: String(r.restaurant || ''), restaurant_id: d ? String(d.restaurant_id) : '',
+      line_total: num_(r.line_total, 0), ready: Boolean(String(r.ready_at || '').trim()) });
+  });
+  const riders = {};
+  staffList_(ss, 'rider').forEach(function (r) { riders[r.phone] = r.name; });
+  const iso = function (v) { return v instanceof Date ? v.toISOString() : String(v || ''); };
+  return orders.map(function (r) {
+    const id = String(r.order_id).trim();
+    const rider = phone10_(r.rider);
+    return { order_id: id, status: String(r.status || '').trim(), created_at: iso(r.created_at), status_at: iso(r.status_at),
+      customer_name: String(r.customer_name || ''), phone: phone10_(r.phone), address: String(r.address || ''),
+      upi_ref: String(r.upi_ref || '').replace(/\D/g, ''), restaurants: String(r.restaurants || ''),
+      clusters: String(r.clusters || ''), grand_total: num_(r.grand_total, 0), discount: num_(r.discount, 0),
+      coupon: String(r.coupon || ''), total_check: String(r.total_check || ''), notes: String(r.notes || ''),
+      rider: rider, rider_name: rider ? (riders[rider] || 'Rider') : '', items: items[id] };
+  }).sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+}
+
+const ACTIVE_STATUSES = ['Payment to verify', 'Paid', 'Preparing', 'Out for delivery'];
+function isToday_(v) { return v && istDay_(v) === istDay_(new Date()); }
+
+// ------------------------------------------------------------------ admin page
+const ADMIN_OPS = {
+  // Orders still in progress, and everything from today
+  board: { run: function (ss) {
+    return { ok: true, orders: staffOrders_(ss, function (r) {
+      const s = String(r.status || '').trim();
+      return ACTIVE_STATUSES.indexOf(s) >= 0 || (s && s !== 'Awaiting payment' && isToday_(r.created_at));
+    }).slice(0, 200), riders: staffList_(ss, 'rider') };
+  } },
+  set_status: { write: true, run: function (ss, b) {
+    const status = String(b.status || '').trim();
+    if (STATUSES.indexOf(status) < 0) return { ok: false, error: 'bad_status' };
+    return setStatus_(ss, b.order_id, status) ? { ok: true } : { ok: false, error: 'not_found' };
+  } },
+  assign_rider: { write: true, run: function (ss, b) {
+    const phone = phone10_(b.rider);
+    if (b.rider && !staffRow_(ss, phone, 'rider')) return { ok: false, error: 'not_rider' };
+    return writeOrder_(ss, b.order_id, { rider: phone ? "'" + phone : '' }) ? { ok: true } : { ok: false, error: 'not_found' };
+  } },
+
+  // Reviews waiting for a decision first, then the latest
+  reviews: { run: function (ss) {
+    const iso = function (v) { return v instanceof Date ? v.toISOString() : String(v || ''); };
+    const list = rows_(ss.getSheetByName('Reviews')).map(function (r) {
+      return { order_id: String(r.order_id || ''), rating: Math.round(num_(r.rating, 0)),
+        tags: String(r.tags || '').split(',').map(function (t) { return t.trim(); }).filter(String),
+        comment: String(r.comment || '').replace(/^'/, ''), improve: String(r.improve || '').replace(/^'/, ''),
+        name: String(r.name || ''), show: truthy_(r.show_on_site, false), approved: String(r.approved || '').trim(),
+        created_at: iso(r.updated_at || r.created_at), restaurants: String(r.restaurants || '') };
+    }).sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+    const waiting = list.filter(function (r) { return r.show && !r.approved; });
+    return { ok: true, waiting: waiting, recent: list.filter(function (r) { return waiting.indexOf(r) < 0; }).slice(0, 40) };
+  } },
+  review_set: { write: true, run: function (ss, b) {
+    const sheet = ss.getSheetByName('Reviews');
+    if (!sheet) return { ok: false, error: 'not_found' };
+    const col = columns_(sheet, REVIEW_HEAD);
+    const rowNum = findRow_(sheet, col.order_id, String(b.order_id || '').trim().toUpperCase());
+    if (!rowNum) return { ok: false, error: 'not_found' };
+    sheet.getRange(rowNum, col.approved).setValue(b.approved === 'Yes' ? 'Yes' : 'No');
+    clearCaches_();
+    return { ok: true };
+  } },
+
+  // Menu switches: restaurants open today, dishes sold out, the pause switch and the banner
+  menu: { run: function (ss) {
+    const set = settings_(ss);
+    return { ok: true,
+      clusters: rows_(ss.getSheetByName('Clusters')).map(function (c) {
+        return { id: String(c.cluster_id), label: String(c.label || ''), area: String(c.area || ''), sort: num_(c.sort, 9999) };
+      }),
+      restaurants: rows_(ss.getSheetByName('Restaurants')).map(function (r) {
+        return { id: String(r.restaurant_id), name: String(r.name), active: truthy_(r.active, true),
+          initials: String(r.initials || ''), cluster_id: String(r.cluster_id || ''), veg_only: truthy_(r.veg_only, false),
+          sort: num_(r.sort, 9999) };
+      }),
+      dishes: rows_(ss.getSheetByName('Dishes')).map(function (d) {
+        return { id: String(d.dish_id), restaurant_id: String(d.restaurant_id), name: String(d.name),
+          category: String(d.category || ''), price: num_(d.price, 0), available: truthy_(d.available, true),
+          veg: truthy_(d.veg, true), sort: num_(d.sort, 9999) };
+      }),
+      paused: truthy_(set.orders_paused, false), pause_message: String(set.pause_message || ''),
+      banner: String(set.site_banner || '') };
+  } },
+  menu_set: { write: true, run: function (ss, b) {
+    const isDish = b.kind === 'dish';
+    const sheet = ss.getSheetByName(isDish ? 'Dishes' : 'Restaurants');
+    if (!sheet) return { ok: false, error: 'not_found' };
+    const col = headers_(sheet);
+    const key = isDish ? col.dish_id : col.restaurant_id;
+    const flag = isDish ? col.available : col.active;
+    const rowNum = key ? findRow_(sheet, key, String(b.id || '').trim()) : 0;
+    if (!rowNum || !flag) return { ok: false, error: 'not_found' };
+    sheet.getRange(rowNum, flag).setValue(b.on === true);
+    clearCaches_();
+    return { ok: true };
+  } },
+  shop_set: { write: true, run: function (ss, b) {
+    const sheet = sheet_(ss, 'Settings', ['key', 'value', 'note']);
+    addKeyRows_(sheet, NEW_SETTINGS);
+    const col = headers_(sheet);
+    const keys = sheet.getRange(1, col.key, sheet.getLastRow(), 1).getValues();
+    const put = function (key, value) {
+      keys.forEach(function (k, i) { if (String(k[0]).trim() === key) sheet.getRange(i + 1, col.value).setValue(value); });
+    };
+    if (typeof b.paused === 'boolean') put('orders_paused', b.paused);
+    if (b.pause_message !== undefined) put('pause_message', safe_(String(b.pause_message).slice(0, 160)));
+    if (b.banner !== undefined) put('site_banner', safe_(String(b.banner).slice(0, 140)));
+    clearCaches_();
+    return { ok: true };
+  } },
+
+  // Coupons (with how often each was used) and the automatic offers
+  coupons: { run: function (ss) {
+    const orders = rows_(ss.getSheetByName('Orders'));
+    const used = {};
+    orders.forEach(function (r) {
+      const code = String(r.coupon || '').trim().toUpperCase();
+      if (code && countsAsPaid_(r)) used[code] = (used[code] || 0) + 1;
+    });
+    const day = function (v) { return v ? istDay_(v) : ''; };
+    const today = istDay_(new Date());
+    const STATE = { inactive: 'off', not_started: 'scheduled', expired: 'expired', used_up: 'used_up' };
+    return { ok: true,
+      coupons: rows_(ss.getSheetByName('Coupons')).map(couponFrom_).filter(function (c) { return c.code; }).map(function (c) {
+        const problem = couponProblem_(c, orders, '', '', today);
+        return { code: c.code, name: c.name, type: c.type, value: c.value,
+          min_order: c.min_order, max_discount: c.max_discount, starts_on: day(c.starts_on),
+          ends_on: day(c.ends_on), max_uses: num_(c.max_uses, 0), per_customer: num_(c.per_customer, 0),
+          active: truthy_(c.active, false), show_at_checkout: truthy_(c.show_at_checkout, false),
+          state: problem ? (STATE[problem] || 'off') : 'live', used: used[c.code] || 0 };
+      }).reverse(),
+      offers: rows_(ss.getSheetByName('Offers')).map(function (o) {
+        return { offer_id: String(o.offer_id || ''), name: String(o.name || '').replace(/^'/, ''), every_n: num_(o.every_n, 0),
+          reward: String(o.reward || ''), value: num_(o.value, 0), max_discount: num_(o.max_discount, 0),
+          active: truthy_(o.active, false) };
+      }) };
+  } },
+  coupon_save: { write: true, run: function (ss, b, who) {
+    const c = b.coupon || {};
+    const name = String(c.name || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    const type = String(c.type || '').trim();
+    const value = num_(c.value, 0);
+    if (name.length < 2) return { ok: false, error: 'bad_name' };
+    if (DEAL_TYPES.indexOf(type) < 0) return { ok: false, error: 'bad_type' };
+    if (type !== 'free_delivery' && (value <= 0 || (type === 'percent' && value > 100))) return { ok: false, error: 'bad_value' };
+    const day = /^\d{4}-\d{2}-\d{2}$/;
+    if ((c.starts_on && !day.test(c.starts_on)) || (c.ends_on && !day.test(c.ends_on))) return { ok: false, error: 'bad_dates' };
+    if (c.starts_on && c.ends_on && c.ends_on < c.starts_on) return { ok: false, error: 'bad_dates' };
+    const sheet = sheet_(ss, 'Coupons', COUPON_HEAD);
+    const col = columns_(sheet, COUPON_HEAD);
+    ensureList_(sheet, col.type, DEAL_TYPES);
+    const was = String(c.was || '').trim().toUpperCase();
+    let code = String(c.code || '').trim().toUpperCase();
+    if (code && !/^[A-Z0-9]{4,16}$/.test(code)) return { ok: false, error: 'bad_code' };
+    const taken = function (x) { const r = findRow_(sheet, col.code, x); return r && x !== was; };
+    if (!code) { do { code = newCode_(); } while (taken(code)); }
+    else if (taken(code)) return { ok: false, error: 'code_taken' };
+    const rowNum = was ? findRow_(sheet, col.code, was) : 0;
+    const width = sheet.getLastColumn();
+    const row = rowNum ? sheet.getRange(rowNum, 1, 1, width).getValues()[0] : blankRow_(width);
+    const values = { code: code, name: safe_(name), type: type, value: type === 'free_delivery' ? '' : value,
+      min_order: num_(c.min_order, 0) || '', max_discount: type === 'percent' ? (num_(c.max_discount, 0) || '') : '',
+      starts_on: c.starts_on ? "'" + c.starts_on : '', ends_on: c.ends_on ? "'" + c.ends_on : '',
+      max_uses: Math.floor(num_(c.max_uses, 0)) || '', per_customer: Math.floor(num_(c.per_customer, 0)) || '',
+      active: c.active !== false, show_at_checkout: c.show_at_checkout === true,
+      created_at: rowNum ? row[col.created_at - 1] : new Date(),
+      created_by: rowNum ? row[col.created_by - 1] : "'" + who.phone, notes: rowNum ? row[col.notes - 1] : '' };
+    COUPON_HEAD.forEach(function (h) { row[col[h] - 1] = values[h]; });
+    sheet.getRange(rowNum || sheet.getLastRow() + 1, 1, 1, width).setValues([row]);
+    return { ok: true, code: code };
+  } },
+  coupon_active: { write: true, run: function (ss, b) {
+    const sheet = ss.getSheetByName('Coupons');
+    if (!sheet) return { ok: false, error: 'not_found' };
+    const col = columns_(sheet, COUPON_HEAD);
+    const rowNum = findRow_(sheet, col.code, String(b.code || '').trim().toUpperCase());
+    if (!rowNum) return { ok: false, error: 'not_found' };
+    sheet.getRange(rowNum, col.active).setValue(b.active === true);
+    return { ok: true };
+  } },
+  offer_save: { write: true, run: function (ss, b) {
+    const o = b.offer || {};
+    const everyN = Math.floor(num_(o.every_n, 0));
+    const reward = String(o.reward || '').trim();
+    const value = num_(o.value, 0);
+    const name = String(o.name || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    if (name.length < 2) return { ok: false, error: 'bad_name' };
+    if (everyN < 2 || everyN > 50) return { ok: false, error: 'bad_every' };
+    if (DEAL_TYPES.indexOf(reward) < 0) return { ok: false, error: 'bad_type' };
+    if (reward !== 'free_delivery' && (value <= 0 || (reward === 'percent' && value > 100))) return { ok: false, error: 'bad_value' };
+    const sheet = sheet_(ss, 'Offers', OFFER_HEAD);
+    const col = columns_(sheet, OFFER_HEAD);
+    const id = String(o.offer_id || 'nth-order').trim() || 'nth-order';
+    const rowNum = findRow_(sheet, col.offer_id, id);
+    const width = sheet.getLastColumn();
+    const row = rowNum ? sheet.getRange(rowNum, 1, 1, width).getValues()[0] : blankRow_(width);
+    const values = { offer_id: id, name: safe_(name), every_n: everyN, reward: reward,
+      value: reward === 'free_delivery' ? '' : value, max_discount: reward === 'percent' ? (num_(o.max_discount, 0) || '') : '',
+      active: o.active !== false, notes: rowNum ? row[col.notes - 1] : '' };
+    OFFER_HEAD.forEach(function (h) { row[col[h] - 1] = values[h]; });
+    sheet.getRange(rowNum || sheet.getLastRow() + 1, 1, 1, width).setValues([row]);
+    clearCaches_();
+    return { ok: true };
+  } },
+
+  // A customer by phone number: their account and orders; reset a forgotten PIN or unlock
+  customer: { run: function (ss, b) {
+    const phone = phone10_(b.phone);
+    if (!phone) return { ok: false, error: 'bad_phone' };
+    const user = findUser_(ss, phone);
+    const iso = function (v) { return v instanceof Date ? v.toISOString() : String(v || ''); };
+    const orders = staffOrders_(ss, function (r) {
+      return (phone10_(r.account) === phone || phone10_(r.phone) === phone) && String(r.status || '').trim();
+    }).slice(0, 30);
+    return { ok: true, phone: phone, orders: orders,
+      account: user ? { name: publicUser_(user).name, since: publicUser_(user).since, last_sign_in_at: iso(user.get('last_sign_in_at')),
+        has_pin: Boolean(String(user.get('pin_hash') || '')), locked_minutes: lockedMinutes_(user),
+        failed_tries: num_(user.get('failed_tries'), 0) } : null };
+  } },
+  customer_set: { write: true, run: function (ss, b) {
+    const user = findUser_(ss, phone10_(b.phone));
+    if (!user) return { ok: false, error: 'not_found' };
+    if (b.do === 'reset_pin') user.write({ pin_hash: '', pin_salt: '', failed_tries: 0, locked_until: '', updated_at: new Date() });
+    else if (b.do === 'unlock') user.write({ failed_tries: 0, locked_until: '' });
+    else return { ok: false, error: 'Unknown action' };
+    return { ok: true };
+  } },
+
+  // Today's (or the last 7 days') numbers
+  stats: { run: function (ss, b) {
+    const days = b.days === 7 ? 7 : 1;
+    const from = istDay_(new Date(Date.now() - (days - 1) * 86400000));
+    const all = rows_(ss.getSheetByName('Orders'));
+    const inRange = function (r) { return r.created_at && istDay_(r.created_at) >= from; };
+    const counted = all.filter(function (r) { return countsAsPaid_(r) && inRange(r); });
+    const who = function (r) { return phone10_(r.account) || phone10_(r.phone); };
+    const earlier = {};
+    all.forEach(function (r) { if (countsAsPaid_(r) && r.created_at && istDay_(r.created_at) < from && who(r)) earlier[who(r)] = true; });
+    const customers = unique_(counted.map(who).filter(String));
+    const revenue = counted.reduce(function (s, r) { return s + num_(r.grand_total, 0); }, 0);
+    const ids = {};
+    counted.forEach(function (r) { ids[String(r.order_id).trim()] = true; });
+    const dishes = {};
+    const food = {};
+    rows_(ss.getSheetByName('OrderItems')).forEach(function (r) {
+      if (!ids[String(r.order_id).trim()]) return;
+      const name = String(r.dish || '');
+      dishes[name] = dishes[name] || { dish: name, restaurant: String(r.restaurant || ''), qty: 0 };
+      dishes[name].qty += num_(r.qty, 0);
+      const rest = String(r.restaurant || '');
+      food[rest] = Math.round(((food[rest] || 0) + num_(r.line_total, 0)) * 100) / 100;
+    });
+    const round = function (n) { return Math.round(n * 100) / 100; };
+    return { ok: true, days: days, from: from,
+      orders: counted.length, revenue: round(revenue), average: counted.length ? round(revenue / counted.length) : 0,
+      discounts: round(counted.reduce(function (s, r) { return s + num_(r.discount, 0); }, 0)),
+      customers: customers.length, repeat: customers.filter(function (p) { return earlier[p]; }).length,
+      cancelled: all.filter(function (r) { return String(r.status).trim() === 'Cancelled' && inRange(r); }).length,
+      to_verify: all.filter(function (r) { return String(r.status).trim() === 'Payment to verify'; }).length,
+      top_dishes: Object.keys(dishes).map(function (k) { return dishes[k]; })
+        .sort(function (a, b) { return b.qty - a.qty; }).slice(0, 5),
+      food_by_restaurant: Object.keys(food).map(function (k) { return { restaurant: k, amount: food[k] }; })
+        .sort(function (a, b) { return b.amount - a.amount; }) };
+  } }
+};
+
+// ------------------------------------------------------------------ rider page
+const RIDER_OPS = {
+  // The rider's orders not delivered yet, and how many they delivered today
+  jobs: { run: function (ss, b, who) {
+    const mine = staffOrders_(ss, function (r) { return phone10_(r.rider) === who.phone && String(r.status || '').trim(); });
+    return { ok: true, name: who.name,
+      jobs: mine.filter(function (o) { return ['Paid', 'Preparing', 'Out for delivery'].indexOf(o.status) >= 0; }).reverse(),
+      delivered_today: mine.filter(function (o) { return o.status === 'Delivered' && isToday_(o.status_at); }).length };
+  } },
+  location: { run: function (ss, b, who) {
+    const lat = num_(b.lat, NaN);
+    const lng = num_(b.lng, NaN);
+    if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return { ok: false, error: 'bad_location' };
+    const at = new Date().toISOString();
+    const cache = CacheService.getScriptCache();
+    cache.put('loc:' + who.phone, JSON.stringify({ lat: lat, lng: lng, accuracy: num_(b.accuracy, 0), at: at }), LOCATION_MINUTES * 60);
+    if (!cache.get('locw:' + who.phone)) {   // the Staff tab gets it at most once a minute
+      cache.put('locw:' + who.phone, '1', 60);
+      const sheet = ss.getSheetByName('Staff');
+      const col = columns_(sheet, STAFF_HEAD);
+      const last = sheet.getLastRow();
+      const cells = last > 1 ? sheet.getRange(2, col.phone, last - 1, 1).getValues() : [];
+      for (let i = 0; i < cells.length; i++) {
+        if (phone10_(cells[i][0]) !== who.phone) continue;
+        sheet.getRange(i + 2, col.last_lat).setValue(lat);
+        sheet.getRange(i + 2, col.last_lng).setValue(lng);
+        sheet.getRange(i + 2, col.last_seen_at).setValue(new Date());
+      }
+    }
+    return { ok: true, at: at };
+  } },
+  picked_up: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Out for delivery'); } },
+  delivered: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Delivered'); } }
+};
+
+function riderMove_(ss, orderId, who, status) {
+  const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === String(orderId || '').trim().toUpperCase(); })[0];
+  if (!order || order.rider !== who.phone) return { ok: false, error: 'not_found' };
+  setStatus_(ss, order.order_id, status);
+  return { ok: true };
+}
+
+// ------------------------------------------------------------------ restaurant page
+const PARTNER_OPS = {
+  // Today's verified orders with this restaurant's dishes (no customer details: the rider handles those)
+  queue: { run: function (ss, b, who) {
+    const rest = index_(rows_(ss.getSheetByName('Restaurants')), 'restaurant_id')[who.restaurantId];
+    if (!rest) return { ok: false, error: 'no_restaurant' };
+    const name = String(rest.name);
+    const list = staffOrders_(ss, function (r) {
+      const s = String(r.status || '').trim();
+      return ['Paid', 'Preparing', 'Out for delivery'].indexOf(s) >= 0 || (s === 'Delivered' && isToday_(r.created_at));
+    }).map(function (o) {
+      const mine = o.items.filter(function (i) { return i.restaurant_id ? i.restaurant_id === who.restaurantId : i.restaurant === name; });
+      return mine.length ? { order_id: o.order_id, status: o.status, created_at: o.created_at, rider_name: o.rider_name,
+        items: mine.map(function (i) { return { dish: i.dish, qty: i.qty }; }),
+        ready: mine.every(function (i) { return i.ready; }), others: unique_(o.items.map(function (i) { return i.restaurant; }))
+          .filter(function (x) { return x !== name; }) } : null;
+    }).filter(Boolean).reverse();
+    return { ok: true, restaurant: name, orders: list };
+  } },
+  preparing: { write: true, run: function (ss, b, who) {
+    const order = partnerOrder_(ss, b.order_id, who);
+    if (!order) return { ok: false, error: 'not_found' };
+    if (order.status === 'Paid') setStatus_(ss, order.order_id, 'Preparing');
+    return { ok: true };
+  } },
+  ready: { write: true, run: function (ss, b, who) {
+    const order = partnerOrder_(ss, b.order_id, who);
+    if (!order) return { ok: false, error: 'not_found' };
+    if (order.status === 'Paid') setStatus_(ss, order.order_id, 'Preparing');
+    const items = ss.getSheetByName('OrderItems');
+    const col = columns_(items, ITEM_HEAD);
+    const last = items.getLastRow();
+    const cells = items.getRange(2, 1, last - 1, items.getLastColumn()).getValues();
+    const dishes = index_(rows_(ss.getSheetByName('Dishes')), 'dish_id');
+    const now = new Date();
+    cells.forEach(function (r, i) {
+      if (String(r[col.order_id - 1]).trim() !== order.order_id) return;
+      const d = dishes[String(r[col.dish_id - 1]).trim()];
+      if (d && String(d.restaurant_id) === who.restaurantId) items.getRange(i + 2, col.ready_at).setValue(now);
+    });
+    return { ok: true };
+  } }
+};
+
+function partnerOrder_(ss, orderId, who) {
+  const id = String(orderId || '').trim().toUpperCase();
+  const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === id; })[0];
+  if (!order || ['Paid', 'Preparing', 'Out for delivery'].indexOf(order.status) < 0) return null;
+  return order.items.some(function (i) { return i.restaurant_id === who.restaurantId; }) ? order : null;
+}
+
+// ---- small helpers for the sections above
+function truthy_(v, emptyMeans) {
+  if (v === true || v === false) return v;
+  const s = String(v === undefined || v === null ? '' : v).trim();
+  if (!s) return emptyMeans;
+  return /^(true|yes|y|1)$/i.test(s);
+}
+
+// "2026-10-14" for a date, an ISO text or a yyyy-mm-dd text, in Indian time
+function istDay_(v) {
+  if (typeof v === 'string' && /^'?\d{4}-\d{2}-\d{2}$/.test(v.trim())) return v.trim().replace(/^'/, '');
+  const d = v instanceof Date ? v : new Date(v);
+  if (isNaN(d.getTime())) return '';
+  return new Date(d.getTime() + 330 * 60000).toISOString().slice(0, 10);
+}
+
+function newCode_() {
+  let code = 'HG';
+  for (let i = 0; i < 6; i++) code += CODE_CHARS.charAt(Math.floor(Math.random() * CODE_CHARS.length));
+  return code;
+}
+
+function clearCaches_() {
+  try { CacheService.getScriptCache().removeAll(['menu', 'status', 'reviews']); } catch (err) { /* ignore */ }
+}
+
 // ------------------------------------------------------------------ alerts
 // Email (from your Google account) and/or a Telegram message for the team, as set in the Alerts tab.
 // Emails carry the full order; Telegram messages leave out the customer's name, phone and address.
@@ -760,9 +1442,10 @@ function alertSettings_(ss) {
 }
 
 // ------------------------------------------------------------------ setup (run once from the editor)
-// Asks for the permissions alerts need, adds new Settings rows, the Alerts, Reviews and Users tabs and the
-// status_at and account columns, makes the accounts' secret, and sends a test alert. Safe to run again: it only
-// adds what is missing.
+// Asks for the permissions alerts need, adds new Settings rows (hours, pause switch, banner), the Alerts, Reviews,
+// Users, Staff, Coupons and Offers tabs (Offers starts with "every 5th order: free delivery"), the new Orders and
+// OrderItems columns, makes the accounts' secret, and sends a test alert. Safe to run again: it only adds what is
+// missing.
 function setup() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   addKeyRows_(sheet_(ss, 'Settings', ['key', 'value', 'note']), NEW_SETTINGS);
@@ -782,8 +1465,18 @@ function setup() {
   const reviews = sheet_(ss, 'Reviews', REVIEW_HEAD);
   ensureList_(reviews, columns_(reviews, REVIEW_HEAD).approved, ['Yes', 'No']);
   usersTab_(ss);
+  const staff = sheet_(ss, 'Staff', STAFF_HEAD);
+  ensureList_(staff, columns_(staff, STAFF_HEAD).role, STAFF_ROLES);
+  const coupons = sheet_(ss, 'Coupons', COUPON_HEAD);
+  ensureList_(coupons, columns_(coupons, COUPON_HEAD).type, DEAL_TYPES);
+  const offers = sheet_(ss, 'Offers', OFFER_HEAD);
+  const ocol = columns_(offers, OFFER_HEAD);
+  ensureList_(offers, ocol.reward, DEAL_TYPES);
+  if (offers.getLastRow() < 2) offers.getRange(2, 1, 1, OFFER_HEAD.length).setValues([DEFAULT_OFFER]);
+  const items = sheet_(ss, 'OrderItems', ITEM_HEAD);
+  columns_(items, ITEM_HEAD);
   secret_();
-  CacheService.getScriptCache().removeAll(['menu', 'status', 'reviews']);
+  clearCaches_();
   const sent = sendAlert_(ss, { kind: 'test' });
   console.log(sent.length ? 'Test alert sent by ' + sent.join(' and ') + '.' : 'No alert sent: add an email address or Telegram details in the Alerts tab, then run setup again.');
 }

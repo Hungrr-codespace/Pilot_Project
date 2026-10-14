@@ -1,0 +1,255 @@
+.index {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-black);
+}
+
+.count {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+.count b {
+  font-weight: 600;
+  color: var(--color-nonveg);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+}
+
+.clusterLabel {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-yellow);
+  white-space: nowrap;
+}
+
+.clusterArea {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.rule {
+  flex: 1;
+  height: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.groupCount {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+/* One restaurant: choose it (logo, name, dishes line, arrow), and its "open today" switch */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 14px;
+  background: var(--color-white);
+  border: 1px solid var(--color-paper-border);
+  border-radius: 16px;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.chosen {
+  background: var(--color-yellow-soft);
+  border-color: var(--color-black);
+  box-shadow: inset 0 0 0 0.5px var(--color-black);
+}
+
+.choose {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  padding: 0 4px 0 7px;
+  background: none;
+  border: 0;
+  border-radius: 16px 0 0 16px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choose:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: -3px;
+}
+
+.choose > svg {
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+
+.chosen .choose > svg {
+  opacity: 1;
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
+  letter-spacing: 1px;
+}
+
+.closed .logo {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.nameText {
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--color-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closed .nameText {
+  color: var(--color-text-subtle);
+}
+
+.line {
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.warn {
+  font-weight: 600;
+  color: var(--color-nonveg);
+}
+
+.empty {
+  margin: 4px 0 0;
+  padding: 18px;
+  border: 1.5px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  font-size: 15px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 1023.98px) {
+  .index {
+    gap: 12px;
+  }
+
+  .heading {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+
+  .count {
+    font-size: 12px;
+  }
+
+  .groupHead {
+    gap: 8px;
+    height: 24px;
+  }
+
+  .clusterLabel {
+    height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .clusterArea {
+    font-size: 13px;
+  }
+
+  .groupCount {
+    font-size: 11px;
+  }
+
+  .row {
+    gap: 8px;
+    padding-right: 10px;
+    border-radius: 14px;
+  }
+
+  .choose {
+    gap: 10px;
+    height: 56px;
+    padding-left: 7px;
+    border-radius: 14px 0 0 14px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+    letter-spacing: 0;
+  }
+
+  .nameText {
+    font-size: 16px;
+  }
+
+  .line {
+    font-size: 12px;
+  }
+
+  .empty {
+    font-size: 14px;
+  }
+}

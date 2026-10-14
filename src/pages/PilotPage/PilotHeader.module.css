@@ -59,6 +59,19 @@
   font-weight: 500;
 }
 
+.offerPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px 0 14px;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-white);
+}
+
 .title {
   margin: 0;
   font-size: 80px;
@@ -111,7 +124,8 @@
     gap: 8px;
   }
 
-  .pill {
+  .pill,
+  .offerPill {
     gap: 6px;
     height: 34px;
     padding: 0 14px 0 10px;

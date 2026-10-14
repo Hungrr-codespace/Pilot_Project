@@ -9,6 +9,7 @@ import { whatsappLink } from '@/lib/whatsapp';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { ExternalLink } from '@/components/ui/ExternalLink/ExternalLink';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
+import { RiderOnMap } from '@/features/tracking/RiderOnMap';
 import styles from './TrackResult.module.css';
 
 const toDate = (value) => {
@@ -188,6 +189,8 @@ function OrderStatus({ order, checkedAt, refresh }) {
           })}
         </ol>
       )}
+
+      {order.status === 'Out for delivery' && order.rider && <RiderOnMap rider={order.rider} />}
 
       <div className={styles.summary}>
         <span className={styles.summaryLabel}>Your order</span>

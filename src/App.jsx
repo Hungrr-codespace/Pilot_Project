@@ -7,6 +7,8 @@ import { MenuProvider } from '@/context/MenuProvider';
 import { OrderProvider } from '@/context/OrderProvider';
 import { ShopStatusProvider } from '@/context/ShopStatusProvider';
 import { ScrollManager } from '@/components/layout/ScrollManager/ScrollManager';
+import { SiteBanner } from '@/components/layout/SiteBanner/SiteBanner';
+import { InstallPrompt } from '@/features/install/InstallPrompt';
 import { HomePage } from '@/pages/HomePage';
 
 // The pilot page (menu, cart, payment) and the policy pages load only when someone opens them.
@@ -17,6 +19,11 @@ const FeedbackPage = lazy(() =>
 );
 const AccountPage = lazy(() =>
   import('@/pages/AccountPage/AccountPage').then((m) => ({ default: m.AccountPage })),
+);
+const AdminPage = lazy(() => import('@/pages/AdminPage/AdminPage').then((m) => ({ default: m.AdminPage })));
+const RiderPage = lazy(() => import('@/pages/RiderPage/RiderPage').then((m) => ({ default: m.RiderPage })));
+const PartnerPage = lazy(() =>
+  import('@/pages/PartnerPage/PartnerPage').then((m) => ({ default: m.PartnerPage })),
 );
 const LegalPage = lazy(() => import('@/pages/LegalPage/LegalPage').then((m) => ({ default: m.LegalPage })));
 
@@ -31,6 +38,7 @@ export default function App() {
           <ShopStatusProvider>
             <AccountProvider>
               <OrderProvider>
+                <SiteBanner />
                 <Suspense fallback={null}>
                   <Routes>
                     <Route path={ROUTES.home} element={<HomePage />} />
@@ -38,12 +46,16 @@ export default function App() {
                     <Route path={ROUTES.track} element={<TrackPage />} />
                     <Route path={ROUTES.feedback} element={<FeedbackPage />} />
                     <Route path={ROUTES.account} element={<AccountPage />} />
+                    <Route path={ROUTES.admin} element={<AdminPage />} />
+                    <Route path={ROUTES.rider} element={<RiderPage />} />
+                    <Route path={ROUTES.partner} element={<PartnerPage />} />
                     <Route path={ROUTES.privacy} element={<LegalPage docId="privacy" />} />
                     <Route path={ROUTES.terms} element={<LegalPage docId="terms" />} />
                     <Route path={ROUTES.refunds} element={<LegalPage docId="refunds" />} />
                     <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
                   </Routes>
                 </Suspense>
+                <InstallPrompt />
               </OrderProvider>
             </AccountProvider>
           </ShopStatusProvider>

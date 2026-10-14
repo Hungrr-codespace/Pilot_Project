@@ -28,7 +28,7 @@ export function AccountProvider({ children }) {
     let live = true;
     fetchAccount(saved.token).then((res) => {
       if (!live) return;
-      if (res.ok && res.user) remember({ token: saved.token, user: res.user });
+      if (res.ok && res.user) remember({ token: saved.token, user: { ...res.user, roles: res.roles || [] } });
       else if (res.error === 'signed_out') remember(null);
     });
     return () => {

@@ -1,0 +1,234 @@
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--color-black);
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sectionCount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-yellow);
+}
+
+.sectionNew .sectionCount {
+  background: var(--color-nonveg);
+  color: var(--color-white);
+}
+
+.sectionHint {
+  font-size: 15px;
+  color: var(--color-text-subtle);
+}
+
+.none {
+  font-size: 15px;
+  color: var(--color-text-faint);
+}
+
+.tickets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* A kitchen order ticket (KOT): big order number, big quantities */
+.ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 18px 18px;
+  background: var(--color-white);
+  border-radius: 4px 4px 14px 14px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
+}
+
+.ticket::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 8px;
+  border-top: 2px dotted #cfcfcf;
+}
+
+.ticketGone {
+  opacity: 0.6;
+}
+
+.ticketHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.short {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+  text-align: right;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 0 0;
+  list-style: none;
+  border-top: 1.5px dashed var(--color-dashed);
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.qty {
+  min-width: 32px;
+  font-family: var(--font-hand);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.dish {
+  font-family: var(--font-hand);
+  font-size: 21px;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.others,
+.rider {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  background: var(--color-black);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.ready {
+  background: var(--color-yellow);
+  border: 1.5px solid var(--color-black);
+  color: var(--color-black);
+}
+
+.stamp,
+.gone {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border: 2.5px solid var(--color-green);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-green);
+  transform: rotate(-5deg);
+}
+
+.gone {
+  border-color: var(--color-text-subtle);
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 1023.98px) {
+  .tools {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .sections {
+    gap: 22px;
+  }
+
+  .sectionHead {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+
+  .sectionTitle {
+    font-size: 19px;
+  }
+
+  .sectionHint {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+
+  .tickets {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .short {
+    font-size: 26px;
+  }
+
+  .qty {
+    font-size: 24px;
+  }
+
+  .dish {
+    font-size: 19px;
+  }
+}

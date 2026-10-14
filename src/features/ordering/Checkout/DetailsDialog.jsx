@@ -7,6 +7,7 @@ import { formatRupees } from '@/lib/format';
 import { Dialog, DialogActions } from '@/components/ui/Dialog/Dialog';
 import { TextField } from '@/components/ui/TextField/TextField';
 import { BackButton, PrimaryButton } from '../OrderNotepad/NoteButtons';
+import { DealBox } from './DealBox';
 import styles from './Checkout.module.css';
 
 // Step 3, after "Confirm order": who is ordering and where to deliver. The QR shows once these are filled in.
@@ -102,6 +103,7 @@ export function DetailsDialog() {
           maxLength={200}
           {...field('address')}
         />
+        {user && <DealBox />}
         <DialogActions>
           <BackButton onClick={actions.closeDialog} />
           <PrimaryButton type="submit" icon="arrowRight">

@@ -24,6 +24,7 @@ export const initialOrderState = {
   customer: EMPTY_CUSTOMER, // { name, phone, address } for delivery
   orderId: '',
   sentOrder: null, // { timestamp, photoUrl, fileName, upiRef } once the payment is confirmed
+  reorderNote: null, // { orderId, added, missing: [dish names] } after "Order again" in the khata
 };
 
 export function orderReducer(state, action) {
@@ -80,6 +81,21 @@ export function orderReducer(state, action) {
       else cart[action.dishId] = action.quantity;
       return { ...state, cart };
     }
+
+    // "Order again": a fresh order with the dishes of an earlier one, the notepad open on it
+    case 'cart/reorder':
+      return {
+        ...initialOrderState,
+        customer: state.customer,
+        restaurantId: state.restaurantId,
+        categoryByRestaurant: state.categoryByRestaurant,
+        tableTurns: state.tableTurns,
+        cart: action.cart,
+        notepad: { ...initialOrderState.notepad, isOpen: Object.keys(action.cart).length > 0 },
+        reorderNote: action.note,
+      };
+    case 'reorder/dismiss':
+      return { ...state, reorderNote: null };
 
     case 'notepad/open':
       return { ...state, notepad: { ...initialOrderState.notepad, isOpen: true } };

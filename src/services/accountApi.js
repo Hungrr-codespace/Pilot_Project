@@ -19,5 +19,10 @@ export const fetchAccount = (token, { orders = false } = {}) =>
 // → { ok, user } or error 'bad_name' | 'signed_out'
 export const updateName = (token, name) => callSheet({ action: 'update_name', token, name });
 
+// The offer this order would get and the coupon's rule (see lib/deals.js):
+// → { ok, offer, coupon, coupon_error, progress } or error 'signed_out'
+export const checkDeals = (token, coupon = '') =>
+  callSheet({ action: 'deals', token, coupon }, { timeoutMs: 9000 });
+
 // → { ok, order_id, already? } or error 'not_found' | 'not_paid' | 'signed_out'
 export const claimOrder = (token, orderId) => callSheet({ action: 'claim_order', token, order_id: orderId });

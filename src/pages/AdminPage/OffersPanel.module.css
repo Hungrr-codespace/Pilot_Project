@@ -1,0 +1,492 @@
+.layout {
+  display: grid;
+  grid-template-columns: 440px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* The automatic offer, on black */
+.offer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 26px 24px;
+  background: var(--color-black);
+  border-radius: 24px;
+  color: var(--color-white);
+}
+
+.offerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.offerText {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+}
+
+.inlineNumber {
+  width: 64px;
+  height: 42px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  background: var(--color-yellow);
+  border: 0;
+  border-radius: 10px;
+  font-family: var(--font-hand);
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-black);
+}
+
+.darkLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-on-dark);
+}
+
+.saved {
+  font-size: 14px;
+  color: var(--color-yellow);
+}
+
+/* The coupon form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 26px 24px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 24px;
+}
+
+.codeRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.code::placeholder {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.make {
+  height: 46px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.done {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 4px;
+  background: var(--color-light-gray);
+  border-radius: 14px;
+}
+
+.segment {
+  height: 40px;
+  padding: 0 6px;
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+.segmentOn {
+  background: var(--color-black);
+  color: var(--color-yellow);
+}
+
+.segmentedDark {
+  background: #2a2a2a;
+}
+
+.segmentedDark .segment {
+  color: var(--color-white);
+}
+
+.segmentedDark .segmentOn {
+  background: var(--color-yellow);
+  color: var(--color-black);
+}
+
+/* The coupon list: tear-off stubs */
+.listArea {
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stub {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) auto;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.stubOff {
+  opacity: 0.6;
+}
+
+.stubCode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--color-yellow);
+  border-right: 2px dashed var(--color-black);
+}
+
+.stubCodeText {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  word-break: break-all;
+}
+
+.copy {
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.stubBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 18px;
+  min-width: 0;
+}
+
+.stubName {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stubDeal {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.stubRules {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.stubUses {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.stubSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+}
+
+.stubTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+/* Listed at checkout / Code only / why it isn't active */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chipListed {
+  background: #e7f4e4;
+  color: var(--color-green);
+}
+
+.chipCode {
+  background: #efefef;
+  color: var(--color-text-muted);
+}
+
+.chipOff {
+  background: #fdecea;
+  color: var(--color-nonveg);
+}
+
+/* "Active now (2) ———" above each group of coupons */
+.groupHead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.list + .groupHead,
+.groupEmpty + .groupHead {
+  margin-top: 34px;
+}
+
+.groupTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.groupCount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-yellow);
+}
+
+.groupRule {
+  flex: 1;
+  height: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.groupNote {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.groupEmpty {
+  margin: 0;
+  padding: 18px;
+  border: 1.5px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  font-size: 15px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* The coupon form's two switches */
+.switches {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.switchHint {
+  padding-left: 58px;
+  margin-top: -4px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 1023.98px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .side {
+    gap: 18px;
+  }
+
+  .formTitle {
+    font-size: 20px;
+  }
+
+  .offer,
+  .form {
+    gap: 14px;
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+
+  .offerText {
+    font-size: 16px;
+  }
+
+  .codeRow {
+    flex-wrap: wrap;
+  }
+
+  .make {
+    height: 44px;
+  }
+
+  .segment {
+    font-size: 13.5px;
+  }
+
+  .stub {
+    grid-template-columns: 1fr auto;
+  }
+
+  .stubCode {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-right: 0;
+    border-bottom: 2px dashed var(--color-black);
+  }
+
+  .stubCodeText {
+    font-size: 16px;
+  }
+
+  .stubBody {
+    padding: 12px 14px;
+  }
+
+  .stubName {
+    font-size: 16px;
+  }
+
+  .stubDeal {
+    font-size: 14.5px;
+  }
+
+  .stubRules,
+  .stubUses {
+    font-size: 13px;
+  }
+
+  .stubSide {
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .chip {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+
+  .groupHead {
+    margin-bottom: 10px;
+  }
+
+  .list + .groupHead,
+  .groupEmpty + .groupHead {
+    margin-top: 26px;
+  }
+
+  .groupTitle {
+    font-size: 12px;
+  }
+
+  .groupCount {
+    height: 22px;
+    font-size: 12px;
+  }
+
+  .groupNote {
+    font-size: 12.5px;
+  }
+
+  .groupEmpty {
+    font-size: 14px;
+  }
+
+  .switchHint {
+    padding-left: 52px;
+    font-size: 12px;
+  }
+}

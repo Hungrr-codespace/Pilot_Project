@@ -33,6 +33,20 @@
   font-weight: 600;
 }
 
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  color: var(--color-white);
+}
+
 .body {
   font-size: 18px;
   line-height: 1.45;

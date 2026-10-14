@@ -3,10 +3,12 @@ import { trackOrder } from '@/services/sheetApi';
 import { isFinished } from '@/lib/tracking';
 
 const REFRESH_MS = 60 * 1000;
+const RIDING_REFRESH_MS = 20 * 1000; // while out for delivery: the rider's position moves
 const MIN_SPIN_MS = 700; // the Refresh button spins at least this long, so the check is always visible
 const NOTE_MS = 2500; // how long "Up to date" / "Try again" stays on the button
 
-// Looks up an order in the sheet and keeps it up to date while the page is on screen (every minute, until it is
+// Looks up an order in the sheet and keeps it up to date while the page is on screen (every minute, every 20
+// seconds while it is out for delivery so the rider moves on the map, until it is
 // delivered or cancelled).
 //   phase: 'idle' | 'loading' | 'found' | 'not_found' | 'unavailable'
 // A manual refresh also reports back: refreshing (true while checking), refreshNote ('done' | 'failed' | ''),
@@ -59,9 +61,12 @@ export function useOrderTracking() {
   const order = result.order;
   useEffect(() => {
     if (!query || !order || isFinished(order.status)) return undefined;
-    const timer = setInterval(() => {
-      if (document.visibilityState === 'visible') run(query, { quiet: true });
-    }, REFRESH_MS);
+    const timer = setInterval(
+      () => {
+        if (document.visibilityState === 'visible') run(query, { quiet: true });
+      },
+      order.status === 'Out for delivery' ? RIDING_REFRESH_MS : REFRESH_MS,
+    );
     return () => clearInterval(timer);
   }, [query, order, run]);
 

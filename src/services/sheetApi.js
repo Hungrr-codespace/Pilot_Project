@@ -196,6 +196,8 @@ export const submitPayment = (order, token) => post('payment', order, token);
 export function toSheetOrder({ orderId, summary, customer, upiRef, device }) {
   return {
     order_id: orderId,
+    // The coupon the customer applied (the sheet checks it again, and adds the automatic offer itself)
+    coupon: summary.deal?.kind === 'coupon' ? summary.deal.code : '',
     created_at: new Date().toISOString(),
     customer: { name: customer?.name || '', phone: customer?.phone || '', address: customer?.address || '' },
     upi_ref: upiRef || '',

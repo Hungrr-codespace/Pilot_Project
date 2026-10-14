@@ -1,19 +1,27 @@
 import { useState } from 'react';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { ROUTES } from '@/config/site';
 import { useAccount } from '@/context/account';
 import { useLayout } from '@/context/layout';
 import { NAME_LIMIT, initials, memberSince, tidyName } from '@/lib/account';
 import { formatIndianPhone } from '@/lib/checkout';
+import { progressText } from '@/lib/deals';
 import { updateName } from '@/services/accountApi';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import styles from './RegularCard.module.css';
 
+const TEAM_PAGES = {
+  admin: { to: ROUTES.admin, label: 'Back office', icon: 'notebook' },
+  rider: { to: ROUTES.rider, label: 'Deliveries', icon: 'moped' },
+  restaurant: { to: ROUTES.partner, label: 'Kitchen', icon: 'cloche' },
+};
+
 // The regular's card beside the khata: initials, name (the one thing that can be changed), phone number (the
-// khata's key, so it can't be), how long they have been a regular, and sign out.
-export function RegularCard() {
+// khata's key, so it can't be), a stamp card towards the automatic offer, how long they have been a regular, and
+// sign out.
+export function RegularCard({ progress }) {
   const { isMobile } = useLayout();
   const { user, token, setUser, signOut, forgetSignIn } = useAccount();
   const navigate = useNavigate();
@@ -45,7 +53,7 @@ export function RegularCard() {
     const res = await updateName(token, name);
     setSaving(false);
     if (res.ok) {
-      setUser(res.user);
+      setUser({ ...res.user, roles: user.roles || [] });
       setEditing(false);
       setSaved(true);
     } else if (res.error === 'signed_out') forgetSignIn();
@@ -124,6 +132,20 @@ export function RegularCard() {
         us.
       </p>
 
+      {progress && <StampCard progress={progress} />}
+
+      {user.roles?.length > 0 && (
+        <nav className={styles.team} aria-label="Team pages">
+          <span className={styles.teamTitle}>Your team pages</span>
+          {user.roles.map((r) => (
+            <Link key={r.role} to={TEAM_PAGES[r.role].to} className={`${styles.teamLink} btn-ghost`}>
+              <Icon name={TEAM_PAGES[r.role].icon} size={16} color="currentColor" />
+              {r.role === 'restaurant' && r.restaurant ? r.restaurant : TEAM_PAGES[r.role].label}
+            </Link>
+          ))}
+        </nav>
+      )}
+
       <div className={clsx(styles.foot, !since && styles.footEnd)}>
         {since && <span className={styles.since}>A regular since {since}</span>}
         <button type="button" onClick={leave} className={`${styles.signOut} btn-ghost`}>
@@ -132,5 +154,50 @@ export function RegularCard() {
         </button>
       </div>
     </aside>
+  );
+}
+
+// A restaurant's stamp card: one stamp per paid order, the last circle is the offer. (Long cards, over 10 orders,
+// show just the sentence.)
+function StampCard({ progress }) {
+  const { isMobile } = useLayout();
+  const { every_n: total, done } = progress;
+  return (
+    <div className={styles.stamps}>
+      <span className={styles.stampsTitle}>{progress.name}</span>
+      {total <= 10 && (
+        <div
+          className={styles.holes}
+          role="img"
+          aria-label={`${done} of ${total - 1} orders stamped`}
+          style={{ '--holes': total }}
+        >
+          {Array.from({ length: total }, (_, i) => {
+            const isReward = i === total - 1;
+            const isStamped = i < done;
+            return (
+              <span
+                key={i}
+                className={clsx(
+                  styles.hole,
+                  isStamped && styles.stamped,
+                  isReward && styles.reward,
+                  isReward && progress.next_gets_it && styles.rewardNext,
+                )}
+              >
+                {isReward ? (
+                  <Icon name="tag" size={isMobile ? 15 : 18} color="currentColor" />
+                ) : isStamped ? (
+                  <Icon name="check" size={isMobile ? 15 : 18} color="var(--color-black)" />
+                ) : (
+                  i + 1
+                )}
+              </span>
+            );
+          })}
+        </div>
+      )}
+      <span className={styles.stampsText}>{progressText(progress)}</span>
+    </div>
   );
 }

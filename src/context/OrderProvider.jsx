@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { billFileName, formatTimestamp } from '@/lib/format';
 import { loadSavedCustomer, saveCustomer } from '@/lib/checkout';
 import { isDishMatch } from '@/lib/search';
+import { allDishes } from '@/lib/menuData';
 import { newOrderId } from '@/lib/orderId';
 import { summarizeOrder } from '@/lib/pricing';
 import { drawOrderSummary } from '@/lib/orderImage';
 import { saveFile } from '@/lib/download';
 import { saveRecentOrder } from '@/lib/tracking';
 import { submitOrder, submitPayment, toSheetOrder } from '@/services/sheetApi';
+import { checkDeals } from '@/services/accountApi';
 import { useAccount } from './account';
 import { useLayout } from './layout';
 import { useMenu } from './menu';
@@ -16,6 +18,15 @@ import { initialOrderState, orderReducer } from './orderReducer';
 
 const COVER_OPEN_MS = 3350; // the cover's swing (3.2 s) plus a beat, then it drops behind the pages
 const NOTEPAD_LEAVE_MS = 800; // the notepad slides away after the payment is confirmed
+const NO_DEALS = {
+  offer: null,
+  coupon: null,
+  code: '',
+  error: '',
+  progress: null,
+  available: [], // coupons listed at checkout for this customer
+  checking: false,
+};
 
 // Holds the ordering state and the actions that change it. Components read it with useOrder().
 export function OrderProvider({ children }) {
@@ -28,6 +39,10 @@ export function OrderProvider({ children }) {
     customer: loadSavedCustomer(), // details from the last order on this device
   }));
 
+  // Offers and coupons for this order (signed in only): the automatic offer if this order gets it, and the coupon
+  // the customer applied. The summary applies whichever saves more.
+  const [deals, setDeals] = useState(NO_DEALS);
+
   const summary = useMemo(
     () =>
       summarizeOrder({
@@ -35,18 +50,44 @@ export function OrderProvider({ children }) {
         clusters: menu.clusters,
         cart: state.cart,
         settings: menu.settings,
+        deals: [deals.offer, deals.coupon],
       }),
-    [menu, state.cart],
+    [menu, state.cart, deals.offer, deals.coupon],
   );
+
+  // Ask the sheet which offer this order gets when the order note opens (and after signing in); forget it all
+  // when signed out.
+  const token = account.token;
+  const notepadOpen = state.notepad.isOpen;
+  useEffect(() => {
+    if (!token) {
+      setDeals(NO_DEALS);
+      return undefined;
+    }
+    if (!notepadOpen) return undefined;
+    let live = true;
+    checkDeals(token, '').then((res) => {
+      if (live && res.ok)
+        setDeals((d) => ({
+          ...d,
+          offer: res.offer || null,
+          progress: res.progress || null,
+          available: res.available || [],
+        }));
+    });
+    return () => {
+      live = false;
+    };
+  }, [token, notepadOpen]);
 
   // DOM elements the actions scroll to
   const tableRef = useRef(null);
   const bookRef = useRef(null);
 
   // Actions read the latest values through this ref, so they never go stale and can stay stable.
-  const latest = useRef({ state, summary, menu, isMobile, scale, account });
+  const latest = useRef({ state, summary, menu, isMobile, scale, account, deals });
   useLayoutEffect(() => {
-    latest.current = { state, summary, menu, isMobile, scale, account };
+    latest.current = { state, summary, menu, isMobile, scale, account, deals };
   });
 
   const timers = useRef({});
@@ -173,6 +214,55 @@ export function OrderProvider({ children }) {
       later('settle', NOTEPAD_LEAVE_MS, () => dispatch({ type: 'order/settled' }));
     };
 
+    // A coupon code typed at checkout: the sheet checks it (and says again which offer applies).
+    const applyCoupon = async (input) => {
+      const code = String(input || '')
+        .trim()
+        .toUpperCase();
+      const { account: acc } = latest.current;
+      if (!code) return;
+      setDeals((d) => ({ ...d, code, error: '', checking: true }));
+      const res = await checkDeals(acc.token, code);
+      if (!res.ok) {
+        setDeals((d) => ({ ...d, checking: false, coupon: null, error: res.error || 'unavailable' }));
+        return;
+      }
+      setDeals((d) => ({
+        ...d,
+        checking: false,
+        offer: res.offer || null,
+        progress: res.progress || d.progress,
+        available: res.available || d.available,
+        coupon: res.coupon || null,
+        error: res.coupon ? '' : res.coupon_error || 'not_found',
+      }));
+    };
+    const removeCoupon = () => setDeals((d) => ({ ...d, code: '', coupon: null, error: '' }));
+
+    // "Order again" from the khata: the same dishes in a fresh order (those no longer on the menu are left out).
+    const reorder = ({ orderId, items }) => {
+      const { menu: m } = latest.current;
+      const onMenu = {};
+      m.restaurants.forEach((r) =>
+        allDishes(r).forEach(({ dish }) => {
+          onMenu[dish.id] = dish;
+        }),
+      );
+      const cart = {};
+      const missing = [];
+      (items || []).forEach((item) => {
+        if (onMenu[item.dish_id]) cart[item.dish_id] = (cart[item.dish_id] || 0) + (Number(item.qty) || 1);
+        else missing.push(item.dish);
+      });
+      clearTimeout(timers.current.cover);
+      dispatch({
+        type: 'cart/reorder',
+        cart,
+        note: { orderId, added: Object.keys(cart).length, missing },
+      });
+      return { added: Object.keys(cart).length, missing };
+    };
+
     const downloadBillAgain = () => {
       const sent = latest.current.state.sentOrder;
       if (!sent) return;
@@ -206,14 +296,19 @@ export function OrderProvider({ children }) {
       downloadBillAgain,
       startNewOrder: () => {
         clearTimeout(timers.current.cover);
+        setDeals((d) => ({ ...NO_DEALS, offer: null, progress: d.progress }));
         dispatch({ type: 'order/new' });
       },
+      applyCoupon,
+      removeCoupon,
+      reorder,
+      dismissReorderNote: () => dispatch({ type: 'reorder/dismiss' }),
     };
   }, [later]);
 
   const value = useMemo(
-    () => ({ state, summary, actions, refs: { tableRef, bookRef } }),
-    [state, summary, actions],
+    () => ({ state, summary, deals, actions, refs: { tableRef, bookRef } }),
+    [state, summary, deals, actions],
   );
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;
 }

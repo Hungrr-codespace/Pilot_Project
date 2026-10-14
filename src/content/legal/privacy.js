@@ -11,7 +11,8 @@ export const PRIVACY_POLICY = {
     'We collect only what we need to deliver your order: your name, phone number, delivery address, your order and your UPI reference number.',
     'To order, you open an account (your khata) with your phone number and a 6-digit PIN. We never store the PIN as you typed it.',
     'We never see your UPI PIN or bank login, and this website uses no advertising or tracking cookies.',
-    'We do not sell your data. Restaurants see your order; our riders see what they need to deliver it.',
+    'We do not sell your data. Restaurants see the dishes you ordered, not your name, number or address; our riders see what they need to deliver it.',
+    'While your order is on its way, you can see your rider on a map. We never track your location.',
     'If you rate an order, your review appears on the website only if you agree, and you can ask us to remove it.',
     'You can ask us to show, correct or delete your data at any time.',
   ],
@@ -33,14 +34,14 @@ export const PRIVACY_POLICY = {
           list: [
             'Your account: your name and phone number, a scrambled form of your PIN (never the PIN itself), when you opened the account and last signed in, and how many wrong PINs were entered in a row.',
             'Your details: your name, phone number and delivery address.',
-            'Your order: the dishes and restaurants you chose, the amounts, your order ID and the time.',
+            'Your order: the dishes and restaurants you chose, the amounts, any coupon or offer and its discount, your order ID and the time.',
             "Your payment: the 12-digit UPI reference number you enter, and what our bank shows us when your payment arrives (the amount, the time and the payer's name or UPI ID).",
             'Your messages: anything you send us on WhatsApp or by email, including the bill you share.',
             'Your review, if you rate an order: your stars, the tags you pick, what you write, your suggestions for us, the name you choose to show and whether you agree to show it on the website.',
             'Your device type: whether you ordered on a phone or tablet, or on a computer.',
           ],
         },
-        'We do not collect your UPI PIN, bank or card details, or your location.',
+        'We do not collect your UPI PIN, bank or card details, or your location. (Our riders share their own location while they deliver: see "Riders and restaurant partners" below.)',
       ],
     },
     {
@@ -53,7 +54,8 @@ export const PRIVACY_POLICY = {
             'To take your order, send it to the restaurants and deliver it to you.',
             'To check your payment against your UPI reference number.',
             'To contact you about your order: a delay, a dish that is not available, the delivery or a refund.',
-            'To show you where your order is when you track it with your order ID and phone number.',
+            'To show you where your order is when you track it with your order ID and phone number, including your rider on a map while it is on its way.',
+            'To give you offers: we count the paid orders in your account (for example, for free delivery on every 5th order) and check the coupon codes you enter, including how many times you have used each one.',
             'To learn from your review what to improve, and to show it on our website if you agree.',
             'To handle cancellations, refunds, complaints and disputes.',
             'To keep the records that tax and accounting laws require.',
@@ -76,10 +78,11 @@ export const PRIVACY_POLICY = {
       blocks: [
         {
           list: [
-            'Restaurants in your order receive the dishes you ordered and your order ID.',
+            'Restaurants in your order receive the dishes you ordered from them and your order ID, and the name of the rider collecting it. They do not receive your name, phone number or address.',
             'Our delivery riders receive your name, phone number and delivery address, to bring you your order.',
             'If you agree to show your review, anyone who visits our website can see your stars, tags and words, the name you chose, the month, and the restaurants you ordered from. Your phone number, your order ID and your suggestions for us are never shown.',
             'Google stores our order records (in Google Sheets, through Google Apps Script). This website also loads its fonts from Google Fonts, so Google receives your IP address when you open it.',
+            'When you track an order that is on its way, the map is loaded from OpenStreetMap, which receives your IP address while the map is open.',
             `${BUSINESS.websiteHost} hosts this website and may keep standard server logs, such as your IP address and browser type.`,
             'WhatsApp (Meta) carries the messages you send us there.',
             'If our team uses Telegram for order alerts, those alerts carry your order ID, amount, UPI reference number and restaurants, but not your name, phone number or address. An alert about a low rating carries the order ID, the stars and the tags you picked.',
@@ -94,16 +97,33 @@ export const PRIVACY_POLICY = {
       id: 'on-your-device',
       title: 'What is saved on your device',
       blocks: [
-        "This website does not use cookies. It saves four things in your browser's storage:",
+        "This website does not use cookies. It saves these things in your browser's storage:",
         {
           list: [
-            'Your sign-in: a code that keeps you signed in on this device for up to 60 days, with your name and phone number. Signing out removes it.',
+            'Your sign-in: a code that keeps you signed in on this device for up to 60 days, with your name and phone number (and, for our team, which team pages they can open). Signing out removes it.',
             'Your name, phone number and address from your last order, so you do not have to type them again.',
             'The IDs, dates and totals of orders paid for on this phone, so you can track them.',
             'A copy of the menu, so it opens quickly.',
+            "Copies of the website's own files (its pages, scripts and styles, not your details), so it opens faster and can show a page without a connection. If you add Hungrr to your home screen, it is kept there like an app.",
+            'When you closed the "add to home screen" card, so it does not appear again for 14 days.',
           ],
         },
-        "The bill for your order is downloaded to your device. To remove the saved details, clear this website's data in your browser settings.",
+        "The bill for your order is downloaded to your device. To remove the saved details, clear this website's data in your browser settings (or remove Hungrr from your home screen).",
+      ],
+    },
+    {
+      id: 'team',
+      title: 'Riders and restaurant partners',
+      blocks: [
+        'This section is for the people who work with us. Our riders and restaurant partners sign in to their pages on this website with a Hungrr account, so the rest of this policy applies to them too. In addition:',
+        {
+          list: [
+            "Riders: while a rider switches on location sharing on the rider page, their phone's location is sent to us about every 20 seconds. It is shown, with the rider's first name, only to the customer whose order they are carrying while it is on its way, and to our team. We keep each position for about 15 minutes, and the latest one in our records until the next one replaces it. Sharing stops when the rider switches it off or closes the page.",
+            'Riders see the name, phone number and address of the customers whose orders they deliver, only to deliver them.',
+            'Restaurant partners see the orders that include their dishes, with only those dishes, the order ID and the rider collecting them.',
+            'We keep the name, phone number and role of each team member in our records, and when they marked an order picked up, delivered or ready.',
+          ],
+        },
       ],
     },
     {
