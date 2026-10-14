@@ -3,14 +3,14 @@
 // - Built scripts and styles (their names carry a fingerprint, so they never change): kept after first use.
 // - Everything else, including the Google Sheet, fonts and map tiles: straight to the network, never stored.
 // Change CACHE to clear old copies from every phone.
-const CACHE = 'hungrr-v1';
+const CACHE = 'hungrr-v2';
 const FINGERPRINTED = /\/assets\/.+-[A-Za-z0-9_-]{8}\.(js|css)$/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(['/', '/logo.svg', '/icons/icon-192.png']))
+      .then((cache) => cache.addAll(['/', '/favicon.svg', '/icons/icon-192.png']))
       .then(() => self.skipWaiting()),
   );
 });

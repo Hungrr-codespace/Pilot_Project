@@ -276,7 +276,7 @@ tracking and khata pages:
 
 The card doesn't come back for 14 days after ×, and never appears once installed.
 
-**Files:** `public/manifest.webmanifest`, `public/icons/` (from the favicon's moped), `public/sw.js` (service
+**Files:** `public/manifest.webmanifest`, `public/icons/`: wherever the app's logo shows (home-screen icon, the Order now shortcut, the install card, and the browser tab via `public/favicon.svg`) it is the Hungrr logo (`logo.svg`): `icon-192`/`icon-512` as drawn, with rounded corners; `maskable-512` and `apple-touch-icon` filled to the edges, because the phone rounds or crops those itself. The other two long-press shortcuts have their own icons on the same yellow square: Track my order the moped (`shortcut-track.svg`), My khata a ledger with a ₹ (`shortcut-khata.svg`), each with a 192 px PNG. The delivery designs on the website (roads, cluster maps, rider pins) keep the moped icon, `public/sw.js` (service
 worker), `index.html` (manifest and iPhone tags), `src/main.jsx` (registers the service worker, built site
 only), `features/install/InstallPrompt.jsx`.
 

@@ -71,9 +71,7 @@ export function InstallPrompt() {
 
   return (
     <aside className={styles.card} style={{ zoom: scale }} aria-label="Add Hungrr to your home screen">
-      <span className={styles.icon}>
-        <Icon name="moped" size={26} color="var(--color-black)" />
-      </span>
+      <img src="/icons/icon-192.png" alt="" width="48" height="48" className={styles.icon} />
       <span className={styles.text}>
         <strong className={styles.title}>Add Hungrr to your home screen</strong>
         {ios ? (

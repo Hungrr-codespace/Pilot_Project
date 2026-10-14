@@ -184,7 +184,8 @@ src/
 
 public/
 ├── manifest.webmanifest     The app's name, colours and icons for "add to home screen"
-├── icons/                   App icons (192, 512, maskable, Apple)
+├── icons/                   The app icon, from the Hungrr logo (logo.svg): 192, 512, maskable, Apple; and the
+│                            shortcut icons for Track my order (moped) and My khata (ledger)
 └── sw.js                    Service worker: pages from the network (last copy kept for offline), built files
                              kept after first use, nothing else stored
 google-sheet/                Code.gs (the Apps Script), SETUP.md, the starting sheet (.xlsx)
