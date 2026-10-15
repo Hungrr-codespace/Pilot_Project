@@ -353,3 +353,211 @@ div.khata {
     font-size: 34px;
   }
 }
+
+/* Who is signing in: three ledger entries to pick from */
+.roles {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1.5px dashed var(--color-paper-border);
+}
+
+.roleRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 6px;
+  background: none;
+  border: 0;
+  border-bottom: 1.5px dashed var(--color-paper-border);
+  font: inherit;
+  text-align: left;
+  color: var(--color-black);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.roleRow:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: -3px;
+  border-radius: 10px;
+}
+
+@media (hover: hover) {
+  .roleRow:hover {
+    background: linear-gradient(
+      180deg,
+      transparent 18%,
+      rgba(255, 222, 33, 0.45) 18%,
+      rgba(255, 222, 33, 0.45) 82%,
+      transparent 82%
+    );
+  }
+}
+
+.roleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: var(--color-yellow);
+  border: 2px solid var(--color-black);
+  border-radius: 50%;
+}
+
+.roleText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.roleTitle {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.roleLine {
+  font-family: var(--font-hand);
+  font-size: 19px;
+  color: var(--color-ink-soft);
+}
+
+/* "Rider   Change" above the phone number */
+.asRole {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* The GST number with its "not registered" tick */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lineInput:disabled {
+  cursor: not-allowed;
+}
+
+.line:has(.lineInput:disabled) {
+  border-bottom-style: dashed;
+  border-color: var(--color-paper-border);
+}
+
+.tick {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tickBox {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--color-black);
+  cursor: pointer;
+}
+
+.tickLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tickHint {
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-subtle);
+}
+
+/* Applied: a black-and-yellow stamp instead of the green one */
+.stampWaiting {
+  border-color: var(--color-black);
+  box-shadow:
+    inset 0 0 0 4px var(--color-paper),
+    inset 0 0 0 5.5px var(--color-black);
+  background: var(--color-yellow);
+  color: var(--color-black);
+}
+
+/* The team's note on a declined application */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--color-white);
+  border: 1px solid var(--color-paper-border);
+  border-left: 4px solid var(--color-nonveg);
+  border-radius: 10px;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--color-ink);
+}
+
+.noteLabel {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-nonveg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleRow {
+    transition: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .roleRow {
+    gap: 12px;
+    padding: 13px 4px;
+  }
+
+  .roleIcon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .roleTitle {
+    font-size: 17px;
+  }
+
+  .roleLine {
+    font-size: 16px;
+  }
+
+  .asRole {
+    font-size: 15px;
+  }
+
+  .tickLabel {
+    font-size: 14.5px;
+  }
+
+  .tickHint {
+    font-size: 12.5px;
+  }
+
+  .note {
+    font-size: 17px;
+  }
+}

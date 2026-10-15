@@ -20,11 +20,16 @@ The Hungrr website, built with React 18, React Router and Vite. It has these pag
 - **Feedback page (`/feedback`)**: customers rate a paid order with its order ID and phone number: stars,
   tags, a few words, a private suggestion for the team, and whether to show the review on the website (with a
   live preview of the card). The tracking page links here once an order is delivered.
+- **Sign in** (top right) first asks who is signing in: a customer, a restaurant partner or a rider. Restaurants
+  and riders apply with their details (address, GST/FSSAI numbers, or date of birth, vehicle and licence numbers) and can
+  use their page once the admin approves them.
 - **Team pages**, for phone numbers listed in the sheet's **Staff** tab (signed in with their Hungrr account):
-  - **Admin (`/admin`)**: the live order board, offers and coupons, review approvals, the menu (laid out like the
-    menu book, with a switch on every restaurant and dish) and the site notice, customer look-up (PIN reset), and
-    the day's numbers.
-  - **Rider (`/rider`)**: live location sharing and the rider's delivery slips (Picked up, Delivered).
+  - **Admin (`/admin`)**: the live order board, offers and coupons, review approvals, join requests from
+    restaurants and riders, the menu (laid out like the menu book, with a switch on every restaurant and dish,
+    and each restaurant's pickup address) and the site notice, customer look-up (PIN reset), and the day's numbers.
+  - **Rider (`/rider`)**: new orders to accept (pickup addresses with directions, the drop area), alerts (chime,
+    buzz, phone notification), live location sharing, and the rider's delivery slips (Picked up, Delivered, give
+    back). The admin can still assign any order to any rider.
   - **Restaurant (`/partner`)**: the kitchen's tickets for today's paid orders with its dishes (Start preparing,
     Ready for pickup).
 - **Policy pages**: Privacy Policy (`/privacy-policy`), Terms & Conditions (`/terms`) and Refund & Cancellation
@@ -121,9 +126,11 @@ src/
 │   │                        KhataLedger (the orders, Order again, the total paid, adding an earlier order),
 │   │                        useKhata (loads the orders and the offer progress)
 │   ├── AdminPage/           The admin page: AdminPage (tabs), OrdersBoard, OffersPanel, ReviewsQueue,
-│   │                        MenuSwitches (the menu book: MenuService, MenuIndex, MenuPage), CustomersPanel,
-│   │                        NumbersPanel; admin.module.css (shared styles)
-│   ├── RiderPage/           The rider page: delivery slips, useLocationSharing (GPS every 20 s, screen awake)
+│   │                        JoinRequests, MenuSwitches (the menu book: MenuService, MenuIndex, MenuPage,
+│   │                        MenuPickup = the pickup address),
+│   │                        CustomersPanel, NumbersPanel; admin.module.css (shared styles)
+│   ├── RiderPage/           The rider page: new orders and Accept, delivery slips, useOrderAlerts (chime,
+│   │                        buzz, notifications), useLocationSharing (GPS every 20 s, screen awake)
 │   ├── PartnerPage/         The restaurant (kitchen) page: tickets by New, Preparing, Ready, Picked up
 │   └── LegalPage/           The policy pages: LegalHeader (title, policy tabs, date), LegalContents
 │                            (contents list), LegalDocument (the text), LegalText (links and placeholders)
@@ -138,8 +145,10 @@ src/
 │   ├── Faq/                 FaqMenu (shared card), FaqBoard (desktop), FaqAccordion (mobile)
 │   └── Footer/              FooterRoad, Receipt (site map styled as a bill)
 ├── features/
-│   ├── account/             SignInDialog (phone → PIN, or name and a new PIN; locked; welcome stamp),
-│   │                        PinInput (six boxes), AccountButton (Sign in / the customer's name, top right)
+│   ├── account/             SignInDialog (who is signing in; phone → PIN, or name and a new PIN; locked;
+│   │                        a restaurant's or rider's application and where it stands; welcome stamp),
+│   │                        ApplyFields (their details), LineField, PinInput (six boxes), AccountButton
+│   │                        (Sign in / the customer's name, top right)
 │   ├── ordering/            Everything for ordering on the pilot page (see below)
 │   ├── reviews/             ReviewCard, StarRating (shows stars), StarInput (picks stars), TagPicker,
 │   │                        useReviews (loads the summary and reviews once per visit)
@@ -150,7 +159,7 @@ src/
 ├── components/              Reusable building blocks used in several places
 │   ├── ui/                  Icon, VegMark, Wordmark, SectionHeader, ExternalLink, Dialog, TextField,
 │   │                        ShopStatusPill (Open now / Closed / Orders paused), Spinner (loading ring),
-│   │                        Switch (on/off toggle of the team pages)
+│   │                        Switch (on/off toggle of the team pages), ResponsiveImage (WebP sizes + fallback)
 │   └── layout/              PageCanvas, Section, Navbar, PageNav and PageFooter (top bar and footer of the
 │                            pilot and policy pages), PageHeader (yellow header of the tracking and feedback
 │                            pages), SiteBanner (the notice at the top), ScrollManager (top of the page, or the
@@ -168,7 +177,9 @@ src/
 ├── lib/                     Pure functions, no React: pricing, search, menu data, checkout (details and UPI
 │                            reference checks), UPI link, WhatsApp message, QR code, bill image, file
 │                            download, formatting, policy text, opening hours, tracking, reviews, accounts,
-│                            deals (offer and coupon sums), staff (order board, codes, messages) (+ their tests)
+│                            deals (offer and coupon sums), staff (order board, codes, messages), partners
+│                            (GST, FSSAI, licence and vehicle number checks), rider (map links, alerts)
+│                            (+ their tests)
 ├── services/
 │   ├── sheetApi.js          Talks to the Google Sheet: load the menu, check the hours and pause switch, save
 │                            orders and payments, track an order, load and send reviews
@@ -179,11 +190,14 @@ src/
 ├── content/                 Page copy: about, ordering steps (howItWorks.js), benefits, FAQ, and the
 │                            policies in legal/ (business.js holds the business details they show)
 ├── data/menu-fallback.json  Built-in menu, used until the sheet answers or if it cannot be reached
-└── styles/                  tokens.css (colours, fonts, motion, section colours), global.css (base styles
-                             and the scroll animations), buttons.css (hover and press colours), motion.module.css
+└── styles/                  fonts.css (the site's own fonts), tokens.css (colours, fonts, motion, section
+                             colours), global.css (base styles and the scroll animations), buttons.css (hover
+                             and press colours), motion.module.css
 
 public/
 ├── manifest.webmanifest     The app's name, colours and icons for "add to home screen"
+├── assets/, dishes/         Pictures: the originals and their WebP copies (see Images, fonts and speed)
+├── fonts/                   Afacad, Kalam, Space Mono (woff2) and their licences
 ├── icons/                   The app icon, from the Hungrr logo (logo.svg): 192, 512, maskable, Apple; and the
 │                            shortcut icons for Track my order (moped) and My khata (ledger)
 └── sw.js                    Service worker: pages from the network (last copy kept for offline), built files
@@ -319,6 +333,9 @@ Out for delivery → Delivered.
   before answering. The website's copy of the roles only decides which links to show.
 - **Live tracking:** the rider page sends the phone's position every 20 seconds while sharing is on; the script
   keeps it for 15 minutes and shows it only to the customer of the order that rider is carrying.
+- **Riders accepting orders:** the rider page checks for open orders every 20 seconds; `accept` runs under the
+  script's lock, so the first rider gets it. Alerts work while the page is open; the optional riders' Telegram
+  group covers riders who aren't on the page (`rider_telegram_chat_id` in Alerts).
 - **Add to home screen:** `manifest.webmanifest` and `sw.js` (registered in the built site only). To make every
   installed phone drop old files, change `CACHE` in `sw.js`.
 
@@ -352,6 +369,26 @@ Details, files and problems for each: [docs/FEATURES.md](docs/FEATURES.md).
   not just the approved ones.
 - **Low ratings:** 1 or 2 stars send the team an alert, to call the customer back.
 - Setting up and approving: see [google-sheet/SETUP.md](google-sheet/SETUP.md#reviews).
+
+## Images, fonts and speed
+
+- **Pictures:** the main page's app screenshots are WebP in several widths (`public/assets/hero-*-360/520/680.webp`,
+  `hero-card-360/636.webp`); the browser downloads the smallest that is sharp on the screen, and the original PNG
+  is only for browsers without WebP (`components/ui/ResponsiveImage`, `IMAGES` in `src/config/site.js`). The
+  pilot page's table is `table-ebony.webp` (the JPEG is the fallback), and the six dish photos that come with the
+  site have WebP copies used automatically (`DISH_WEBP` in `lib/menuData.js`). Photos you add yourself are used
+  as they are: keep them around 240 × 240 and under 30 KB.
+- **Changing a hero picture:** replace the PNG, then make the WebP widths from it with the same names, e.g. on
+  squoosh.app (WebP, quality 80, resize to each width), and put them in `public/assets/`.
+- **Loaded first:** `index.html` asks for the main page's first screenshot (on `/`) and the table (on `/pilot`)
+  before the scripts load. The list there must match `IMAGES.appHome` (a test checks).
+- **Fonts:** Afacad, Kalam and Space Mono come with the site (`public/fonts`, `src/styles/fonts.css`, SIL Open
+  Font Licence), so nothing waits on Google Fonts. Browsers download only the weights and characters a page
+  uses; `index.html` preloads Afacad 500 and 600, the first screen's text.
+- **Sign-in code:** the sign-in dialog (with the restaurant and rider applications) is a separate download,
+  fetched at the visitor's first tap or scroll, or when it opens (`context/AccountProvider.jsx`).
+- **Checking:** Chrome DevTools → Lighthouse → Mobile → Performance, in an Incognito window (extensions slow it).
+  Scores move a few points between runs: run it two or three times.
 
 ## Build and deploy
 
@@ -402,3 +439,5 @@ company where you bought the domain. HTTPS is set up automatically.
   your way.
 - Your team in the sheet's **Staff** tab (admin, riders, restaurants with their `restaurant_id`), and the
   automatic offer and first coupons on the admin page.
+- Each restaurant's pickup address for riders (admin page → Menu & notice → the restaurant → Riders pick up
+  from), and optionally the riders' Telegram group (`rider_telegram_chat_id` and `website_url` in Alerts).

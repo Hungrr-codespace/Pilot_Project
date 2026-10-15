@@ -34,7 +34,7 @@ export function PageFooter({ helpText = 'Questions about your order?' }) {
           © {LAUNCH_YEAR} {BRAND.name}
         </span>
         <nav aria-label="More from Hungrr" className={styles.links}>
-          <Link to={ROUTES.home}>Home</Link>
+          <Link to={ROUTES.home}>Main site</Link>
           {LEGAL_LINKS.map((link) => (
             <NavLink key={link.id} to={link.to}>
               {link.label}

@@ -7,11 +7,13 @@ import { VegMark } from '@/components/ui/VegMark/VegMark';
 import { OrnamentHeading } from '@/features/ordering/components/OrnamentHeading';
 import { RestaurantLogo } from '@/features/ordering/components/RestaurantLogo';
 import { VegLegend } from '@/features/ordering/components/VegLegend';
+import { MenuPickup } from './MenuPickup';
 import styles from './MenuPage.module.css';
 
 // One restaurant's menu, printed as on the pilot page's menu book (categories, dotted price lines), with an
-// "in stock" switch where customers see ADD, and the restaurant's own "open today" switch at the top.
-export function MenuPage({ restaurant: r, cluster, searching, onFlip, isSaving, onBack }) {
+// "in stock" switch where customers see ADD, the restaurant's own "open today" switch at the top, and where
+// riders pick up from.
+export function MenuPage({ restaurant: r, cluster, searching, onFlip, isSaving, onSaveAddress, onBack }) {
   const inStock = r.dishCount - r.soldOut;
   return (
     <div className={styles.menu}>
@@ -68,6 +70,8 @@ export function MenuPage({ restaurant: r, cluster, searching, onFlip, isSaving, 
             : "Customers don't see it today"}
         </span>
       </div>
+
+      <MenuPickup key={r.id} restaurant={r} onSave={onSaveAddress} />
 
       <div className={clsx(styles.dishes, !r.active && styles.dimmed)}>
         {r.categories.map((category) => (

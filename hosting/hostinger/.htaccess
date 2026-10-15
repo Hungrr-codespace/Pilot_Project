@@ -11,8 +11,10 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
-# The app manifest ("Add to home screen")
+# The app manifest ("Add to home screen"), WebP pictures and the site's own fonts
 AddType application/manifest+json .webmanifest
+AddType image/webp .webp
+AddType font/woff2 .woff2
 
 # Caching: the built scripts and styles have a fingerprint in their names, so browsers can keep them for a
 # year. Images and fonts for a week. index.html is always checked, so visitors get a new version right away.

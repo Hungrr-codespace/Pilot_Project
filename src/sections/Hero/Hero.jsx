@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { CAMPUS_SHORT, IMAGES, ROUTES } from '@/config/site';
 import { useLayout } from '@/context/layout';
 import { Icon } from '@/components/ui/Icon/Icon';
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage/ResponsiveImage';
 import { Navbar } from '@/components/layout/Navbar/Navbar';
 import { Section } from '@/components/layout/Section/Section';
 import { PhoneMockup } from './PhoneMockup';
@@ -45,18 +46,19 @@ export function Hero() {
       </div>
 
       <PhoneMockup
-        src={IMAGES.appHome}
+        image={IMAGES.appHome}
         alt="Hungrr app home screen with offers, cuisines and restaurants"
         className={styles.phoneBack}
+        priority
       />
       <PhoneMockup
-        src={IMAGES.appCart}
+        image={IMAGES.appCart}
         alt="Hungrr multi-restaurant cart with Babai Tiffins and Al Daaz in one order"
         className={styles.phoneFront}
       />
       <span className={styles.comingSoon}>App coming soon</span>
-      <img
-        src={IMAGES.itemsAddedCard}
+      <ResponsiveImage
+        image={IMAGES.itemsAddedCard}
         alt="4 items added from Babai Tiffins and Al Daaz"
         className={styles.itemsCard}
       />

@@ -15,6 +15,7 @@ import styles from './MenuSwitches.module.css';
 //  - Right page: the chosen restaurant's menu, each dish with its "in stock" switch where ADD would be.
 // Phones show the service page, then the restaurants or one restaurant's menu. Each switch writes TRUE/FALSE into
 // the sheet (Settings, Restaurants.active, Dishes.available); customers see the change within about a minute.
+// Each restaurant's pickup address for riders is edited on its menu page (Restaurants.address, map_link).
 export function MenuSwitches({ call }) {
   const { isMobile } = useLayout();
   const menu = useStaffData(call, 'menu');
@@ -51,6 +52,12 @@ export function MenuSwitches({ call }) {
   };
   const isSaving = (kind, id) => `${kind}:${id}` in pending;
 
+  const saveAddress = async (id, address, mapLink) => {
+    const res = await call('restaurant_set', { id, address, map_link: mapLink });
+    if (res.ok) await menu.load({ quiet: true });
+    return res;
+  };
+
   const choose = (id) => {
     setChosenId(id);
     if (isMobile) {
@@ -80,6 +87,7 @@ export function MenuSwitches({ call }) {
       searching={query.trim() !== ''}
       onFlip={flip}
       isSaving={isSaving}
+      onSaveAddress={saveAddress}
       onBack={isMobile ? () => setPhoneView('index') : undefined}
     />
   ) : (

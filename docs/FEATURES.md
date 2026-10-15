@@ -16,11 +16,12 @@ Contents:
 2. [Admin page (Back office)](#2-admin-page-back-office)
 3. [Offers and coupons](#3-offers-and-coupons)
 4. [Order again](#4-order-again)
-5. [Rider page and live tracking](#5-rider-page-and-live-tracking)
+5. [Rider page: new orders, alerts, pickups and live tracking](#5-rider-page-new-orders-alerts-pickups-and-live-tracking)
 6. [Restaurant page (Kitchen)](#6-restaurant-page-kitchen)
 7. [Add to home screen](#7-add-to-home-screen)
 8. [Site notice](#8-site-notice)
 9. [Debugging toolkit](#9-debugging-toolkit)
+10. [Restaurants and riders sign up (Join requests)](#10-restaurants-and-riders-sign-up-join-requests)
 
 ---
 
@@ -28,6 +29,8 @@ Contents:
 
 **What:** the admin, rider and restaurant pages open only for phone numbers on the sheet's **Staff** tab. Staff
 sign in with their normal Hungrr account (phone number + 6-digit PIN), so they need an account first.
+Restaurants and riders usually get their Staff row by applying on the website and being approved on the admin
+page (section 10); admins are added by hand.
 
 **Sheet: Staff tab**
 
@@ -62,14 +65,15 @@ sign in with their normal Hungrr account (phone number + 6-digit PIN), so they n
 
 ## 2. Admin page (Back office)
 
-**What:** `/admin` (role `admin`). Six tabs; `/admin?tab=offers` opens one directly.
+**What:** `/admin` (role `admin`). Seven tabs; `/admin?tab=offers` opens one directly.
 
 | tab | what it does | script ops (`action: 'admin'`) | sheet |
 | --- | --- | --- | --- |
-| Orders | Orders in progress plus today's, as kitchen tickets in five columns (To verify, Paid, Preparing, On the way, Done today). One tap moves an order to its next status; pick a rider; "Update" opens WhatsApp with a status message for the customer; "Cancel". Refreshes every 20 s. | `board`, `set_status`, `assign_rider` | Orders (`status`, `status_at`, `rider`, `picked_up_at`, `delivered_at`), OrderItems (`ready_at`), Staff |
+| Orders | Orders in progress plus today's, as kitchen tickets in five columns (To verify, Paid, Preparing, On the way, Done today). One tap moves an order to its next status; pick a rider (or let riders accept it themselves: a rider's name appears on the ticket once they do); "Update" opens WhatsApp with a status message for the customer; "Cancel". Marking an order Paid also posts it to the riders' Telegram group, if there is one (section 5). Refreshes every 20 s. | `board`, `set_status`, `assign_rider` | Orders (`status`, `status_at`, `rider`, `picked_up_at`, `delivered_at`), OrderItems (`ready_at`), Staff |
 | Offers & coupons | The automatic offer (every Nth order) and coupons: make (with a generated code), edit, switch on/off, choose whether each is listed at checkout, see uses. The list is split into **Active now** (customers can apply them today) and **Not active** (switched off, not started, expired or used up). | `coupons`, `coupon_save`, `coupon_active`, `offer_save` | Coupons (incl. `show_at_checkout`), Offers, Orders (`coupon`) |
+| Join requests | Restaurants' and riders' applications from the website: their numbers with the website's checks, Copy, and a link to the official site; Approve (restaurants: a new restaurant or an existing one, and its cluster) or Decline with a note; Remove access later. See section 10. | `applications`, `application_decide` | Partners, Staff, Restaurants |
 | Reviews | Reviews customers agreed to share and nobody checked yet, with "Show on website" / "Don't show"; then earlier ones. | `reviews`, `review_set` | Reviews (`approved`) |
-| Menu & notice | Laid out like the pilot page's menu book. Left page: today's service (pause switch + message), the notice board (with a preview of the bar), and the restaurants by cluster, each with its "open today" switch and sold-out count. Right page: the chosen restaurant's menu by category, each dish with an "in stock" switch where customers see ADD. A search finds a restaurant or dish. Phones show the service page, then the restaurants or one menu. | `menu`, `menu_set`, `shop_set` | Settings (`orders_paused`, `pause_message`, `site_banner`), Clusters, Restaurants (`active`), Dishes (`available`) |
+| Menu & notice | Laid out like the pilot page's menu book. Left page: today's service (pause switch + message), the notice board (with a preview of the bar), and the restaurants by cluster, each with its "open today" switch and sold-out count. Right page: the chosen restaurant's menu by category, each dish with an "in stock" switch where customers see ADD. A search finds a restaurant or dish. Phones show the service page, then the restaurants or one menu. Each restaurant's page also has **Riders pick up from**: its address for riders and an optional Google Maps link, with Edit. | `menu`, `menu_set`, `shop_set`, `restaurant_set` | Settings (`orders_paused`, `pause_message`, `site_banner`), Clusters, Restaurants (`active`, `address`, `map_link`), Dishes (`available`) |
 | Customers | Look up a phone number: account (since, last sign-in, PIN set, locked) and orders. Reset PIN, unlock. | `customer`, `customer_set` | Users, Orders |
 | Numbers | Today or the last 7 days (Indian time): orders, money taken, average, discounts, customers (and how many came back), cancelled, payments to verify; top dishes; food value by restaurant. | `stats` | Orders, OrderItems |
 
@@ -77,9 +81,17 @@ sign in with their normal Hungrr account (phone number + 6-digit PIN), so they n
 Each change writes `status` and `status_at`. "Out for delivery" also writes `picked_up_at`, and "Delivered"
 writes `delivered_at`. Changing a status by hand in the sheet still works.
 
+**Who moves an order:**
+
+| who | can do |
+| --- | --- |
+| Admin (board or sheet) | any status, any rider, at any time (unchanged) |
+| Restaurant (`/partner`) | Paid → Preparing ("Start preparing"), and "Ready for pickup" for its own dishes. Nothing after that. |
+| Rider (`/rider`) | accept an open order or give it back before pickup; their own order: Paid/Preparing → Out for delivery ("Picked up"), Out for delivery → Delivered. Not backwards, not someone else's. |
+
 **Files:** `pages/AdminPage/` (`AdminPage.jsx` = tabs; one file per tab; `admin.module.css` = shared styles; the
 Menu & notice tab is `MenuSwitches.jsx` (the book and the switches' saving) with `MenuService.jsx`, `MenuIndex.jsx`
-and `MenuPage.jsx`), `lib/staff.js` (board columns, next step, WhatsApp messages, codes, dates, `menuBook` = the
+and `MenuPage.jsx`, plus `MenuPickup.jsx` for the pickup address), `lib/staff.js` (board columns, next step, WhatsApp messages, codes, dates, `menuBook` = the
 sheet's rows arranged like the menu, `couponState`). Script: `ADMIN_OPS` in `Code.gs`.
 
 **Problems:**
@@ -198,40 +210,92 @@ the old ID), or `available` is FALSE, or its restaurant is closed today.
 
 ---
 
-## 5. Rider page and live tracking
+## 5. Rider page: new orders, alerts, pickups and live tracking
 
-**What:**
-- `/rider` (role `rider`): a **Live location** switch, and the orders assigned to this rider as delivery slips.
-  Each slip shows what to pick up where, with "Ready" from the kitchens, who to deliver to (name, address,
-  "Call"), and **Picked up** → **Delivered**.
-- Customers whose order is **Out for delivery** see "Ravi is bringing your order" on the tracking page, with a
-  map once the rider shares their location. The map shows the rider's first name and position, never their
-  phone number.
+**What riders see** (`/rider`, role `rider`):
+- **On duty** (black card): **Live location** (customers see the rider on a map while their order is on the way)
+  and **New-order alerts**.
+- Two tabs. The page opens on **My orders** when the rider has some, otherwise on **New orders**; the counts
+  show on each tab, and the browser tab's title says "(2) Deliveries" while 2 orders are open.
+- **New orders:** every order whose payment the team has checked (Paid or Preparing) and that no rider has yet,
+  oldest first. Each card is a route: each restaurant to pick up from (name, address, **Directions**, how many
+  dishes or "Ready"), then the **drop area** ("Girls Hostel 2": the address up to its first comma) and the number
+  of dishes. The customer's name, phone and full address are not shown until the rider accepts. A chip says
+  how far the kitchens are: "Kitchen yet to start", "Being prepared", "1 of 2 ready", "Ready for pickup". An
+  order that came in while the page was open has a yellow ring and **New** for 5 minutes.
+- **Accept order:** first come, first served. The order moves to My orders with the customer's details. If
+  another rider was faster: "Another rider took this order just now", and the card goes.
+- **My orders:** delivery slips. Pick up (each restaurant with its address, Directions, dishes, Ready / Not ready
+  yet), Deliver to (name, address, Directions, "Paid online: nothing to collect", Call), and **Picked up** →
+  **Delivered**. Before pickup, "Can't take it? Give it back" returns it to New orders.
+- Orders the team assigns from the board appear in My orders as before, with an alert.
+
+**Alerts** (switch on the page, remembered on that phone):
+- A chime (three rising notes), a buzz on Android, and, while the page is in the background, a phone
+  notification ("New order to deliver · Pick up: Babai Tiffins · Drop: Girls Hostel 2"). Tapping it brings the
+  rider page forward on New orders (`public/sw.js → notificationclick`).
+- They come from the page's own checks (every 20 s; also in the background while alerts are on, though phones
+  may slow that to about once a minute). Nothing for the rider's own accept or give-back.
+- The first time it is switched on, the browser asks to allow notifications. Refused: chime only (the page says
+  so). iPhone: notifications only when Hungrr is added to the Home Screen and opened from there.
+- **A closed page can't alert anyone** (that needs an app or a push server). For that, the optional **riders'
+  Telegram group**: when the team marks an order Paid on the admin page and no rider is assigned, the script posts
+  "🛵 New order to deliver · #K7Q2 / Pick up: Babai Tiffins (address) / Drop: Girls Hostel 2 / Accept it:
+  https://…/rider" (no customer name, phone or room). Set `rider_telegram_chat_id` (and `website_url`) in Alerts;
+  it uses the same bot as the team's alerts. Statuses changed by hand in the sheet don't post (Google doesn't
+  allow a simple edit trigger to send messages).
+
+**Pickup addresses:** Restaurants tab → `address` (what riders read) and `map_link` (optional: a Google Maps
+link; without it, Directions searches for the address near the campus). The admin edits both on Menu & notice →
+the restaurant's page → Riders pick up from. A restaurant applying on the website gives its address, and an
+approved new restaurant starts with it. No address: riders see "Address not added yet: ask the team".
+
+**Live tracking:** customers whose order is **Out for delivery** see "Ravi is bringing your order" on the
+tracking page, with a map once the rider shares their location. The map shows the rider's first name and
+position, never their phone number.
 
 **How it works:**
-1. The admin assigns a rider on the order board (`assign_rider` writes the rider's phone into Orders `rider`).
-2. With sharing on, the phone's location (GPS, `watchPosition`) goes to the sheet every 20 s
-   (`POST { action: 'rider', op: 'location', lat, lng, accuracy }`). The script keeps it in its cache for
-   15 minutes (fast, no sheet write), and copies it to the Staff row at most once a minute.
-3. "Picked up" sets the status to Out for delivery (and `picked_up_at`); "Delivered" sets Delivered (and
-   `delivered_at`).
-4. The tracking page (`track`) returns `rider: { name, lat, lng, at }` while the order is Out for delivery
-   and the position is under 15 minutes old. It refreshes every 20 s while out for delivery (every 60 s
-   otherwise).
-5. The map is Leaflet with OpenStreetMap tiles (free, no key). It loads only when needed. The page is scaled
-   with CSS zoom, which Leaflet's dragging doesn't follow, so the map follows the rider and only + / − zoom.
+1. `POST { action: 'rider', op: 'jobs' }` returns `jobs` (this rider's orders not delivered yet, each with
+   `pickups`), `delivered_today`, and `available` (open orders without a rider: `order_id`, `status`,
+   `created_at`, `clusters`, `drop`, `dishes`, `pickups`). `pickups` = one stop per restaurant: `name`,
+   `address`, `map_link`, `ready`, `dishes` (`pickupsFor_`).
+2. `accept` writes the rider's phone into Orders `rider` if it is still empty and the order is Paid or Preparing
+   (`taken`, `not_open`, `not_found` otherwise; the script lock makes two taps at once safe). `release` empties
+   it again (only theirs, only before pickup). The admin's `assign_rider` still overrides either.
+3. `picked_up` (from Paid or Preparing) sets Out for delivery and `picked_up_at`; `delivered` (from Out for
+   delivery) sets Delivered and `delivered_at`. Anything else answers `wrong_step` (`riderMove_`).
+4. With sharing on, the phone's location (GPS, `watchPosition`) goes to the sheet every 20 s
+   (`op: 'location'`). The script keeps it in its cache for 15 minutes (no sheet write), and copies it to the
+   Staff row at most once a minute.
+5. The tracking page (`track`) returns `rider: { name, lat, lng, at }` while the order is Out for delivery
+   and the position is under 15 minutes old. The map is Leaflet with OpenStreetMap tiles (free, no key), loaded
+   only when needed; the page is scaled with CSS zoom, so the map follows the rider and only + / − zoom.
 
-**Limits (websites, not apps):** location is shared only while the rider page is open and the screen is on. The
-page asks the phone to keep the screen awake (Screen Wake Lock, in Chrome and recent Safari). Switching apps or
-locking the phone pauses sharing. OpenStreetMap's tile servers are for light use; at real scale, move to a tile
-provider.
+**Limits (websites, not apps):** alerts and location sharing work while the rider page is open. With sharing on,
+the page keeps the screen awake (Screen Wake Lock, in Chrome and recent Safari); switching apps or locking the
+phone pauses both. Use the Telegram group for riders who aren't on the page. OpenStreetMap's tile servers are
+for light use; at real scale, move to a tile provider.
 
-**Files:** `pages/RiderPage/RiderPage.jsx`, `pages/RiderPage/useLocationSharing.js`,
-`features/tracking/RiderOnMap.jsx`, `features/tracking/RiderMap.jsx` (Leaflet),
-`pages/TrackPage/TrackResult.jsx` and `useOrderTracking.js`. Script: `RIDER_OPS`, `riderLocation_`,
-`riderForCustomer_`.
+**Files:** `pages/RiderPage/RiderPage.jsx` (on duty, tabs, open orders, slips), `pages/RiderPage/useOrderAlerts.js`
+(chime, buzz, notifications, the remembered switch), `pages/RiderPage/useLocationSharing.js`, `lib/rider.js`
+(+ tests: map links, kitchen stage, what's new, alert text, messages), `public/sw.js` (notification tap),
+`pages/AdminPage/MenuPickup.jsx` (address editor), `features/tracking/RiderOnMap.jsx`,
+`features/tracking/RiderMap.jsx` (Leaflet), `pages/TrackPage/TrackResult.jsx` and `useOrderTracking.js`.
+Script: `RIDER_OPS` (`jobs`, `accept`, `release`, `location`, `picked_up`, `delivered`), `riderMove_`,
+`pickupsFor_`, `dropArea_`, `riderAlert_`, `ADMIN_OPS.restaurant_set`, `riderLocation_`, `riderForCustomer_`.
+Tests: `tools/sheet-mock/test-riders.cjs` (40 checks).
 
 **Problems:**
+- *No chime*: alerts are off, the phone is on silent, or (after reloading the page) the rider hasn't tapped the
+  page yet: browsers allow sound only after a tap.
+- *No notification*: notifications were refused (Chrome: the lock icon by the address → Notifications → Allow),
+  the page was closed, or it's an iPhone without the Home Screen app. The chime still works on the open page.
+- *"Address not added yet"*: fill the restaurant's address on Menu & notice (or `address` in Restaurants).
+- *Directions opens the wrong place*: add a `map_link` (Google Maps → the restaurant → Share → Copy link).
+- *A rider sees an order "taken"*: another rider accepted it a moment earlier, or the team assigned it.
+- *Nothing in the Telegram group*: `rider_telegram_chat_id` empty or wrong (a group id starts with `-`), the bot
+  isn't in that group, the order already had a rider, or the status was changed in the sheet, not on the admin
+  page. Apps Script → Executions shows "Rider alert failed" with the reason.
 - *"Location is blocked"*: the rider denied it once. In Chrome: the lock icon by the address → Permissions →
   Location → Allow, then switch sharing on again.
 - *Customer sees no map*: the order isn't Out for delivery yet, no rider is assigned, or the rider's last
@@ -250,7 +314,8 @@ dishes, as kitchen tickets with big order numbers (the last 4 characters) and qu
 - **Picked up today**
 
 **Start preparing** moves a Paid order to Preparing. **Ready for pickup** stamps `ready_at` on this restaurant's
-dishes in OrderItems. The admin board and the rider's slip then show "Ready" for that restaurant. Refreshes
+dishes in OrderItems. The admin board and the riders' cards then show "Ready" for that restaurant. That is as
+far as a restaurant goes: picked up and delivered are the rider's (section 5), and the admin can set anything. Refreshes
 every 20 s. "Sound on" plays a chime for new orders, and the tab title shows "(2)".
 
 **What restaurants see:** only orders the team has verified (status Paid or later), only their own dishes, and
@@ -285,6 +350,8 @@ only), `features/install/InstallPrompt.jsx`.
 - Built scripts and styles (whose names carry a fingerprint) are kept after first use.
 - Everything else (the Google Sheet, fonts, map tiles) is never stored.
 - To force every phone to drop old copies, change `CACHE` in `sw.js`.
+- Tapping a rider's new-order notification focuses the open rider page (without reloading it, so location
+  sharing carries on) and shows New orders, or opens `/rider?tab=new`.
 
 **Problems:**
 - *No install card on Android*: the site must be on HTTPS, with the manifest and service worker loading
@@ -313,7 +380,90 @@ admin page (Menu & notice) or in Settings → `site_banner`. Empty hides it. It 
 - **Script errors:** Apps Script → **Executions** (left bar) lists every run with its error. `console.log`
   lines in `Code.gs` appear there too.
 - **Test on your computer:** `tools/sheet-mock/` runs `Code.gs` in Node against a sheet that resets on restart,
-  with the test suites (`test-staff.cjs`, `test-accounts.cjs`, `test-reviews.cjs`). See its README.
+  with the test suites (`test-staff.cjs`, `test-accounts.cjs`, `test-partners.cjs`, `test-riders.cjs`,
+  `test-reviews.cjs`). See its README.
 - **Unit tests:** `npm test` (pricing with discounts, deals, staff helpers, accounts and more).
 - **Caches:** the menu and the opening hours are cached by the script for 60 s and 20 s (cleared when you edit
   the sheet by hand or use the admin page). A rider's position is cached for 15 minutes.
+
+---
+
+## 10. Restaurants and riders sign up (Join requests)
+
+**What customers, restaurants and riders see:**
+- The **Sign in** button (top right) first asks who is signing in: **Customer**, **Restaurant partner** or
+  **Rider**. Ordering (the pilot page, Confirm order) and the khata skip this and go straight to the customer's
+  sign-in. The rider and restaurant pages open the sign-in already set to their role.
+- Everyone signs in with a phone number and a 6-digit PIN. One account per number: a customer who becomes a
+  rider keeps the same PIN.
+- **A new number** choosing Restaurant or Rider gets the application form, with their name and a new PIN.
+  **An existing account** enters its PIN first, then gets the form without name or PIN.
+  - Restaurant: restaurant name; restaurant address (where riders pick up); GST number, or the tick "We're not
+    registered for GST"; FSSAI licence or registration number.
+  - Rider: date of birth (18 or older), vehicle number, driving licence number.
+- After sending: "Application sent". Signing in as a restaurant or rider before approval shows "Waiting for
+  approval" (and "Order food meanwhile", which signs them in as a customer). Declined: the team's note, and
+  "Correct my details and apply again" (the form comes back filled in). Removed: "Your page is closed".
+- Approved: signing in as a restaurant or rider stamps "Signed in as rider" and opens their page.
+
+**The checks** (`lib/partners.js`, and again in `Code.gs` → `partnerDetails_`):
+
+| number | rule |
+| --- | --- |
+| GSTIN | 15 characters: state code (01–38, 97, 99), PAN (5 letters, 4 digits, 1 letter), a digit or letter, `Z`, and a check character (Luhn mod 36 over the first 14). A typing mistake almost always fails the check character. |
+| FSSAI | 14 digits (licence or registration). |
+| Restaurant address | 5 to 160 characters (shop, street and area). |
+| Date of birth | a real date; 18 or older today (Indian date); not over 80. |
+| Vehicle | `BR 01 AB 1234` style (state, RTO, up to 3 letters, up to 4 digits), or Bharat series `22 BH 1234 AB`. Spaces and dashes are ignored. |
+| Driving licence | `BR01 20190012345`: state, RTO, year of issue (not in the future), 7 digits. |
+
+These are format checks only. Whether a number really belongs to that business or person is checked by hand on
+the official sites, which all need a captcha: the GST portal (www.gst.gov.in → Search Taxpayer → Search by
+GSTIN/UIN), FSSAI FoSCoS (foscos.fssai.gov.in → FBO Search) and Parivahan (parivahan.gov.in → Online Services →
+Driving Licence Related Services, or Know Your Vehicle Details). Each slip on the admin page has Copy and a link
+to the right site. A restaurant's slip also shows its address, with See on map.
+
+**Sheet: Partners tab** (one row per phone number and role; applying again updates the same row)
+
+| column | meaning |
+| --- | --- |
+| `phone`, `role`, `name` | the account's number, `restaurant` or `rider`, the account's name |
+| `restaurant_name`, `restaurant_address`, `gstin`, `no_gst`, `fssai` | restaurants (`restaurant_address` is the last column: added by `setup` to existing tabs) |
+| `dob`, `vehicle_no`, `dl_no` | riders (numbers kept without spaces) |
+| `status` | `pending`, `approved`, `declined` or `removed` |
+| `restaurant_id` | restaurants, once approved: the restaurant they run |
+| `applied_at`, `decided_at`, `decided_by`, `note` | when, who decided, and the note the applicant sees |
+
+**How it works:**
+1. `POST { action: 'partner_apply', phone, pin, name, role, details }` (`partnerApply_`): an existing account
+   must give its PIN (same lock-out as signing in); a new number makes the account (as `sign_up`). The details
+   are checked, the Partners row is written as `pending`, and the team gets an alert (email with name and phone;
+   Telegram with the role and restaurant name only).
+2. `sign_in` with `as: 'rider' | 'restaurant'` signs in only if Staff has that role for the number; otherwise
+   `{ error: 'not_approved', application }` (no token), with the status, note and details.
+3. Admin page → Join requests: `applications` lists them (pending first) with the checks; `application_decide`:
+   - `approve`: adds or reactivates the Staff row. Restaurants: either `restaurant_id` (an existing restaurant)
+     or a new Restaurants row (id from its initials, e.g. `mp`, `mp2`; `active` FALSE, so it stays off the menu
+     until its dishes are added; the chosen cluster; the address they gave as its pickup address).
+   - `decline`: status and note; nothing else changes.
+   - `remove`: sets the Staff row's `active` to FALSE and the status to `removed`.
+4. The website opens their page after an approved partner signs in from the Sign in button
+   (`AccountProvider → finish`).
+
+**Files:** `lib/partners.js` (+ tests), `features/account/SignInDialog.jsx` (who is signing in, the partner
+steps), `features/account/ApplyFields.jsx` (the form), `features/account/LineField.jsx`,
+`services/accountApi.js` (`applyAsPartner`, `signIn` with `as`), `context/AccountProvider.jsx`,
+`features/staff/StaffPage.jsx` (sign-in as the page's role; "Not approved as a rider yet"),
+`pages/AdminPage/JoinRequests.jsx`. Script: `partnerApply_`, `partnerDetails_`, `gstinOk_`, `dlOk_`,
+`vehicleOk_`, `ageOn_`, `applicationFor_`, `setStaff_`, `newRestaurant_`, `checkPin_`, `ADMIN_OPS.applications`
+and `application_decide`. Tests: `tools/sheet-mock/test-partners.cjs` (43 checks).
+
+**Problems:**
+- *An approved rider still sees "Waiting"*: they're signing in with a different number, or the Staff row was
+  set to `active` FALSE by hand. Check the Staff tab.
+- *A new restaurant doesn't show on the menu*: it starts closed. Add its dishes (Dishes tab, its
+  `restaurant_id`), set its distance in Restaurants, then switch it on in Menu & notice.
+- *"This GST number doesn't add up"* for a real number: check for O/0 or I/1 mix-ups; the website and the script
+  use the same check, which matches real GSTINs.
+- *A restaurant has no GST*: that's allowed (the tick). FSSAI is still required.
+

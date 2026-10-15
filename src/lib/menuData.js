@@ -38,6 +38,9 @@ export const slug = (s) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'x';
 
+// The photos in public/dishes that also come as a smaller WebP copy (same name, .webp): the site uses the copy.
+const DISH_WEBP = ['biryani', 'burger', 'chicken', 'dosa', 'idli', 'pizza'];
+
 // A photo cell can hold a full https link, a Google Drive share link, or just a file name from public/dishes.
 export function photoUrl(value) {
   const s = str(value);
@@ -45,6 +48,9 @@ export function photoUrl(value) {
   const drive = s.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
   if (drive) return `https://drive.google.com/thumbnail?id=${drive[1]}&sz=w600`;
   if (/^https?:\/\//i.test(s) || s.startsWith('/')) return s;
+  const shipped = /^([a-z]+)\.jpe?g$/i.exec(s);
+  if (shipped && DISH_WEBP.includes(shipped[1].toLowerCase()))
+    return `/dishes/${shipped[1].toLowerCase()}.webp`;
   return `/dishes/${s}`;
 }
 

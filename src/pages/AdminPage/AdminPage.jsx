@@ -4,6 +4,7 @@ import { useStaff } from '@/features/staff/useStaff';
 import { OrdersBoard } from './OrdersBoard';
 import { OffersPanel } from './OffersPanel';
 import { ReviewsQueue } from './ReviewsQueue';
+import { JoinRequests } from './JoinRequests';
 import { MenuSwitches } from './MenuSwitches';
 import { CustomersPanel } from './CustomersPanel';
 import { NumbersPanel } from './NumbersPanel';
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'orders', label: 'Orders', Panel: OrdersBoard },
   { id: 'offers', label: 'Offers & coupons', Panel: OffersPanel },
   { id: 'reviews', label: 'Reviews', Panel: ReviewsQueue },
+  { id: 'join', label: 'Join requests', Panel: JoinRequests },
   { id: 'menu', label: 'Menu & notice', Panel: MenuSwitches },
   { id: 'customers', label: 'Customers', Panel: CustomersPanel },
   { id: 'numbers', label: 'Numbers', Panel: NumbersPanel },

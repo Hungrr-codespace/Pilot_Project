@@ -79,13 +79,13 @@ export const PRIVACY_POLICY = {
         {
           list: [
             'Restaurants in your order receive the dishes you ordered from them and your order ID, and the name of the rider collecting it. They do not receive your name, phone number or address.',
-            'Our delivery riders receive your name, phone number and delivery address, to bring you your order.',
+            'Our riders see the restaurants in your order and the area it goes to (the first part of your address, such as your hostel), so that one of them can take it. The rider who takes it, or whom we assign, receives your name, phone number and delivery address, to bring you your order.',
             'If you agree to show your review, anyone who visits our website can see your stars, tags and words, the name you chose, the month, and the restaurants you ordered from. Your phone number, your order ID and your suggestions for us are never shown.',
-            'Google stores our order records (in Google Sheets, through Google Apps Script). This website also loads its fonts from Google Fonts, so Google receives your IP address when you open it.',
+            'Google stores our order records (in Google Sheets, through Google Apps Script).',
             'When you track an order that is on its way, the map is loaded from OpenStreetMap, which receives your IP address while the map is open.',
             `${BUSINESS.websiteHost} hosts this website and may keep standard server logs, such as your IP address and browser type.`,
             'WhatsApp (Meta) carries the messages you send us there.',
-            'If our team uses Telegram for order alerts, those alerts carry your order ID, amount, UPI reference number and restaurants, but not your name, phone number or address. An alert about a low rating carries the order ID, the stars and the tags you picked.',
+            'If our team uses Telegram for order alerts, those alerts carry your order ID, amount, UPI reference number and restaurants, but not your name, phone number or address. An alert about a low rating carries the order ID, the stars and the tags you picked. If our riders have a Telegram group for new orders, a new order posted there shows the last characters of its order ID, the restaurants and the area it goes to, but not your name, phone number or full address.',
             'Your bank and UPI app process your payment under their own terms and privacy policies.',
             'Government authorities or courts, when the law requires us to.',
           ],
@@ -118,8 +118,13 @@ export const PRIVACY_POLICY = {
         'This section is for the people who work with us. Our riders and restaurant partners sign in to their pages on this website with a Hungrr account, so the rest of this policy applies to them too. In addition:',
         {
           list: [
+            "When a restaurant applies, we collect the restaurant's name and address, its GST number (or that it isn't registered for GST) and its FSSAI licence or registration number. We use the numbers to check that the business is registered and licensed to sell food. The restaurant's address is shown to our riders, so they can collect orders from it.",
+            'When a rider applies, we collect their date of birth, vehicle number and driving licence number. We use them to check that the rider is 18 or older and allowed to ride the vehicle they deliver on.',
+            'Our team checks these numbers by entering them on the official government websites (the GST portal, FSSAI FoSCoS and Parivahan). Only our team sees them; they are never shown to customers or other partners.',
+            'We keep these details while you work with us, and afterwards for as long as the law requires. If we decline an application, we keep it so you can apply again; you can ask us to delete it.',
             "Riders: while a rider switches on location sharing on the rider page, their phone's location is sent to us about every 20 seconds. It is shown, with the rider's first name, only to the customer whose order they are carrying while it is on its way, and to our team. We keep each position for about 15 minutes, and the latest one in our records until the next one replaces it. Sharing stops when the rider switches it off or closes the page.",
-            'Riders see the name, phone number and address of the customers whose orders they deliver, only to deliver them.',
+            'Riders see the orders waiting for a rider (the restaurants and the area each one goes to) so they can choose one, and the name, phone number and address of the customers whose orders they take or we assign them, only to deliver them.',
+            'If a rider switches on order alerts, their browser may show notifications about new orders on their phone. This happens on the phone itself; we do not use a notification service for it.',
             'Restaurant partners see the orders that include their dishes, with only those dishes, the order ID and the rider collecting them.',
             'We keep the name, phone number and role of each team member in our records, and when they marked an order picked up, delivered or ready.',
           ],

@@ -8,6 +8,8 @@ import { PrimaryButton } from '@/features/ordering/OrderNotepad/NoteButtons';
 import styles from './StaffPage.module.css';
 
 const ROLE_NAMES = { admin: 'Admin', rider: 'Rider', restaurant: 'Restaurant' };
+// Riders and restaurants sign in (and apply) as such; the admin signs in with their usual account
+const SIGN_IN_AS = { admin: 'customer', rider: 'rider', restaurant: 'restaurant' };
 
 // The frame of the staff pages (admin, rider, restaurant): a compact yellow header with the page's name, and
 // the page itself only for a signed-in account listed with `role` on the sheet's Staff tab.
@@ -17,8 +19,10 @@ export function StaffPage({ role, title, subtitle, denied, tabs, wide = true, ch
   const { user, openSignIn } = useAccount();
   const hasRole = Boolean(user?.roles?.some((r) => r.role === role));
 
+  const signIn = () => openSignIn({ reason: 'staff', as: SIGN_IN_AS[role] });
+
   useEffect(() => {
-    if (!user) openSignIn({ reason: 'nav' });
+    if (!user) signIn();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arriving at the page
   }, []);
 
@@ -26,18 +30,28 @@ export function StaffPage({ role, title, subtitle, denied, tabs, wide = true, ch
   if (!user) {
     body = (
       <Gate title="Sign in to continue" text="Use the phone number and PIN of your Hungrr account.">
-        <PrimaryButton icon="account" onClick={() => openSignIn({ reason: 'nav' })}>
+        <PrimaryButton icon="account" onClick={signIn}>
           Sign in
         </PrimaryButton>
       </Gate>
     );
   } else if (!hasRole || denied) {
-    body = (
-      <Gate
-        title="This page is for the Hungrr team"
-        text={`${user.name}'s account isn't listed as ${ROLE_NAMES[role].toLowerCase()} on the Staff tab of the sheet. If it should be, ask the team to add your number there, then sign out and in again.`}
-      />
-    );
+    body =
+      role === 'admin' ? (
+        <Gate
+          title="This page is for the Hungrr team"
+          text={`${user.name}'s account isn't listed as admin on the Staff tab of the sheet. If it should be, ask the team to add your number there, then sign out and in again.`}
+        />
+      ) : (
+        <Gate
+          title={`Not approved as a ${ROLE_NAMES[role].toLowerCase()} yet`}
+          text={`This page is for ${ROLE_NAMES[role].toLowerCase()}s the team has approved. Apply with your details, or see where your application stands, using your number and PIN.`}
+        >
+          <PrimaryButton icon="arrowRight" onClick={signIn}>
+            Apply or check my application
+          </PrimaryButton>
+        </Gate>
+      );
   } else body = children;
 
   return (

@@ -9,13 +9,17 @@
 >    for permission: **Review permissions** → your account → **Advanced** → **Go to Hungrr website (unsafe)** →
 >    **Allow**. `setup` adds anything your sheet is missing, then emails you a test alert:
 >    - in Settings: the opening hours, the pause switch and `site_banner` (the notice at the top of the site)
->    - the **Alerts**, **Reviews**, **Users**, **Staff**, **Coupons** and **Offers** tabs (Offers starts with
+>    - the **Alerts**, **Reviews**, **Users**, **Staff**, **Partners**, **Coupons** and **Offers** tabs (Offers starts with
 >      "Every 5th order: free delivery")
 >    - in Orders: the `status_at`, `account`, `coupon`, `discount`, `rider`, `picked_up_at` and `delivered_at`
->      columns; in OrderItems: `ready_at`
+>      columns; in OrderItems: `ready_at`; in Restaurants: `address` and `map_link` (where riders pick up)
+>    - in Alerts: `rider_telegram_chat_id` and `website_url` (both optional: the riders' Telegram group)
 >    - the secret that protects PINs
 > 3. **Deploy → Manage deployments →** pencil icon **→ Version: New version → Deploy**. The URL stays the same.
 > 4. Open the new **Staff** tab and add your own phone number as `admin` (see [Staff](#staff-admin-riders-and-restaurants)).
+>
+> Then fill in each restaurant's pickup address for riders: admin page → **Menu & notice** → the restaurant →
+> **Riders pick up from → Add address** (or the `address` column in Restaurants).
 >
 > Running `setup` again later is safe: it only adds what is missing.
 
@@ -117,6 +121,13 @@ an alert, so someone can check the payment straight away. Set it up in the **Ale
   Telegram alerts carry the order ID, amount, UPI reference number and restaurants, but not the customer's name,
   phone or address.
 - **New orders too:** tick `alert_on_new_order` to also get an alert when an order is placed (before payment).
+- **Riders' group (optional):** a second Telegram group, with your riders and the same bot. Each order you mark
+  **Paid on the admin page** that has no rider yet is posted there ("🛵 New order to deliver", the restaurants
+  with their addresses, the drop area and a link to the rider page), so riders who aren't on the rider page hear
+  about it too. Get the group's number as in step 3 and put it in `rider_telegram_chat_id`, and your website's
+  address (e.g. `https://hungrr.in`) in `website_url`. The post has no customer name, phone or room number.
+  Orders marked Paid by typing in the sheet are not posted (Google doesn't let a sheet edit send messages); the
+  riders still see them on the rider page.
 - The Alerts tab is not shown on the website.
 
 ## Order tracking
@@ -126,7 +137,7 @@ ordered with. They see the **status** you set in Orders, the dishes and the tota
 hand, the `status_at` column fills in the time by itself, so the tracking page can say "Updated 5 min ago".
 The script only answers when the phone number matches the order, and never sends back the customer's name,
 phone, address or UPI reference number. While an order is **Out for delivery** with a rider assigned, the page
-also shows the rider's first name and, if they share their location, a map (see [Riders](#riders-and-live-location)).
+also shows the rider's first name and, if they share their location, a map (see [Riders](#riders-new-orders-pickups-and-live-location)).
 
 ## Reviews
 
@@ -184,8 +195,10 @@ track and rate each one, and change their name. Each account is one row in the *
 ## Staff: admin, riders and restaurants
 
 The website has three team pages. Each opens only for a phone number listed in the **Staff** tab, signed in with
-its normal Hungrr account (phone number and PIN). So each person first opens an account on the website like a
-customer, then you add their row:
+its normal Hungrr account (phone number and PIN). **Restaurants and riders apply on the website** and get their
+row when you approve them on the admin page (see [Restaurants and riders apply](#restaurants-and-riders-apply)).
+**Admins** you add by hand: the person first opens an account on the website like a customer, then you add their
+row:
 
 | column | What it holds |
 | --- | --- |
@@ -211,12 +224,42 @@ is quicker on a phone:
 
 | tab | What it does |
 | --- | --- |
-| **Orders** | Today's orders as tickets: to verify, paid, preparing, on the way, done. One tap moves an order to its next status. Pick the rider; send the customer an update on WhatsApp; cancel. Refreshes every 20 seconds. |
+| **Orders** | Today's orders as tickets: to verify, paid, preparing, on the way, done. One tap moves an order to its next status. Pick the rider, or leave it for a rider to accept on their page (their name then shows on the ticket); send the customer an update on WhatsApp; cancel. Refreshes every 20 seconds. |
 | **Offers & coupons** | The automatic offer and the coupon codes (see below), split into those customers can apply today and those that aren't active. |
 | **Reviews** | New reviews to approve with one tap, then earlier ones. |
-| **Menu & notice** | Laid out like the menu book on the pilot page: today's service (pause orders, with a message), the notice at the top of the site, the restaurants with an "open today" switch, and each restaurant's menu with an "in stock" switch on every dish. |
+| **Join requests** | Restaurants and riders who applied on the website: check their numbers, then approve or decline. |
+| **Menu & notice** | Laid out like the menu book on the pilot page: today's service (pause orders, with a message), the notice at the top of the site, the restaurants with an "open today" switch, and each restaurant's menu with an "in stock" switch on every dish and its pickup address for riders. |
 | **Customers** | Look up a phone number: the account and its orders. Reset a forgotten PIN, unlock after wrong PINs. |
 | **Numbers** | Today or the last 7 days: orders, money taken, discounts given, customers, top dishes, sales by restaurant. |
+
+## Restaurants and riders apply
+
+The website's **Sign in** button asks who is signing in: a customer, a restaurant partner or a rider. Restaurants
+and riders use the same phone number and PIN as everyone, but their page opens only after you approve them.
+
+- **Restaurants** give the restaurant's name, its **address** (where riders pick up), their **GST number** (or tick "We're not registered for GST": small
+  kitchens below the GST turnover limit don't have one) and their **FSSAI licence or registration number**
+  (14 digits, required for every food business).
+- **Riders** give their **date of birth** (18 or older), **vehicle number** and **driving licence number**.
+- The website checks the format of each number (the GST number has a built-in check character, so most typing
+  mistakes are caught). It can't check that a number is real: the government sites need a captcha. **Check each
+  one yourself before approving**: the admin page's Join requests tab has a Copy button and a link for each:
+  - GST: www.gst.gov.in → Search Taxpayer → Search by GSTIN/UIN (the name should match the restaurant or owner)
+  - FSSAI: foscos.fssai.gov.in → FBO Search (the licence should be active, at this address)
+  - Driving licence: parivahan.gov.in → Online Services → Driving Licence Related Services
+  - Vehicle: parivahan.gov.in → Know Your Vehicle Details
+- You get an alert for each new application (email with the name and phone number; Telegram with the role and
+  restaurant name).
+- **Approve:** the rider's or restaurant's Staff row is added, and their page opens at their next sign-in. For a
+  restaurant, choose "A new restaurant" (a row is added to Restaurants with the address they gave, closed until you
+  add its dishes in the Dishes tab and switch it on in Menu & notice; pick its cluster) or the restaurant it
+  already is on Hungrr.
+- **Decline:** write why. They see your note when they sign in, and can correct their details and apply again.
+- **Remove access** (in Decided, lower on the tab): closes their page; their Staff row stays, with `active` FALSE.
+
+Applications are kept in the **Partners** tab: one row per phone number and role, with the numbers they gave,
+`status` (pending, approved, declined, removed), and when and by whom it was decided. These are personal details:
+keep the sheet private.
 
 ## Offers and coupons
 
@@ -249,17 +292,34 @@ Only one offer applies to an order: if a customer has both, the one that saves t
   `active` TRUE, and `show_at_checkout` TRUE to list it). The admin page is easier because it checks the code is
   unique.
 
-## Riders and live location
+## Riders: new orders, pickups and live location
 
-- On the order board, pick the rider for an order. It appears on that rider's page (`/rider`) as a delivery
-  slip: what to collect from which restaurant (with "Ready" once the kitchen marks it), and the customer's name,
-  address and a call button.
-- The rider taps **Picked up** (the order becomes Out for delivery) and **Delivered** at the door.
+- **New orders:** once you have checked an order's payment (Paid), every rider sees it on their page (`/rider`,
+  tab **New orders**): the restaurants to pick up from, with their addresses and Directions, the area it goes
+  to (e.g. "Girls Hostel 2") and how many dishes. The first rider to tap **Accept order** gets it; the others see
+  "taken". Before accepting, riders don't see the customer's name, phone or full address.
+- **Alerts:** riders switch on **New-order alerts** on their page: a chime and a buzz for each new order, and a
+  phone notification while the page is in the background (Android, and iPhone when Hungrr is added to the Home
+  Screen). A closed page can't alert, so for riders who aren't on the page use the riders' Telegram group (see
+  [Order alerts](#order-alerts)).
+- **You can still assign:** on the order board, pick the rider for any order, at any time, even one a rider
+  accepted. It appears in that rider's **My orders** (with an alert). Your board shows whoever accepted.
+- **My orders** are delivery slips: what to collect from which restaurant (address, Directions, "Ready" once the
+  kitchen marks it), and the customer's name, address (with Directions) and a call button. Before pickup the
+  rider can give an order back, and it returns to New orders.
+- **Who updates what:** restaurants mark Preparing and Ready; then the rider taps **Picked up** (Out for delivery)
+  and **Delivered** at the door. Riders can't go backwards or touch another rider's order. You can still set any
+  status on the board or in the sheet.
+- **Pickup addresses:** the Restaurants tab's `address` (what riders read, e.g. "Shop 4, Main Road, near Gate 1,
+  Mesra") and `map_link` (optional: in Google Maps, find the restaurant → Share → Copy link). Edit them on the
+  admin page (Menu & notice → the restaurant → Riders pick up from). Without a map link, Directions searches
+  Google Maps for the address.
 - With **Live location** switched on, the rider's phone sends its position every 20 seconds. The customer
   tracking that order sees it on a map, with the rider's first name, while the order is Out for delivery. The
   latest position is also written to the rider's Staff row (at most once a minute).
-- Limits of a website: location is shared only while the rider page is open with the screen on (the page keeps
-  the screen awake where the phone allows it). A position older than 15 minutes is not shown to the customer.
+- Limits of a website: alerts and location work only while the rider page is open (with Live location on, the
+  page keeps the screen awake where the phone allows it). A position older than 15 minutes is not shown to the
+  customer.
 - The map uses OpenStreetMap, which is free for light use like the pilot. At a larger scale, move to a paid map
   provider.
 
@@ -270,7 +330,8 @@ today's orders that include its dishes, once you have checked the payment (statu
 own dishes and the order number. It never sees the customer's name, phone or address.
 
 - **Start preparing** moves the order to Preparing. **Ready for pickup** marks this restaurant's dishes ready
-  (the `ready_at` column in OrderItems), which the admin board and the rider's slip show.
+  (the `ready_at` column in OrderItems), which the admin board and the riders' pages show. After that the rider
+  updates the order (picked up, delivered).
 - The page refreshes every 20 seconds and can play a sound for each new order.
 
 ## The notice at the top of the site
@@ -293,7 +354,7 @@ website needs no change.
 
 ## Good to know
 
-- The Orders, Users and Staff tabs hold names, phone numbers and addresses. Keep the sheet private: share it
+- The Orders, Users, Staff and Partners tabs hold names, phone numbers, addresses and (Partners) licence numbers. Keep the sheet private: share it
   only with the people who handle orders. Riders and restaurants use their pages on the website and don't need
   the sheet.
 - The web app URL is public, like the website. Through it, anyone can read the menu tabs (which the website shows

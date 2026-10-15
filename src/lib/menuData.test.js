@@ -11,7 +11,8 @@ describe('photoUrl', () => {
 
   it('keeps full links and maps file names to public/dishes', () => {
     expect(photoUrl('https://example.com/a.jpg')).toBe('https://example.com/a.jpg');
-    expect(photoUrl('dosa.jpg')).toBe('/dishes/dosa.jpg');
+    expect(photoUrl('dosa.jpg')).toBe('/dishes/dosa.webp'); // the WebP copy that comes with the site
+    expect(photoUrl('paneer.jpg')).toBe('/dishes/paneer.jpg'); // a photo you add yourself, as it is
     expect(photoUrl('')).toBe('');
   });
 });
@@ -23,7 +24,7 @@ describe('normalizeMenu', () => {
     expect(menu.settings).toMatchObject({ gstRate: 5, deliveryCharge: 50, upiId: 'rj09aditya@oksbi' });
     expect(menu.clusters.map((c) => c.id)).toEqual(['c1', 'c2']);
     expect(menu.restaurants[0].name).toBe('Babai Tiffins');
-    expect(menu.dishTypes[0]).toMatchObject({ id: 'dosa', photo: '/dishes/dosa.jpg' });
+    expect(menu.dishTypes[0]).toMatchObject({ id: 'dosa', photo: '/dishes/dosa.webp' });
   });
 
   it('hides inactive restaurants and unavailable dishes', () => {

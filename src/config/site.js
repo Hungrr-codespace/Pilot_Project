@@ -60,13 +60,33 @@ export const LAYOUT = {
   mobileWidth: 390,
 };
 
+// The main page's app pictures come as WebP in a few widths, and the browser downloads the smallest one that is
+// sharp on the screen (a phone shows the screenshots about 180 px wide, a laptop 340 px); `sizes` says how wide
+// they show (the page is scaled to the screen, so a share of its width). The PNG is for browsers without WebP.
+// Changing a picture: replace the PNG, then make the WebP widths from it (README → Images).
+// appHome is also requested early by index.html on the main page: keep its list and sizes the same there.
+const HERO_SIZES = '(max-width: 1023.98px) 46vw, 24vw';
+const widths = (name, list) => list.map((w) => [`/assets/${name}-${w}.webp`, w]);
+
 export const IMAGES = {
   wordmarkBlack: '/assets/wordmark-black.png',
   wordmarkWhite: '/assets/wordmark-white.png',
-  appHome: '/assets/hero-home-2x.png',
-  appCart: '/assets/hero-multicart-2x.png',
-  itemsAddedCard: '/assets/hero-card-2x.png',
-  tableWood: '/assets/table-ebony.jpg',
+  appHome: {
+    src: '/assets/hero-home-2x.png',
+    webp: widths('hero-home', [360, 520, 680]),
+    sizes: HERO_SIZES,
+  },
+  appCart: {
+    src: '/assets/hero-multicart-2x.png',
+    webp: widths('hero-multicart', [360, 520, 680]),
+    sizes: HERO_SIZES,
+  },
+  itemsAddedCard: {
+    src: '/assets/hero-card-2x.png',
+    webp: widths('hero-card', [360, 636]),
+    sizes: '(max-width: 1023.98px) 46vw, 22vw',
+  },
+  tableWood: '/assets/table-ebony.webp', // the original table-ebony.jpg is the fallback (QuickPicksTable.module.css)
   doodle: '/assets/doodle-yellow-15.svg',
   upiQrFallback: '/assets/upi-qr.png',
 };

@@ -58,6 +58,7 @@ export const TERMS = {
             'Keep your PIN to yourself. Orders placed while signed in to your account are treated as yours.',
             'After five wrong PINs in a row, your account locks for 15 minutes. If you forget your PIN, message us from your number and we will reset it.',
             'You can change the name on your account. To change its phone number, message us.',
+            'Restaurants and riders apply with their details (the restaurant’s address and its GST and FSSAI numbers, or date of birth, vehicle and driving licence numbers), which must be true and their own. Their pages open only after we approve them, and we may decline an application or remove access at any time. Riders must be 18 or older.',
             'You can close your account at any time by messaging us. We may close or lock an account that is used to place fake orders or to misuse the website.',
           ],
         },

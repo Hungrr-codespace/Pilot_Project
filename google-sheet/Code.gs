@@ -27,6 +27,8 @@
  *   POST {"action":"deals","token":…,"coupon":"CODE"}      → the automatic offer this order would get (every
  *                                                         Nth order) and the coupon's rule, or why it can't be used,
  *                                                         plus the coupons listed at checkout for this customer
+ *   POST {"action":"partner_apply","phone","pin","role",…}  → a restaurant's or rider's application (new or existing
+ *                                                         account); the admin page approves it
  *   POST {"action":"admin","op":…,"token":…}                → the admin page (only phone numbers listed as admin in
  *                                                         Staff): order board, statuses, riders, coupons, offers,
  *                                                         reviews, menu switches, customers, numbers, banner
@@ -81,6 +83,12 @@ const DEFAULT_OFFER = ['nth-order', 'Every 5th order: free delivery', 5, 'free_d
   'The customer\'s 5th, 10th, 15th… paid order gets this. Change it on the admin page.'];
 const LOCATION_MINUTES = 15;  // a rider's position older than this is not shown to the customer
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O or 1/I, so codes are easy to read out
+// Restaurants and riders apply on the website (Partners tab); the admin page approves them (adds them to Staff).
+const PARTNER_HEAD = ['phone', 'role', 'name', 'restaurant_name', 'gstin', 'no_gst', 'fssai', 'dob', 'vehicle_no',
+  'dl_no', 'status', 'restaurant_id', 'applied_at', 'decided_at', 'decided_by', 'note', 'restaurant_address'];
+const PARTNER_ROLES = ['restaurant', 'rider'];
+const PARTNER_STATUSES = ['pending', 'approved', 'declined', 'removed'];
+const RIDER_MIN_AGE = 18;
 const NEW_SETTINGS = [   // added by setup() when missing
   ['opens_at', '11:00 AM', 'When orders open each day (Indian time)'],
   ['closes_at', '8:30 PM', 'Last time to place an order'],
@@ -92,8 +100,14 @@ const ALERT_SETTINGS = [
   ['alert_emails', '', 'Email addresses for alerts, separated by commas'],
   ['alert_on_new_order', false, 'Tick to also get an alert when an order is placed (before payment)'],
   ['telegram_bot_token', '', 'Optional: token of your Telegram bot (from @BotFather)'],
-  ['telegram_chat_id', '', 'Optional: the chat or group the bot posts to']
+  ['telegram_chat_id', '', 'Optional: the chat or group the bot posts to'],
+  ['rider_telegram_chat_id', '', 'Optional: a Telegram group of your riders (same bot). Orders you mark Paid on the admin page, with no rider yet, are posted there'],
+  ['website_url', '', 'Your website address, e.g. https://hungrr.in (for the links in alerts)']
 ];
+// The restaurant's pickup address for riders (Restaurants tab; setup adds the columns)
+const RESTAURANT_PICKUP_HEAD = ['address', 'map_link'];
+// Orders a rider can take: payment checked, not on the way yet
+const OPEN_FOR_RIDERS = ['Paid', 'Preparing'];
 
 // ------------------------------------------------------------------ menu (GET)
 function doGet(e) {
@@ -483,7 +497,8 @@ const ACCOUNT_WRITES = {
   sign_up: function (b) { return signUp_(b); },
   sign_in: function (b) { return signIn_(b); },
   update_name: function (b) { return updateName_(b); },
-  claim_order: function (b) { return claimOrder_(b); }
+  claim_order: function (b) { return claimOrder_(b); },
+  partner_apply: function (b) { return partnerApply_(b); }
 };
 
 // Which screen to show after the phone number: new, existing, reset (the team cleared the PIN) or locked.
@@ -528,18 +543,33 @@ function signUp_(b) {
     roles: rolesFor_(ss, phone) };
 }
 
+// With `as` ('restaurant' or 'rider'), signing in works only once the admin has approved that role; until then
+// the answer is { error: 'not_approved', application } (its status, or null if they haven't applied yet).
 function signIn_(b) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const phone = phone10_(b.phone);
   if (!phone) return { ok: false, error: 'bad_phone' };
   const user = findUser_(ss, phone);
   if (!user) return { ok: false, error: 'not_found' };
+  const checked = checkPin_(user, b.pin);
+  if (!checked.ok) return checked;
+  const roles = rolesFor_(ss, phone);
+  const as = String(b.as || '');
+  if (PARTNER_ROLES.indexOf(as) >= 0 && !roles.some(function (r) { return r.role === as; })) {
+    return { ok: false, error: 'not_approved', application: applicationFor_(ss, phone, as), name: publicUser_(user).name };
+  }
+  user.write({ last_sign_in_at: new Date() });
+  return { ok: true, token: makeToken_(phone, checked.hash), user: publicUser_(user), roles: roles };
+}
+
+// The account's PIN: { ok, hash } or the reason it can't sign in (reset, locked, wrong_pin with tries left).
+// Five wrong PINs in a row lock the account for LOCK_MINUTES.
+function checkPin_(user, pin) {
   const stored = String(user.get('pin_hash') || '');
   if (!stored) return { ok: false, error: 'reset' };
   const minutes = lockedMinutes_(user);
   if (minutes) return { ok: false, error: 'locked', minutes: minutes };
-
-  if (!sameText_(pinHash_(String(user.get('pin_salt') || ''), String(b.pin || '')), stored)) {
+  if (!sameText_(pinHash_(String(user.get('pin_salt') || ''), String(pin || '')), stored)) {
     const tries = num_(user.get('failed_tries'), 0) + 1;
     if (tries >= PIN_TRIES) {
       user.write({ failed_tries: 0, locked_until: new Date(Date.now() + LOCK_MINUTES * 60000) });
@@ -548,8 +578,8 @@ function signIn_(b) {
     user.write({ failed_tries: tries });
     return { ok: false, error: 'wrong_pin', tries_left: PIN_TRIES - tries };
   }
-  user.write({ failed_tries: 0, locked_until: '', last_sign_in_at: new Date() });
-  return { ok: true, token: makeToken_(phone, stored), user: publicUser_(user), roles: rolesFor_(ss, phone) };
+  if (num_(user.get('failed_tries'), 0) || String(user.get('locked_until') || '')) user.write({ failed_tries: 0, locked_until: '' });
+  return { ok: true, hash: stored };
 }
 
 // The signed-in account, and with `orders` its orders (newest first).
@@ -898,6 +928,199 @@ function couponFrom_(r) {
     per_customer: r.per_customer, active: r.active, show_at_checkout: r.show_at_checkout };
 }
 
+// ------------------------------------------------------------------ partners: restaurants and riders apply
+// On the website, a restaurant or a rider applies with their phone number and PIN (a new account, or their
+// existing one), and their details: restaurants their name, GST number (or "not registered") and FSSAI number;
+// riders their date of birth (18 or older), vehicle number and driving licence number. The application waits in
+// the Partners tab until the admin page approves it (which adds them to Staff) or declines it (with a note).
+// Formats are checked here; the admin checks the numbers themselves on the official sites before approving.
+function partnerApply_(b) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const phone = phone10_(b.phone);
+  if (!phone) return { ok: false, error: 'bad_phone' };
+  const role = String(b.role || '');
+  if (PARTNER_ROLES.indexOf(role) < 0) return { ok: false, error: 'bad_role' };
+  const details = partnerDetails_(role, b.details || {});
+  if (details.error) return { ok: false, error: details.error };
+  const pin = String(b.pin || '');
+
+  let user = findUser_(ss, phone);
+  let name = tidyName_(b.name);
+  if (user && String(user.get('pin_hash') || '')) {
+    const checked = checkPin_(user, pin);   // their existing account: same PIN, same lock-out as signing in
+    if (!checked.ok) return checked;
+    name = String(user.get('name') || '').replace(/^'/, '') || name;
+  } else {
+    if (!pinOk_(pin)) return { ok: false, error: 'weak_pin' };
+    if (!user && name.length < 2) return { ok: false, error: 'bad_name' };
+    const made = signUp_({ phone: phone, name: name, pin: pin });
+    if (!made.ok) return made;
+    user = findUser_(ss, phone);
+    name = String(user.get('name') || '').replace(/^'/, '');
+  }
+  if (rolesFor_(ss, phone).some(function (r) { return r.role === role; })) return { ok: false, error: 'already_approved' };
+
+  const p = partnersTab_(ss);
+  const rowNum = partnerRow_(p, phone, role);
+  const width = p.sheet.getLastColumn();
+  const row = rowNum ? p.sheet.getRange(rowNum, 1, 1, width).getValues()[0] : blankRow_(width);
+  const values = { phone: "'" + phone, role: role, name: safe_(name), restaurant_name: '', restaurant_address: '', gstin: '',
+    no_gst: '', fssai: '', dob: '', vehicle_no: '', dl_no: '', status: 'pending', restaurant_id: '', applied_at: new Date(), decided_at: '',
+    decided_by: '', note: '' };
+  Object.keys(details).forEach(function (k) { values[k] = details[k]; });
+  PARTNER_HEAD.forEach(function (h) { row[p.col[h] - 1] = values[h]; });
+  const at = rowNum || p.sheet.getLastRow() + 1;
+  p.sheet.getRange(at, 1, 1, width).setValues([row]);
+  sendAlert_(ss, { kind: 'application', role: role, name: name, phone: phone,
+    business: details.restaurant_name ? String(details.restaurant_name).replace(/^'/, '') : '',
+    link: ss.getUrl() + '#gid=' + p.sheet.getSheetId() + '&range=A' + at });
+  return { ok: true, status: 'pending' };
+}
+
+// The application's details, tidied and checked: { column: value } or { error }.
+function partnerDetails_(role, d) {
+  const text = function (v) { return "'" + v; };   // kept as typed (leading zeros, long numbers)
+  if (role === 'restaurant') {
+    const restaurant = tidyName_(d.restaurant_name);
+    if (restaurant.length < 2) return { error: 'bad_restaurant' };
+    const address = String(d.restaurant_address || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+    if (address.length < 5) return { error: 'bad_address' };
+    const noGst = d.no_gst === true;
+    const gstin = noGst ? '' : String(d.gstin || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (!noGst && !gstinOk_(gstin)) return { error: 'bad_gstin' };
+    const fssai = String(d.fssai || '').replace(/\D/g, '');
+    if (!/^\d{14}$/.test(fssai)) return { error: 'bad_fssai' };
+    return { restaurant_name: safe_(restaurant), restaurant_address: safe_(address), gstin: gstin ? text(gstin) : '',
+      no_gst: noGst, fssai: text(fssai) };
+  }
+  const dob = String(d.dob || '').trim();
+  const age = ageOn_(dob, istDay_(new Date()));
+  if (age === null || age > 80) return { error: 'bad_dob' };
+  if (age < RIDER_MIN_AGE) return { error: 'too_young' };
+  const vehicle = String(d.vehicle_no || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+  if (!vehicleOk_(vehicle)) return { error: 'bad_vehicle' };
+  const dl = String(d.dl_no || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+  if (!dlOk_(dl)) return { error: 'bad_dl' };
+  return { dob: text(dob), vehicle_no: text(vehicle), dl_no: text(dl) };
+}
+
+// GSTIN: 2-digit state code, the PAN (5 letters, 4 digits, 1 letter), the registration count, Z, and a check
+// character (Luhn mod 36 over the first 14 characters).
+const GST_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function gstinOk_(g) {
+  if (!/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(g)) return false;
+  const state = Number(g.slice(0, 2));
+  if (!((state >= 1 && state <= 38) || state === 97 || state === 99)) return false;
+  let sum = 0;
+  for (let i = 0; i < 14; i++) {
+    const p = GST_CHARS.indexOf(g.charAt(i)) * (i % 2 ? 2 : 1);
+    sum += Math.floor(p / 36) + (p % 36);
+  }
+  return GST_CHARS.charAt((36 - (sum % 36)) % 36) === g.charAt(14);
+}
+
+// Driving licence: state (2 letters), RTO (2 digits), year of issue, 7 digits, e.g. BR01 20190012345.
+function dlOk_(dl) {
+  const m = /^[A-Z]{2}\d{2}((?:19|20)\d{2})\d{7}$/.exec(dl);
+  return Boolean(m) && Number(m[1]) <= new Date().getFullYear();
+}
+
+// Vehicle: state, RTO, series letters, number (BR 01 AB 1234), or the Bharat series (22 BH 1234 AB).
+function vehicleOk_(v) {
+  return /^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{1,4}$/.test(v) || /^\d{2}BH\d{4}[A-Z]{1,2}$/.test(v);
+}
+
+// Whole years from a yyyy-mm-dd birth date to `today` (yyyy-mm-dd), or null for a date that isn't real.
+function ageOn_(dob, today) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dob).replace(/^'/, ''));
+  if (!m) return null;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  if (d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;
+  const t = today.split('-').map(Number);
+  let age = t[0] - +m[1];
+  if (t[1] < +m[2] || (t[1] === +m[2] && t[2] < +m[3])) age--;
+  return age < 0 ? null : age;
+}
+
+function partnersTab_(ss) {
+  const sheet = sheet_(ss, 'Partners', PARTNER_HEAD);
+  return { sheet: sheet, col: columns_(sheet, PARTNER_HEAD) };
+}
+
+function partnerRow_(p, phone, role) {
+  const last = p.sheet.getLastRow();
+  if (last < 2) return 0;
+  const cells = p.sheet.getRange(2, 1, last - 1, p.sheet.getLastColumn()).getValues();
+  for (let i = 0; i < cells.length; i++) {
+    if (phone10_(cells[i][p.col.phone - 1]) === phone && String(cells[i][p.col.role - 1]).trim() === role) return i + 2;
+  }
+  return 0;
+}
+
+// Where an application stands, for the person who made it (after their PIN): { status, applied_at, note,
+// details } or null.
+function applicationFor_(ss, phone, role) {
+  const r = rows_(ss.getSheetByName('Partners')).filter(function (x) {
+    return phone10_(x.phone) === phone && String(x.role).trim() === role;
+  })[0];
+  if (!r) return null;
+  return { status: String(r.status || 'pending').trim(), applied_at: String(r.applied_at || ''),
+    note: String(r.note || '').replace(/^'/, ''), details: partnerView_(r) };
+}
+
+function partnerView_(r) {
+  const t = function (v) { return String(v === undefined || v === null ? '' : v).replace(/^'/, ''); };
+  return { restaurant_name: t(r.restaurant_name), restaurant_address: t(r.restaurant_address), gstin: t(r.gstin), no_gst: truthy_(r.no_gst, false), fssai: t(r.fssai),
+    dob: r.dob ? istDay_(r.dob) : '', vehicle_no: t(r.vehicle_no), dl_no: t(r.dl_no) };
+}
+
+// Adds (or switches back on) a Staff row: the page opens for this number at their next sign-in.
+function setStaff_(ss, phone, role, name, restaurantId, active) {
+  const sheet = sheet_(ss, 'Staff', STAFF_HEAD);
+  const col = columns_(sheet, STAFF_HEAD);
+  const last = sheet.getLastRow();
+  const cells = last >= 2 ? sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues() : [];
+  let rowNum = 0;
+  for (let i = 0; i < cells.length; i++) {
+    if (phone10_(cells[i][col.phone - 1]) === phone && String(cells[i][col.role - 1]).trim().toLowerCase() === role) { rowNum = i + 2; break; }
+  }
+  if (!rowNum && !active) return;
+  if (!rowNum) {
+    const row = blankRow_(sheet.getLastColumn());
+    row[col.phone - 1] = "'" + phone;
+    row[col.name - 1] = safe_(name);
+    row[col.role - 1] = role;
+    row[col.restaurant_id - 1] = restaurantId || '';
+    row[col.active - 1] = true;
+    row[col.notes - 1] = 'Approved on the admin page';
+    sheet.getRange(last + 1, 1, 1, row.length).setValues([row]);
+    return;
+  }
+  sheet.getRange(rowNum, col.active).setValue(active);
+  if (active && restaurantId) sheet.getRange(rowNum, col.restaurant_id).setValue(restaurantId);
+}
+
+// A new restaurant from an approved application: closed (active FALSE) until its dishes are added.
+function newRestaurant_(ss, name, clusterId, address) {
+  const head = ['restaurant_id', 'name', 'initials', 'cluster_id', 'distance', 'veg_only', 'active', 'sort'].concat(RESTAURANT_PICKUP_HEAD);
+  const sheet = sheet_(ss, 'Restaurants', head);
+  const col = columns_(sheet, head);
+  const rows = rows_(sheet);
+  const taken = {};
+  rows.forEach(function (r) { taken[String(r.restaurant_id).trim().toLowerCase()] = true; });
+  const words = String(name).replace(/[^A-Za-z0-9 ]/g, ' ').split(/\s+/).filter(String);
+  const initials = (words.length > 1 ? words[0].charAt(0) + words[words.length - 1].charAt(0) : (words[0] || 'R').slice(0, 2)).toUpperCase();
+  let id = initials.toLowerCase();
+  for (let n = 2; taken[id]; n++) id = initials.toLowerCase() + n;
+  const sort = rows.reduce(function (m, r) { return Math.max(m, num_(r.sort, 0)); }, 0) + 1;
+  const row = blankRow_(sheet.getLastColumn());
+  const values = { restaurant_id: id, name: safe_(name), initials: initials, cluster_id: clusterId || '', distance: '',
+    veg_only: false, active: false, sort: sort, address: safe_(address || ''), map_link: '' };
+  Object.keys(values).forEach(function (k) { if (col[k]) row[col[k] - 1] = values[k]; });
+  sheet.getRange(sheet.getLastRow() + 1, 1, 1, row.length).setValues([row]);
+  return id;
+}
+
 // ------------------------------------------------------------------ staff (admin, riders, restaurants)
 // The Staff tab lists the phone numbers that may use the admin, rider and restaurant pages. They sign in with their
 // usual account (phone number and PIN); the role decides which page opens.
@@ -1015,7 +1238,24 @@ const ADMIN_OPS = {
   set_status: { write: true, run: function (ss, b) {
     const status = String(b.status || '').trim();
     if (STATUSES.indexOf(status) < 0) return { ok: false, error: 'bad_status' };
-    return setStatus_(ss, b.order_id, status) ? { ok: true } : { ok: false, error: 'not_found' };
+    if (!setStatus_(ss, b.order_id, status)) return { ok: false, error: 'not_found' };
+    if (status === 'Paid') riderAlert_(ss, String(b.order_id || '').trim().toUpperCase());
+    return { ok: true };
+  } },
+  // A restaurant's pickup address for riders (and an optional map link), from the admin's menu page
+  restaurant_set: { write: true, run: function (ss, b) {
+    const sheet = ss.getSheetByName('Restaurants');
+    if (!sheet) return { ok: false, error: 'not_found' };
+    const col = columns_(sheet, RESTAURANT_PICKUP_HEAD);
+    const head = headers_(sheet);
+    const rowNum = head.restaurant_id ? findRow_(sheet, head.restaurant_id, String(b.id || '').trim()) : 0;
+    if (!rowNum) return { ok: false, error: 'not_found' };
+    const link = String(b.map_link || '').trim();
+    if (link && !/^https?:\/\//.test(link)) return { ok: false, error: 'bad_link' };
+    if (b.address !== undefined) sheet.getRange(rowNum, col.address).setValue(safe_(String(b.address).replace(/\s+/g, ' ').trim().slice(0, 160)));
+    if (b.map_link !== undefined) sheet.getRange(rowNum, col.map_link).setValue(link.slice(0, 300));
+    clearCaches_();
+    return { ok: true };
   } },
   assign_rider: { write: true, run: function (ss, b) {
     const phone = phone10_(b.rider);
@@ -1057,7 +1297,7 @@ const ADMIN_OPS = {
       restaurants: rows_(ss.getSheetByName('Restaurants')).map(function (r) {
         return { id: String(r.restaurant_id), name: String(r.name), active: truthy_(r.active, true),
           initials: String(r.initials || ''), cluster_id: String(r.cluster_id || ''), veg_only: truthy_(r.veg_only, false),
-          sort: num_(r.sort, 9999) };
+          sort: num_(r.sort, 9999), address: String(r.address || '').replace(/^'/, ''), map_link: String(r.map_link || '') };
       }),
       dishes: rows_(ss.getSheetByName('Dishes')).map(function (d) {
         return { id: String(d.dish_id), restaurant_id: String(d.restaurant_id), name: String(d.name),
@@ -1213,6 +1453,65 @@ const ADMIN_OPS = {
   } },
 
   // Today's (or the last 7 days') numbers
+  // Restaurants' and riders' applications (pending first), with the restaurants and clusters for approving
+  applications: { run: function (ss) {
+    const today = istDay_(new Date());
+    const order = { pending: 0, approved: 1, declined: 2, removed: 3 };
+    const list = rows_(ss.getSheetByName('Partners')).filter(function (r) { return phone10_(r.phone); }).map(function (r) {
+      const d = partnerView_(r);
+      const role = String(r.role || '').trim();
+      return { phone: phone10_(r.phone), role: role, name: String(r.name || '').replace(/^'/, ''),
+        status: String(r.status || 'pending').trim(), applied_at: String(r.applied_at || ''),
+        decided_at: String(r.decided_at || ''), note: String(r.note || '').replace(/^'/, ''),
+        restaurant_id: String(r.restaurant_id || ''), details: d,
+        checks: role === 'restaurant'
+          ? { gstin: d.no_gst ? null : gstinOk_(d.gstin), fssai: /^\d{14}$/.test(d.fssai) }
+          : { age: ageOn_(d.dob, today), vehicle: vehicleOk_(d.vehicle_no), dl: dlOk_(d.dl_no) } };
+    }).sort(function (a, b) {
+      return (order[a.status] || 0) - (order[b.status] || 0) || String(b.applied_at).localeCompare(String(a.applied_at));
+    });
+    return { ok: true, applications: list,
+      restaurants: rows_(ss.getSheetByName('Restaurants')).filter(function (r) { return String(r.restaurant_id).trim(); })
+        .map(function (r) { return { id: String(r.restaurant_id), name: String(r.name) }; }),
+      clusters: rows_(ss.getSheetByName('Clusters')).filter(function (c) { return String(c.cluster_id).trim(); })
+        .map(function (c) { return { id: String(c.cluster_id), label: String(c.label || ''), area: String(c.area || '') }; }) };
+  } },
+  // approve (restaurants: a new restaurant, or an existing one), decline (with a note they see), or remove access
+  application_decide: { write: true, run: function (ss, b, who) {
+    const phone = phone10_(b.phone);
+    const role = String(b.role || '');
+    const p = partnersTab_(ss);
+    const rowNum = phone && PARTNER_ROLES.indexOf(role) >= 0 ? partnerRow_(p, phone, role) : 0;
+    if (!rowNum) return { ok: false, error: 'not_found' };
+    const row = p.sheet.getRange(rowNum, 1, 1, p.sheet.getLastColumn()).getValues()[0];
+    const get = function (h) { return String(row[p.col[h] - 1] === undefined ? '' : row[p.col[h] - 1]).replace(/^'/, ''); };
+    const name = get('name');
+    const changes = { decided_at: new Date(), decided_by: "'" + who.phone, note: safe_(String(b.note || '').slice(0, 200)) };
+    if (b.decision === 'approve') {
+      let restaurantId = '';
+      if (role === 'restaurant') {
+        if (b.restaurant_id) {
+          const known = rows_(ss.getSheetByName('Restaurants')).some(function (r) { return String(r.restaurant_id).trim() === String(b.restaurant_id); });
+          if (!known) return { ok: false, error: 'bad_restaurant' };
+          restaurantId = String(b.restaurant_id);
+        } else {
+          restaurantId = newRestaurant_(ss, tidyName_(b.restaurant_name || get('restaurant_name')) || name, String(b.cluster_id || ''),
+            get('restaurant_address'));
+        }
+        changes.restaurant_id = restaurantId;
+      }
+      setStaff_(ss, phone, role, name, restaurantId, true);
+      changes.status = 'approved';
+    } else if (b.decision === 'decline') {
+      changes.status = 'declined';
+    } else if (b.decision === 'remove') {
+      setStaff_(ss, phone, role, name, '', false);
+      changes.status = 'removed';
+    } else return { ok: false, error: 'bad_decision' };
+    Object.keys(changes).forEach(function (h) { if (p.col[h]) p.sheet.getRange(rowNum, p.col[h]).setValue(changes[h]); });
+    clearCaches_();
+    return { ok: true, status: changes.status, restaurant_id: changes.restaurant_id || '' };
+  } },
   stats: { run: function (ss, b) {
     const days = b.days === 7 ? 7 : 1;
     const from = istDay_(new Date(Date.now() - (days - 1) * 86400000));
@@ -1252,12 +1551,45 @@ const ADMIN_OPS = {
 
 // ------------------------------------------------------------------ rider page
 const RIDER_OPS = {
-  // The rider's orders not delivered yet, and how many they delivered today
+  // The rider's orders not delivered yet (with each restaurant's pickup address), how many they delivered today,
+  // and the orders no rider has taken yet. Those show only what a rider needs to decide: the restaurants (with
+  // their addresses), the area it goes to and how many dishes. The customer's name, phone number and full
+  // address appear once the rider accepts it.
   jobs: { run: function (ss, b, who) {
-    const mine = staffOrders_(ss, function (r) { return phone10_(r.rider) === who.phone && String(r.status || '').trim(); });
+    const pickups = pickupsFor_(ss);
+    const open = function (r) { return OPEN_FOR_RIDERS.indexOf(String(r.status || '').trim()) >= 0; };
+    const list = staffOrders_(ss, function (r) {
+      const rider = phone10_(r.rider);
+      return rider === who.phone ? Boolean(String(r.status || '').trim()) : !rider && open(r);
+    });
+    const mine = list.filter(function (o) { return o.rider === who.phone; });
     return { ok: true, name: who.name,
-      jobs: mine.filter(function (o) { return ['Paid', 'Preparing', 'Out for delivery'].indexOf(o.status) >= 0; }).reverse(),
-      delivered_today: mine.filter(function (o) { return o.status === 'Delivered' && isToday_(o.status_at); }).length };
+      jobs: mine.filter(function (o) { return ['Paid', 'Preparing', 'Out for delivery'].indexOf(o.status) >= 0; }).reverse()
+        .map(function (o) { o.pickups = pickups(o.items); return o; }),
+      delivered_today: mine.filter(function (o) { return o.status === 'Delivered' && isToday_(o.status_at); }).length,
+      available: list.filter(function (o) { return !o.rider; }).reverse().map(function (o) {
+        return { order_id: o.order_id, status: o.status, created_at: o.created_at, status_at: o.status_at,
+          clusters: o.clusters, drop: dropArea_(o.address), dishes: o.items.reduce(function (n, i) { return n + i.qty; }, 0),
+          pickups: pickups(o.items) };
+      }) };
+  } },
+  // Take an order no rider has yet (first come, first served)
+  accept: { write: true, run: function (ss, b, who) {
+    const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === String(b.order_id || '').trim().toUpperCase(); })[0];
+    if (!order) return { ok: false, error: 'not_found' };
+    if (order.rider === who.phone) return { ok: true, already: true };
+    if (order.rider) return { ok: false, error: 'taken' };
+    if (OPEN_FOR_RIDERS.indexOf(order.status) < 0) return { ok: false, error: 'not_open' };
+    writeOrder_(ss, order.order_id, { rider: "'" + who.phone });
+    return { ok: true };
+  } },
+  // Give an accepted order back before picking it up (it goes back to the open orders)
+  release: { write: true, run: function (ss, b, who) {
+    const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === String(b.order_id || '').trim().toUpperCase(); })[0];
+    if (!order || order.rider !== who.phone) return { ok: false, error: 'not_found' };
+    if (OPEN_FOR_RIDERS.indexOf(order.status) < 0) return { ok: false, error: 'wrong_step' };
+    writeOrder_(ss, order.order_id, { rider: '' });
+    return { ok: true };
   } },
   location: { run: function (ss, b, who) {
     const lat = num_(b.lat, NaN);
@@ -1281,15 +1613,72 @@ const RIDER_OPS = {
     }
     return { ok: true, at: at };
   } },
-  picked_up: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Out for delivery'); } },
-  delivered: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Delivered'); } }
+  picked_up: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Out for delivery', OPEN_FOR_RIDERS); } },
+  delivered: { write: true, run: function (ss, b, who) { return riderMove_(ss, b.order_id, who, 'Delivered', ['Out for delivery']); } }
 };
 
-function riderMove_(ss, orderId, who, status) {
+// A rider moves their own order on: picked up (from Paid or Preparing) → Out for delivery, then → Delivered.
+// The admin can still set any status; restaurants only start preparing and mark their food ready.
+function riderMove_(ss, orderId, who, status, from) {
   const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === String(orderId || '').trim().toUpperCase(); })[0];
   if (!order || order.rider !== who.phone) return { ok: false, error: 'not_found' };
+  if (order.status === status) return { ok: true, already: true };
+  if (from.indexOf(order.status) < 0) return { ok: false, error: 'wrong_step' };
   setStatus_(ss, order.order_id, status);
   return { ok: true };
+}
+
+// items → [{ restaurant_id, name, address, map_link, ready, dishes }]: where a rider picks up, one stop per restaurant
+function pickupsFor_(ss) {
+  const rests = index_(rows_(ss.getSheetByName('Restaurants')), 'restaurant_id');
+  return function (items) {
+    const stops = [];
+    items.forEach(function (i) {
+      const key = i.restaurant_id || i.restaurant;
+      let stop = stops.filter(function (x) { return x.key === key; })[0];
+      if (!stop) {
+        const r = rests[i.restaurant_id] || {};
+        stop = { key: key, restaurant_id: i.restaurant_id, name: String(r.name || i.restaurant), address: String(r.address || '').replace(/^'/, ''),
+          map_link: /^https?:\/\//.test(String(r.map_link || '')) ? String(r.map_link) : '', ready: true, dishes: 0 };
+        stops.push(stop);
+      }
+      stop.ready = stop.ready && i.ready;
+      stop.dishes += i.qty;
+    });
+    return stops.map(function (x) { delete x.key; return x; });
+  };
+}
+
+// "Girls Hostel 2, Room 114" → "Girls Hostel 2": the area an order goes to, for riders who haven't accepted it
+function dropArea_(address) {
+  return String(address || '').split(/[,\n]/)[0].trim().slice(0, 40);
+}
+
+// New order for the riders' Telegram group (Alerts → rider_telegram_chat_id), when the team marks it Paid
+function riderAlert_(ss, orderId) {
+  try {
+    const set = {};
+    rows_(ss.getSheetByName('Alerts')).forEach(function (r) { set[String(r.key).trim()] = r.value; });
+    const token = String(set.telegram_bot_token || '').trim();
+    const chat = String(set.rider_telegram_chat_id || '').trim();
+    if (!token || !chat) return false;
+    const order = staffOrders_(ss, function (r) { return String(r.order_id).trim() === orderId; })[0];
+    if (!order || order.rider) return false;
+    const stops = pickupsFor_(ss)(order.items);
+    const site = String(set.website_url || '').trim().replace(/\/+$/, '');
+    const text = ['🛵 New order to deliver · #' + order.order_id.slice(-4)]
+      .concat(stops.map(function (x) { return 'Pick up: ' + x.name + (x.address ? ' (' + x.address + ')' : ''); }))
+      .concat(['Drop: ' + (dropArea_(order.address) || '—'), site ? 'Accept it: ' + site + '/rider' : 'Accept it on the rider page'])
+      .join('\n');
+    const res = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ chat_id: chat, text: text, disable_web_page_preview: true })
+    });
+    return res.getResponseCode() === 200;
+  } catch (err) {
+    console.error('Rider alert failed: ' + err);
+    return false;
+  }
 }
 
 // ------------------------------------------------------------------ restaurant page
@@ -1395,24 +1784,33 @@ function sendAlert_(ss, a) {
         '', 'Order: ' + a.id + (a.restaurantsText ? ' (' + a.restaurantsText + ')' : ''),
         'What went wrong: ' + ((a.reviewTags || []).join(', ') || '—'),
         'Comment: ' + (a.comment || '—'), 'Suggestion: ' + (a.improve || '—'), 'Name: ' + (a.name || '—')];
+    } else if (a.kind === 'application') {
+      const who = a.role === 'restaurant' ? 'restaurant' : 'rider';
+      subject = 'Hungrr: new ' + who + ' application – ' + (a.business || a.name);
+      intro = ['A ' + who + ' applied on the website. Check their details on the admin page (Join requests), then approve or decline.',
+        '', 'Name: ' + a.name + (a.business ? ' (' + a.business + ')' : ''), 'Phone: +91 ' + a.phone.slice(0, 5) + ' ' + a.phone.slice(5)];
     } else {
       subject = 'Hungrr: test alert';
       intro = ['Alerts are working. You will get one like this when a customer has paid and needs checking.'];
     }
     if (cfg.emails.length) {
       const body = intro.concat(a.id && a.kind !== 'review' ? ['', 'Order: ' + a.id, 'Amount: ' + money] : [], ref ? ['UPI ref no.: ' + ref] : [])
-        .concat(a.name ? ['', 'Customer: ' + a.name + (a.phone ? ' · +91 ' + a.phone.slice(0, 5) + ' ' + a.phone.slice(5) : ''),
+        .concat(a.name && a.kind !== 'application' ? ['', 'Customer: ' + a.name + (a.phone ? ' · +91 ' + a.phone.slice(0, 5) + ' ' + a.phone.slice(5) : ''),
           'Deliver to: ' + a.address] : [])
         .concat(dishes.length ? [''].concat(dishes, ['Riders: ' + a.riders + (a.clusterNames ? ' (' + a.clusterNames + ')' : '')]) : [])
         .concat(a.notes ? ['', 'Notes: ' + a.notes] : [])
-        .concat(a.link ? ['', 'Open the order: ' + a.link] : []);
+        .concat(a.link ? ['', (a.kind === 'application' ? 'Open the application: ' : 'Open the order: ') + a.link] : []);
       MailApp.sendEmail({ to: cfg.emails.join(','), subject: subject, body: body.join('\n') });
       sent.push('email');
     }
     if (cfg.telegramToken && cfg.telegramChat) {
       const head = a.kind === 'payment' ? '💰 Payment to verify' : a.kind === 'order' ? '🆕 New order (waiting for payment)'
-        : a.kind === 'review' ? '⭐ ' + a.rating + '-star review' : '✅ Hungrr alerts are working';
-      const text = a.kind === 'review'
+        : a.kind === 'review' ? '⭐ ' + a.rating + '-star review'
+        : a.kind === 'application' ? '🧾 New ' + (a.role === 'restaurant' ? 'restaurant' : 'rider') + ' application'
+        : '✅ Hungrr alerts are working';
+      const text = a.kind === 'application'
+        ? [head, a.business || '', 'Approve on the admin page: Join requests'].filter(String).join('\n')
+        : a.kind === 'review'
         ? [head, a.id, (a.reviewTags || []).join(', '), a.link ? 'Open: ' + a.link : ''].filter(String).join('\n')
         : [head].concat(a.id ? [a.id + ' · ' + money] : [], ref ? ['UPI ref: ' + ref] : [],
           restaurants ? [restaurants + ' · ' + a.riders + (a.riders === 1 ? ' rider' : ' riders')] : [],
@@ -1443,7 +1841,7 @@ function alertSettings_(ss) {
 
 // ------------------------------------------------------------------ setup (run once from the editor)
 // Asks for the permissions alerts need, adds new Settings rows (hours, pause switch, banner), the Alerts, Reviews,
-// Users, Staff, Coupons and Offers tabs (Offers starts with "every 5th order: free delivery"), the new Orders and
+// Users, Staff, Partners, Coupons and Offers tabs (Offers starts with "every 5th order: free delivery"), the new Orders and
 // OrderItems columns, makes the accounts' secret, and sends a test alert. Safe to run again: it only adds what is
 // missing.
 function setup() {
@@ -1469,6 +1867,12 @@ function setup() {
   ensureList_(staff, columns_(staff, STAFF_HEAD).role, STAFF_ROLES);
   const coupons = sheet_(ss, 'Coupons', COUPON_HEAD);
   ensureList_(coupons, columns_(coupons, COUPON_HEAD).type, DEAL_TYPES);
+  const restaurants = ss.getSheetByName('Restaurants');
+  if (restaurants) columns_(restaurants, RESTAURANT_PICKUP_HEAD);
+  const partners = sheet_(ss, 'Partners', PARTNER_HEAD);
+  const pcol = columns_(partners, PARTNER_HEAD);
+  ensureList_(partners, pcol.role, PARTNER_ROLES);
+  ensureList_(partners, pcol.status, PARTNER_STATUSES);
   const offers = sheet_(ss, 'Offers', OFFER_HEAD);
   const ocol = columns_(offers, OFFER_HEAD);
   ensureList_(offers, ocol.reward, DEAL_TYPES);
