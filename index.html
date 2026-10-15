@@ -16,9 +16,33 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Hungrr">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Kalam:wght@400;700&display=swap">
+<script>
+  // The first big picture of the main page (the app's home screen) and of the pilot page (the table) is requested
+  // straight away, before the scripts load, and ahead of other pictures. Keep the main page's list and sizes the
+  // same as IMAGES.appHome in src/config/site.js (a test checks).
+  (function () {
+    var early = function (attrs) {
+      var link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.type = 'image/webp';
+      link.setAttribute('fetchpriority', 'high');
+      for (var name in attrs) link.setAttribute(name, attrs[name]);
+      document.head.appendChild(link);
+    };
+    if (location.pathname === '/') {
+      early({
+        imagesrcset: '/assets/hero-home-360.webp 360w, /assets/hero-home-520.webp 520w, /assets/hero-home-680.webp 680w',
+        imagesizes: '(max-width: 1023.98px) 46vw, 24vw',
+      });
+    }
+    if (location.pathname === '/pilot') early({ href: '/assets/table-ebony.webp' });
+  })();
+</script>
+<!-- The fonts come with the site (src/styles/fonts.css, public/fonts). The two weights of the first screen's text
+     are fetched straight away. -->
+<link rel="preload" href="/fonts/afacad-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/afacad-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 <div id="root"></div>

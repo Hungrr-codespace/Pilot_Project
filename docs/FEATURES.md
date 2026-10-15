@@ -391,20 +391,34 @@ admin page (Menu & notice) or in Settings → `site_banner`. Empty hides it. It 
 ## 10. Restaurants and riders sign up (Join requests)
 
 **What customers, restaurants and riders see:**
-- The **Sign in** button (top right) first asks who is signing in: **Customer**, **Restaurant partner** or
-  **Rider**. Ordering (the pilot page, Confirm order) and the khata skip this and go straight to the customer's
-  sign-in. The rider and restaurant pages open the sign-in already set to their role.
+- The sign-in first asks **Log in** or **Create an account**.
+  - **Log in:** phone number → PIN. A number with no account: "No account with this number" (Create an account,
+    or Try another number). Once the PIN is right, from the Sign in button, an account with team pages or an
+    application chooses where to go: Back office (admin), Deliveries (rider), Kitchen · its name (restaurant),
+    each application's status, and Order food; "Stay on this page" just closes it. Anyone else is simply
+    signed in. Ordering (the pilot page, Confirm order) and the khata carry on after logging in, without the
+    choice.
+  - **Create an account:** who it is for (**Customer**, **Restaurant partner** or **Rider**; ordering and the
+    khata only create customers) → phone number. A number already on Hungrr is stopped ("This number already
+    has an account"): **Log in instead**, or for restaurants and riders **Log in and apply** (the PIN, then the
+    application on the same account) or **Just log in**.
+  - The rider and restaurant pages open at the log in for their role ("Log in as a rider"; "New to Hungrr?
+    Apply as a rider"). A number that isn't approved for that page sees its application, or "Not a rider yet"
+    with Apply and Order food instead.
 - Everyone signs in with a phone number and a 6-digit PIN. One account per number: a customer who becomes a
-  rider keeps the same PIN.
-- **A new number** choosing Restaurant or Rider gets the application form, with their name and a new PIN.
-  **An existing account** enters its PIN first, then gets the form without name or PIN.
+  rider keeps the same PIN. What a number is (admin, rider, restaurant, an application) is only told after its
+  PIN, so nobody can find out who your team is by typing numbers.
+- **A new number** creating a Restaurant or Rider account gets the application form, with their name and a new
+  PIN. **An existing account** applies with "Log in and apply": its PIN first, then the form without name or
+  PIN.
   - Restaurant: restaurant name; restaurant address (where riders pick up); GST number, or the tick "We're not
     registered for GST"; FSSAI licence or registration number.
   - Rider: date of birth (18 or older), vehicle number, driving licence number.
-- After sending: "Application sent". Signing in as a restaurant or rider before approval shows "Waiting for
-  approval" (and "Order food meanwhile", which signs them in as a customer). Declined: the team's note, and
-  "Correct my details and apply again" (the form comes back filled in). Removed: "Your page is closed".
-- Approved: signing in as a restaurant or rider stamps "Signed in as rider" and opens their page.
+- After sending: "Application sent". Logging in before approval lists "Rider application · Waiting for
+  approval" (on the rider or kitchen page: "Waiting for approval", with "Order food meanwhile"). Declined: the
+  team's note, and "Correct my details and apply again" (the form comes back filled in). Removed: "Your page is
+  closed".
+- Approved: logging in lists their page (Deliveries, Kitchen · its name), which opens it.
 
 **The checks** (`lib/partners.js`, and again in `Code.gs` → `partnerDetails_`):
 
@@ -439,24 +453,27 @@ to the right site. A restaurant's slip also shows its address, with See on map.
    must give its PIN (same lock-out as signing in); a new number makes the account (as `sign_up`). The details
    are checked, the Partners row is written as `pending`, and the team gets an alert (email with name and phone;
    Telegram with the role and restaurant name only).
-2. `sign_in` with `as: 'rider' | 'restaurant'` signs in only if Staff has that role for the number; otherwise
-   `{ error: 'not_approved', application }` (no token), with the status, note and details.
+2. `sign_in` returns `roles` (from Staff) and `applications` (this number's applications that don't open a page:
+   pending, declined or removed, with note and details; `openApplications_`), only after the PIN. With
+   `as: 'rider' | 'restaurant'` (the team pages, and "Log in and apply") it signs in only if Staff has that role;
+   otherwise `{ error: 'not_approved', application }` (no token). `account_start` (before the PIN) says only
+   whether the number has an account: `new`, `existing`, `reset` or `locked`.
 3. Admin page → Join requests: `applications` lists them (pending first) with the checks; `application_decide`:
    - `approve`: adds or reactivates the Staff row. Restaurants: either `restaurant_id` (an existing restaurant)
      or a new Restaurants row (id from its initials, e.g. `mp`, `mp2`; `active` FALSE, so it stays off the menu
      until its dishes are added; the chosen cluster; the address they gave as its pickup address).
    - `decline`: status and note; nothing else changes.
    - `remove`: sets the Staff row's `active` to FALSE and the status to `removed`.
-4. The website opens their page after an approved partner signs in from the Sign in button
-   (`AccountProvider → finish`).
+4. After logging in from the Sign in button, the page they choose opens (`AccountProvider → finish(user,
+   route)`).
 
-**Files:** `lib/partners.js` (+ tests), `features/account/SignInDialog.jsx` (who is signing in, the partner
-steps), `features/account/ApplyFields.jsx` (the form), `features/account/LineField.jsx`,
+**Files:** `lib/partners.js` (+ tests), `features/account/SignInDialog.jsx` (log in or create an account, the
+pages after logging in, the partner steps), `features/account/ApplyFields.jsx` (the form), `features/account/LineField.jsx`,
 `services/accountApi.js` (`applyAsPartner`, `signIn` with `as`), `context/AccountProvider.jsx`,
 `features/staff/StaffPage.jsx` (sign-in as the page's role; "Not approved as a rider yet"),
 `pages/AdminPage/JoinRequests.jsx`. Script: `partnerApply_`, `partnerDetails_`, `gstinOk_`, `dlOk_`,
-`vehicleOk_`, `ageOn_`, `applicationFor_`, `setStaff_`, `newRestaurant_`, `checkPin_`, `ADMIN_OPS.applications`
-and `application_decide`. Tests: `tools/sheet-mock/test-partners.cjs` (43 checks).
+`vehicleOk_`, `ageOn_`, `applicationFor_`, `openApplications_`, `setStaff_`, `newRestaurant_`, `checkPin_`, `ADMIN_OPS.applications`
+and `application_decide`. Tests: `tools/sheet-mock/test-partners.cjs` (47 checks).
 
 **Problems:**
 - *An approved rider still sees "Waiting"*: they're signing in with a different number, or the Staff row was

@@ -1,6 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ROUTES } from '@/config/site';
 import { loadSession, saveSession } from '@/lib/account';
 import { fetchAccount } from '@/services/accountApi';
 import { AccountContext } from './account';
@@ -13,8 +12,8 @@ const SignInDialog = lazy(() => loadDialog().then((m) => ({ default: m.SignInDia
 // Who is signed in on this device, and the sign-in dialog. Any part of the site opens the dialog with
 // openSignIn({ reason, onDone, as }): `reason` picks its title ('nav', 'pilot', 'order', 'account', 'staff'),
 // `onDone(user)` runs once signed in (for example, to carry on with the order), and `as` ('customer',
-// 'restaurant', 'rider') skips the "who is signing in" step. A restaurant or rider signing in from the Sign in
-// button lands on their page.
+// 'restaurant', 'rider': the team pages) opens it at the log in for that page. Logging in from the Sign in
+// button, an account with team pages chooses where to go.
 export function AccountProvider({ children }) {
   const [session, setSession] = useState(loadSession);
   const [dialog, setDialog] = useState(null);
@@ -70,13 +69,12 @@ export function AccountProvider({ children }) {
     [session, remember],
   );
 
-  const PAGES = { rider: ROUTES.rider, restaurant: ROUTES.partner };
-  const finish = (user, as) => {
+  // Signed in: carry on (onDone), or open the page they chose after logging in (Back office, Deliveries…)
+  const finish = (user, route) => {
     const onDone = dialogRef.current?.onDone;
-    const opened = dialogRef.current?.as;
     setDialog(null);
     if (onDone) onDone(user);
-    else if (PAGES[as] && !opened) navigate(PAGES[as]); // chose "restaurant" or "rider" at the Sign in button
+    else if (route) navigate(route);
   };
 
   return (

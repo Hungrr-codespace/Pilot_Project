@@ -9,7 +9,9 @@ export const startAccount = (phone) => callSheet({ action: 'account_start', phon
 // → { ok, token, user } or error 'exists' | 'weak_pin' | 'bad_name' | 'bad_phone'
 export const signUp = ({ phone, name, pin }) => callSheet({ action: 'sign_up', phone, name, pin });
 
-// → { ok, token, user, roles } or error 'wrong_pin' (tries_left) | 'locked' (minutes) | 'not_found' | 'reset'.
+// → { ok, token, user, roles, applications } or error 'wrong_pin' (tries_left) | 'locked' (minutes) |
+// 'not_found' | 'reset'. `applications`: this number's restaurant or rider applications that don't open a page
+// (pending, declined or removed), each { role, status, applied_at, note, details }.
 // With `as` ('restaurant' | 'rider') only once the admin has approved it, else error 'not_approved' with
 // `application`: { status: 'pending' | 'declined' | 'removed', applied_at, note, details } or null (not applied).
 export const signIn = ({ phone, pin, as }) => callSheet({ action: 'sign_in', phone, pin, as });

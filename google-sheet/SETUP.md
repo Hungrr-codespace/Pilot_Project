@@ -165,7 +165,8 @@ order has one review: sending it again updates the same row in the **Reviews** t
 
 ## Accounts (the customer's khata)
 
-Customers sign in with their phone number and a 6-digit PIN they pick. The website asks them when they open the
+Customers sign in with their phone number and a 6-digit PIN they pick (Log in, or Create an account the first
+time; a number can have only one account). The website asks them when they open the
 pilot menu (they can just look at the menu instead) and again at **Confirm order**: an order is placed only by a
 signed-in customer, so it always belongs to their account. Their khata (`/account`) lists their orders, lets them
 track and rate each one, and change their name. Each account is one row in the **Users** tab:
@@ -234,8 +235,12 @@ is quicker on a phone:
 
 ## Restaurants and riders apply
 
-The website's **Sign in** button asks who is signing in: a customer, a restaurant partner or a rider. Restaurants
-and riders use the same phone number and PIN as everyone, but their page opens only after you approve them.
+The website's **Sign in** button asks **Log in** or **Create an account**. Creating an account asks who it is for:
+a customer, a restaurant partner or a rider. A number that already has an account can't create another: it is
+told to log in instead, and an existing customer who wants to become a restaurant or rider uses **Log in and
+apply** (their PIN, then the application, on the same account). Restaurants and riders use the same phone number
+and PIN as everyone, but their page opens only after you approve them. Logging in, you (and they) see the pages
+your number has: Back office, Deliveries, Kitchen, and Order food.
 
 - **Restaurants** give the restaurant's name, its **address** (where riders pick up), their **GST number** (or tick "We're not registered for GST": small
   kitchens below the GST turnover limit don't have one) and their **FSSAI licence or registration number**

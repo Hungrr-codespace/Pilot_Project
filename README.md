@@ -20,9 +20,11 @@ The Hungrr website, built with React 18, React Router and Vite. It has these pag
 - **Feedback page (`/feedback`)**: customers rate a paid order with its order ID and phone number: stars,
   tags, a few words, a private suggestion for the team, and whether to show the review on the website (with a
   live preview of the card). The tracking page links here once an order is delivered.
-- **Sign in** (top right) first asks who is signing in: a customer, a restaurant partner or a rider. Restaurants
-  and riders apply with their details (address, GST/FSSAI numbers, or date of birth, vehicle and licence numbers) and can
-  use their page once the admin approves them.
+- **Sign in** (top right) asks **Log in** or **Create an account**. Logging in takes the number and PIN, then
+  offers the pages that account has (Back office, Deliveries, Kitchen) and where any application stands. Creating
+  an account asks who it is for (customer, restaurant partner or rider) and stops a number already on Hungrr
+  ("Log in instead", or "Log in and apply"). Restaurants and riders apply with their details (address, GST/FSSAI
+  numbers, or date of birth, vehicle and licence numbers) and can use their page once the admin approves them.
 - **Team pages**, for phone numbers listed in the sheet's **Staff** tab (signed in with their Hungrr account):
   - **Admin (`/admin`)**: the live order board, offers and coupons, review approvals, join requests from
     restaurants and riders, the menu (laid out like the menu book, with a switch on every restaurant and dish,
@@ -145,8 +147,9 @@ src/
 │   ├── Faq/                 FaqMenu (shared card), FaqBoard (desktop), FaqAccordion (mobile)
 │   └── Footer/              FooterRoad, Receipt (site map styled as a bill)
 ├── features/
-│   ├── account/             SignInDialog (who is signing in; phone → PIN, or name and a new PIN; locked;
-│   │                        a restaurant's or rider's application and where it stands; welcome stamp),
+│   ├── account/             SignInDialog (log in or create an account; phone → PIN, or name and a new PIN;
+│   │                        a number already in use; locked; the account's pages after logging in; a
+│   │                        restaurant's or rider's application and where it stands; welcome stamp),
 │   │                        ApplyFields (their details), LineField, PinInput (six boxes), AccountButton
 │   │                        (Sign in / the customer's name, top right)
 │   ├── ordering/            Everything for ordering on the pilot page (see below)
@@ -343,9 +346,12 @@ Details, files and problems for each: [docs/FEATURES.md](docs/FEATURES.md).
 
 ## How accounts work
 
-- **Signing in:** phone number first. A new number gets "Open your khata" (name and a 6-digit PIN, typed
-  twice); a known one asks for its PIN. PINs that are too easy (123456, 111111) are refused. Five wrong PINs
-  lock the account for 15 minutes.
+- **Signing in:** first **Log in** or **Create an account**, then the phone number. Log in: a known number asks
+  for its PIN (a number with no account says so and offers to create one). Create an account: a new number
+  gets "Open your khata" (name and a 6-digit PIN, typed twice); a number that already has an account is
+  stopped, with "Log in instead". PINs that are too easy (123456, 111111) are refused. Five wrong PINs lock the
+  account for 15 minutes. What a number is (admin, rider, restaurant, an application) is told only after its
+  PIN.
 - **On the sheet:** one row per phone number in the **Users** tab. The PIN is never stored: only an HMAC-SHA256
   of it with a random salt and a secret kept in the script's properties. A sign-in returns a token signed with
   the same secret, kept on the device for 60 days (`hungrr-account-v1`). Clearing a customer's `pin_hash` in

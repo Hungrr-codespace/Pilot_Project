@@ -559,7 +559,19 @@ function signIn_(b) {
     return { ok: false, error: 'not_approved', application: applicationFor_(ss, phone, as), name: publicUser_(user).name };
   }
   user.write({ last_sign_in_at: new Date() });
-  return { ok: true, token: makeToken_(phone, checked.hash), user: publicUser_(user), roles: roles };
+  return { ok: true, token: makeToken_(phone, checked.hash), user: publicUser_(user), roles: roles,
+    applications: openApplications_(ss, phone, roles) };
+}
+
+// After the PIN: this number's restaurant or rider applications that haven't (or no longer) opened a page —
+// waiting, declined or removed — so the sign-in can say where they stand. Approved ones are in `roles`.
+function openApplications_(ss, phone, roles) {
+  return PARTNER_ROLES.filter(function (role) { return !roles.some(function (r) { return r.role === role; }); })
+    .map(function (role) {
+      const a = applicationFor_(ss, phone, role);
+      return a && a.status !== 'approved' ? Object.assign({ role: role }, a) : null;
+    })
+    .filter(Boolean);
 }
 
 // The account's PIN: { ok, hash } or the reason it can't sign in (reset, locked, wrong_pin with tries left).

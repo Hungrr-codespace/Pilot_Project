@@ -44,6 +44,7 @@ const GSTIN = '27AAPFU0939F1ZV'; // a valid GSTIN (check character included)
   check('a wrong PIN is still a wrong PIN', r.error === 'wrong_pin', r);
   r = await post({ action: 'sign_in', phone: '9000000501', pin: PIN });
   check('they can still sign in as a customer', r.ok && r.token && !r.roles.length, r);
+  check('signing in says where their application stands', r.applications.length === 1 && r.applications[0].role === 'rider' && r.applications[0].status === 'pending', r.applications);
 
   // The checks
   r = await apply('9000000502', 'rider', { ...rider, dob: born(17) });
@@ -91,6 +92,7 @@ const GSTIN = '27AAPFU0939F1ZV'; // a valid GSTIN (check character included)
   check('rider added to Staff', row && row.role === 'rider' && String(row.active) === 'true', row);
   r = await post({ action: 'sign_in', phone: '9000000501', pin: PIN, as: 'rider' });
   check('approved rider signs in as rider', r.ok && r.token && r.roles.some((x) => x.role === 'rider'), r);
+  check('an approved application is no longer listed as open', r.applications.length === 0, r.applications);
   const riderToken = r.token;
   r = await post({ action: 'rider', op: 'jobs', token: riderToken });
   check('rider page opens', r.ok, r);
@@ -131,6 +133,10 @@ const GSTIN = '27AAPFU0939F1ZV'; // a valid GSTIN (check character included)
   check('rider page closed for them', r.error === 'not_staff', r);
   r = await post({ action: 'sign_in', phone: '9000000501', pin: PIN, as: 'rider' });
   check('removed rider cannot sign in as rider', r.error === 'not_approved' && r.application.status === 'removed', r);
+  r = await post({ action: 'sign_in', phone: '9000000501', pin: PIN });
+  check('signing in as a customer shows the removed access', r.ok && !r.roles.length && r.applications[0].status === 'removed', r.applications);
+  r = await post({ action: 'sign_in', phone: '9000000500', pin: PIN });
+  check('the admin signs in with their role and no applications', r.ok && r.roles[0].role === 'admin' && r.applications.length === 0, r);
 
   // Alerts for the team
   const state = await fetch(B + '/state').then((x) => x.json());

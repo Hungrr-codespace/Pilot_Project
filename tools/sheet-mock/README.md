@@ -11,7 +11,7 @@ PORT=8792 node tools/sheet-mock/mock.cjs
 # 2. In another terminal: the script's own tests (each needs a fresh sheet)
 node tools/sheet-mock/test-staff.cjs      # coupons, the 5th-order offer, admin, rider and restaurant pages (72 checks)
 node tools/sheet-mock/test-accounts.cjs   # sign-up, PIN, lockout, tokens, linked orders (45 checks)
-node tools/sheet-mock/test-partners.cjs   # restaurant and rider applications, approvals, gated sign-in (43 checks)
+node tools/sheet-mock/test-partners.cjs   # restaurant and rider applications, approvals, gated sign-in (47 checks)
 node tools/sheet-mock/test-riders.cjs     # new orders for riders, accept / give back, pickup addresses, steps (40 checks)
 node tools/sheet-mock/test-reviews.cjs    # reviews (prints what the sheet holds)
 
